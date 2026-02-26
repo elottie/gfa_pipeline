@@ -1,0 +1,27 @@
+# Complete Snakemake SLURM profile for your workflow
+
+#cluster:
+#  sbatch-defaults:
+#    account: "{resources.account}"       # Pass the account for SLURM billing
+#    mem: "{resources.mem_mb}"            # Memory in MB
+#    time: "{resources.runtime}"          # Runtime in minutes
+#    cpus-per-task: "{threads}"           # Parallel threads per job
+
+cluster:
+  sbatch:
+    - "--account={resources.slurm_account}"
+    - "--mem={resources.mem_mb}"
+    - "--time={resources.runtime}"
+    - "--cpus-per-task={threads}"
+#    - "--jobname=snakejob.{name}.{jobid}.sh" 
+
+jobs: 96                                # Maximum number of parallel jobs
+max-jobs-per-second: 5                  # Limit new job submissions per second (cluster-friendly)
+latency-wait: 30                        # Wait for file system to catch up after job completion
+keep-going: true                        # Don't stop the workflow on rule failures
+notemp: true                            # Retain temp files
+default-resources:                      # Set these for all rules, unless overridden
+  - mem_mb=2048
+  - runtime=60
+  - slurm_account=jvmorr1
+  - threads=1 

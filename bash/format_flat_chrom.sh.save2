@@ -1,0 +1,196 @@
+#!/bin/bash
+
+echo "in format_flat_chrom.sh:"
+
+set -x
+
+# non great lakes people will need to modify
+#module load Bioinformatics
+#module load bcftools
+
+# Usage:
+# bash format_flat_chrom.sh file chrom af_thresh snp_name pos_name chrom_name \
+#   A1_name A2_name beta_hat_name se_name p_value_name af_name sample_size_name effect_is_or output.txt
+# bash format_flat_chrom.sh data.tsv.gz 1 0.05 SNP POS CHR A1 A2 BETA SE PVALUE AF SS FALSE output.txt
+
+echo " - loaded modules"
+
+set -euo pipefail
+trap 'echo "script failed with exit code $? at line $LINENO" >&2' ERR
+
+echo " - set pipefail"
+
+ref_bim="$1"
+file="$2"
+chrom="$3"
+af_thresh="$4"
+snp_name="$5"
+pos_name="$6"
+chrom_name="$7"
+A1_name="$8"
+A2_name="$9"
+beta_hat_name="${10}"
+se_name="${11}"
+p_value_name="${12}"
+af_name="${13}"
+sample_size_name="${14}"
+effect_is_or="${15}"   # "TRUE" or "FALSE"
+output="${16}"
+
+echo " - read function inputs"
+
+# step 0: read ref input
+#set +x
+#ref_chrom=$(awk -v c="$chrom" '$1 == c {print $2, $5, $6}' "$ref_bim" | sort -k1,1)
+#set -x
+# above we assumed first column was chromosome.  add a catcher?
+# above we assumed all positive strand in ref.  add a catcher?
+# above we assumed 6th (last) column was ref, 5th column was alt allele. https://www.cog-genomics.org/plink/2.0/formats  add a catcher?
+
+#echo "$ref_chrom" | head
+awk -v c="$chrom" '$1 == c {print $1, $5, $6}' "$ref_bim" | sort -k1,1 > ref_chrom.txt
+
+# Step 1: Parse header and find column numbers by name
+# Before extracting, confirm file exists and is readable
+if [[ ! -r "$file" ]]; then
+    echo "Error: File '$file' does not exist or is not readable." >&2
+    exit 1
+fi
+
+# Extract first line ("header") from file, avoiding SIGPIPE issues
+if [[ "$file" == *.gz ]]; then
+    header=$(awk 'NR==1 {print; exit}' <(gzip -cd "$file"))
+else
+    header=$(awk 'NR==1 {print; exit}' "$file")
+fi
+
+# Confirm header was extracted
+if [[ -z "$header" ]]; then
+    echo "Error: Header is empty or could not be read from '$file'." >&2
+    exit 1
+fi
+
+echo " - read gwas file header"
+
+# Split header on tab or comma (modify as needed)
+IFS=$'\t' read -r -a cols <<< "$header"
+declare -A col_indices
+
+for i in "${!cols[@]}"; do
+    colname=${cols[$i]}
+    # Remove quotes/backticks **and spaces** if present
+    colname=$(echo "$colname" | sed 's/^[`"'\'' ]*//;s/[`"'\'' ]*$//')
+    #echo "Parsed column name: '$colname'"
+    col_indices[$colname]=$((i+1))
+done
+# see them for debugging
+#declare -p col_indices
+
+get_col() {
+    local name="$1"
+    if [[ "$name" != "" && "$name" != "NA" ]]; then
+        if [[ -v col_indices[$name] ]]; then
+            echo "${col_indices[$name]}"
+        else
+            echo "Warning: column '$name' not found in header" >&2
+            echo ""
+        fi
+    else
+        echo ""
+    fi
+}
+
+snp_col=$(get_col "$snp_name")
+pos_col=$(get_col "$pos_name")
+chrom_col=$(get_col "$chrom_name")
+A1_col=$(get_col "$A1_name")
+A2_col=$(get_col "$A2_name")
+beta_hat_col=$(get_col "$beta_hat_name")
+se_col=$(get_col "$se_name")
+p_col=$(get_col "$p_value_name")
+af_col=$(get_col "$af_name")
+ss_col=$(get_col "$sample_size_name")
+
+echo " - broke up gwas file header"
+
+# Step 2: Filter rows by chrom, select columns
+if [[ "$file" == *.gz ]]; then
+    cmd="gzip -cd \"$file\""
+else
+    cmd="cat \"$file\""
+fi
+
+echo " - obtained whole gwas file"
+
+# Step 3: AWK filtering and formatting
+# Write header to output
+echo -e "chrom\tpos\tsnp\tA1\tA2\tbeta_hat\tse\tZ\tp_value\tsample_size\tallele_freq" > "$output"
+
+# Main process: decompress and apply AWK filter/formatter
+eval "$cmd" | awk \
+-v chrom_col="$chrom_col" \
+-v chrom="$chrom" \
+-v af_col="$af_col" \
+-v af_thresh="$af_thresh" \
+-v beta_hat_col="$beta_hat_col" \
+-v effect_is_or="$effect_is_or" \
+-v se_col="$se_col" \
+-v pos_col="$pos_col" \
+-v snp_col="$snp_col" \
+-v A1_col="$A1_col" \
+-v A2_col="$A2_col" \
+-v ss_col="$ss_col" \
+-v output="$output" '
+BEGIN {
+    OFS="\t";
+}
+NR==1 { next } # Skip header
+{
+    # Filter on chromosome
+    if ($chrom_col != chrom) next;
+
+    # AF filtering
+    af_ok = 1;
+    if (af_col != "" && af_col != "NA") {
+        af = $af_col;
+        if (af == "" || af == "NA") af_ok = 0;
+        else if (af <= af_thresh || af >= (1 - af_thresh)) af_ok = 0;
+    }
+    if (!af_ok) next;
+
+    # Beta adjustment for effect size (log-transform if odds ratio)
+    beta_val = $beta_hat_col;
+    if (effect_is_or == "TRUE") {
+        beta_val = log(beta_val);
+    }
+
+    # Compute se value safely
+    se_val = ($se_col != "" && $se_col != "NA") ? $se_col : "NA";
+
+    # Compute Z = beta/se if both available
+    Z = (se_val != "NA" && se_val != "" && beta_val != "NA" && beta_val != "") ? beta_val / se_val : "NA";
+
+    # Compute p-value using normal_cdf function ONLY if Z is valid
+    if (Z != "NA" && Z != "") {
+        absz = Z >= 0 ? Z : -Z;
+        pvalue = 2 * (1 - normal_cdf(absz));
+    } else {
+        pvalue = "NA";
+    }
+
+    # Output in required order
+    print $chrom_col, $pos_col, $snp_col, $A1_col, $A2_col, beta_val, se_val, Z, pvalue, $ss_col, $af_col >> output;
+}
+# Abramowitz & Stegun, 7.1.26, Normal CDF approximation
+function normal_cdf(x,   a1,a2,a3,a4,a5,p,t,erf) {
+    a1 = 0.254829592; a2 = -0.284496736; a3 = 1.421413741;
+    a4 = -1.453152027; a5 = 1.061405429; p = 0.3275911;
+    t = 1 / (1 + p * x / sqrt(2));
+    erf = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * exp(- (x * x) / 2 );
+    return 0.5 * (1 + erf);
+}
+'
+
+echo " - calculated:  af filtering, beta OR adjustment, Z, p-value"
+
+echo " - formatted output written to $output"

@@ -1,0 +1,172 @@
+#!/bin/bash
+
+echo "in format_flat_chrom.sh:"
+
+# non great lakes people will need to modify
+#module load Bioinformatics
+#module load bcftools
+
+# Usage:
+# bash format_flat_chrom.sh file chrom af_thresh snp_name pos_name chrom_name \
+#   A1_name A2_name beta_hat_name se_name p_value_name af_name sample_size_name effect_is_or output.txt
+# bash format_flat_chrom.sh data.tsv.gz 1 0.05 SNP POS CHR A1 A2 BETA SE PVALUE AF SS FALSE output.txt
+
+echo " - loaded modules"
+
+set -euo pipefail
+trap 'echo "script failed with exit code $? at line $LINENO" >&2' ERR
+
+echo " - set pipefail"
+
+file="$1"
+chrom="$2"
+af_thresh="$3"
+snp_name="$4"
+pos_name="$5"
+chrom_name="$6"
+A1_name="$7"
+A2_name="$8"
+beta_hat_name="$9"
+se_name="${10}"
+p_value_name="${11}"
+af_name="${12}"
+sample_size_name="${13}"
+effect_is_or="${14}"   # "TRUE" or "FALSE"
+output="${15}"
+
+echo " - read function inputs"
+
+# Step 1: Parse header and find column numbers by name
+# Before extracting, confirm file exists and is readable
+if [[ ! -r "$file" ]]; then
+    echo "Error: File '$file' does not exist or is not readable." >&2
+    exit 1
+fi
+
+# Extract first line ("header") from file, avoiding SIGPIPE issues
+if [[ "$file" == *.gz ]]; then
+    header=$(awk 'NR==1 {print; exit}' <(gzip -cd "$file"))
+else
+    header=$(awk 'NR==1 {print; exit}' "$file")
+fi
+
+# Confirm header was extracted
+if [[ -z "$header" ]]; then
+    echo "Error: Header is empty or could not be read from '$file'." >&2
+    exit 1
+fi
+
+echo " - read gwas file header"
+
+# Split header on tab or comma (modify as needed)
+IFS=$'\t' read -r -a cols <<< "$header"
+declare -A col_indices
+
+for i in "${!cols[@]}"; do
+    colname=${cols[$i]}
+    # Remove quotes/backticks **and spaces** if present
+    colname=$(echo "$colname" | sed 's/^[`"'\'' ]*//;s/[`"'\'' ]*$//')
+    #echo "Parsed column name: '$colname'"
+    col_indices[$colname]=$((i+1))
+done
+# see them for debugging
+#declare -p col_indices
+
+get_col() {
+    local name="$1"
+    if [[ "$name" != "" && "$name" != "NA" ]]; then
+        if [[ -v col_indices[$name] ]]; then
+            echo "${col_indices[$name]}"
+        else
+            echo "Warning: column '$name' not found in header" >&2
+            echo ""
+        fi
+    else
+        echo ""
+    fi
+}
+
+snp_col=$(get_col "$snp_name")
+pos_col=$(get_col "$pos_name")
+chrom_col=$(get_col "$chrom_name")
+A1_col=$(get_col "$A1_name")
+A2_col=$(get_col "$A2_name")
+beta_hat_col=$(get_col "$beta_hat_name")
+se_col=$(get_col "$se_name")
+p_col=$(get_col "$p_value_name")
+af_col=$(get_col "$af_name")
+ss_col=$(get_col "$sample_size_name")
+
+echo " - broke up gwas file header"
+
+# Step 2: Filter rows by chrom, select columns
+if [[ "$file" == *.gz ]]; then
+    cmd="gzip -cd \"$file\""
+else
+    cmd="cat \"$file\""
+fi
+
+echo " - obtained whole gwas file"
+
+# Step 3: AWK filtering and formatting
+awk_script='
+BEGIN {
+    OFS="\t";
+}
+NR==1 { next }
+{
+    if ($'"$chrom_col"' != "'"$chrom"'") next;
+    # AF filtering, if column present
+    af_ok=1;
+    if ("'"$af_col"'" != "") {
+        af=$'"$af_col"';
+        if (af == "" || af == "NA") af_ok=0;
+        else if (af <= '"$af_thresh"' || af >= (1-'"$af_thresh"')) af_ok=0;
+    }
+    if (!af_ok) next;
+
+    # Beta adjustment for effect size (log-transform if odds ratio)
+    beta_val=$'"$beta_hat_col"';
+    if ("'"$effect_is_or"'"=="TRUE") {
+        beta_val=log(beta_val);
+    }
+    # Compute Z = beta/se
+    # Jean's pipeline did not explicity do this before but told gwas_format() in R to generate p-values, which uses Z.  Z was not generated until 1_combine_and_format.R
+    # since I already had to generate Z here for p-vals, try to keep it and not regenerate in 1_combine_and_format.sh
+    se_val=$'"$se_col"' ? $'"$se_col"' : "NA"
+    Z=(se_val != "NA" && se_val != "" && beta_val != "NA" && beta_val != "") ? beta_val/se_val : "NA"
+
+    # Compute p-value, ignore if column supplied
+    # Always compute two-sided p-value from Z
+    if (Z != "NA" && Z != "") {
+        absz = (Z >= 0) ? Z : -Z;
+        pvalue = 2 * (1 - normal_cdf(absz));
+    } else {
+        pvalue = "NA";
+    }
+
+    # put in the order the pipeline expects
+    print $'"$chrom_col"',$'"$pos_col"',$'"$snp_col"',$'"$A1_col"',$'"$A2_col"',beta_val,se_val,Z,pvalue,$'"$af_col"',$'"$ss_col"' >> "'"$output"'"
+}
+END {}
+'
+
+# Normal cumulative distribution function approximation
+# This is Abramowitz and Stegun formula 7.1.26 for error function, which
+# is a good approximation for the standard normal CDF
+function normal_cdf(x,   a1,a2,a3,a4,a5,p,t,erf) {
+    a1=0.254829592; a2=-0.284496736; a3=1.421413741;
+    a4=-1.453152027; a5=1.061405429; p=0.3275911;
+    t=1/(1+p*x/sqrt(2));
+    erf = 1 - (((((a5*t+a4)*t)+a3)*t+a2)*t+a1)*t*exp(- (x*x)/2 );
+    return 0.5 * (1 + erf);
+}
+'
+
+# write out:  header first
+echo -e "${chrom_name}\t${pos_name}\t${snp_name}\t${A2_name}\t${A1_name}\tZ\t${se_name}\t${beta_hat_name}\t${p_value_name}\t${af_name}\t${sample_size_name}" > "$output"
+eval "$cmd" | awk "$awk_script"
+
+echo " - calculated:  af filtering, beta adjustment, Z, p-value"
+
+echo " - formatted output written to $output"

@@ -1,0 +1,6 @@
+# Ignore all spreadsheet, text, and output files
+*.csv
+*.tsv
+*.txt
+*.xlsx
+*.out

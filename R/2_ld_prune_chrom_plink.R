@@ -1,7 +1,8 @@
 library(dplyr)
 library(ieugwasr)
 
-X <- readRDS(snakemake@input[["zmat"]])
+#X <- readRDS(snakemake@input[["zmat"]])
+X <- read.table(snakemake@input[["zmat"]], header = TRUE, sep = "\t")
 r2_thresh <- as.numeric(snakemake@wildcards[["r2_thresh"]])
 clump_kb <- snakemake@wildcards[["kb"]]
 ref_path  <- snakemake@params[["ref_path"]]

@@ -1,0 +1,422 @@
+#!/bin/bash
+
+echo "in format_flat_chrom.sh:"
+
+set -x
+
+# non great lakes people will need to modify
+#module load Bioinformatics
+#module load bcftools
+
+# Usage:
+# bash format_flat_chrom.sh file chrom af_thresh snp_name pos_name chrom_name \
+#   A1_name A2_name beta_hat_name se_name p_value_name af_name sample_size_name effect_is_or output.txt
+# bash format_flat_chrom.sh data.tsv.gz 1 0.05 SNP POS CHR A1 A2 BETA SE PVALUE AF SS FALSE output.txt
+
+echo " - loaded modules"
+
+set -euo pipefail
+trap 'echo "script failed with exit code $? at line $LINENO" >&2' ERR
+
+echo " - set pipefail"
+
+ref_bim="$1"
+file="$2"
+chrom="$3"
+af_thresh="$4"
+snp_name="$5"
+pos_name="$6"
+chrom_name="$7"
+A1_name="$8"
+A2_name="$9"
+beta_hat_name="${10}"
+se_name="${11}"
+p_value_name="${12}"
+af_name="${13}"
+sample_size_name="${14}"
+effect_is_or="${15}"   # "TRUE" or "FALSE"
+output="${16}"
+
+echo " - read function inputs"
+
+# Step 1: Parse header and find column numbers by name
+# Before extracting, confirm file exists and is readable
+if [[ ! -r "$file" ]]; then
+    echo "Error: File '$file' does not exist or is not readable." >&2
+    exit 1
+fi
+
+# Extract first line ("header") from file, avoiding SIGPIPE issues
+if [[ "$file" == *.gz ]]; then
+    header=$(awk 'NR==1 {print; exit}' <(gzip -cd "$file"))
+else
+    header=$(awk 'NR==1 {print; exit}' "$file")
+fi
+
+# Confirm header was extracted
+if [[ -z "$header" ]]; then
+    echo "Error: Header is empty or could not be read from '$file'." >&2
+    exit 1
+fi
+
+echo " - read gwas file header"
+
+# Split header on tab or comma (modify as needed)
+# HARDCODED DELIMITER
+IFS=$'\t' read -r -a cols <<< "$header"
+declare -A col_indices
+
+for i in "${!cols[@]}"; do
+    colname=${cols[$i]}
+    # Remove quotes/backticks **and spaces** if present
+    colname=$(echo "$colname" | sed 's/^[`"'\'' ]*//;s/[`"'\'' ]*$//')
+    #echo "Parsed column name: '$colname'"
+    col_indices[$colname]=$((i+1))
+done
+# see them for debugging
+#declare -p col_indices
+
+get_col() {
+    local name="$1"
+    if [[ "$name" != "" && "$name" != "NA" ]]; then
+        if [[ -v col_indices[$name] ]]; then
+            echo "${col_indices[$name]}"
+        else
+            echo "Warning: column '$name' not found in header" >&2
+            echo ""
+        fi
+    else
+        echo ""
+    fi
+}
+
+snp_col_ind=$(get_col "$snp_name")
+pos_col_ind=$(get_col "$pos_name")
+chrom_col_ind=$(get_col "$chrom_name")
+A1_col_ind=$(get_col "$A1_name")
+A2_col_ind=$(get_col "$A2_name")
+beta_hat_col_ind=$(get_col "$beta_hat_name")
+se_col_ind=$(get_col "$se_name")
+p_col_ind=$(get_col "$p_value_name")
+af_col_ind=$(get_col "$af_name")
+ss_col_ind=$(get_col "$sample_size_name")
+
+echo " - parsed gwas file header"
+
+{
+  echo "Mem used after step 1: parsing gwas file header"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+# step 2:  read in whole files, filter to chrom, and deduplicate
+# best to do upfront to reuse
+# written here instead of above w/ headers for extra clarity at the cost of a little efficiency
+
+# read in whole gwas file, filter to chrom and deduplicate (rm all rsids which appear >1x)
+# this code keeps header in
+# HARDCODING OF DELIMITER
+#delim=$(gzip -cd "$file" | head -n 1 | grep -o $'\t' | wc -l)
+#if (( delim > 0 )); then
+#  awk_delim='\t'
+#elif gzip -cd "$file" | head -n 1 | grep -q ','; then
+#  awk_delim=','
+#else
+#  awk_delim=' '
+#fi
+
+#Then use:
+
+#awk -F"$awk_delim" ...
+
+# have to make temp files for awk
+ref_bim_filt=$(mktemp)
+file_filt=$(mktemp)
+
+trap 'rm -f "$ref_bim_filt" "$file_filt"' EXIT  # Auto-cleanup on exit
+
+# filter and deduplicate reference file
+# HARDCODING COLUMNS
+# deal w/ header better?
+awk -v c="$chrom" '$1 == c {print $2 "\t" $5 "\t" $6}' "$ref_bim" \
+| awk -F'\t' '{count[$1]++; lines[NR]=$0; keys[NR]=$1}
+              END {for(i=1; i<=NR; i++) if(count[keys[i]]==1) print lines[i]}
+  ' > "$ref_bim_filt"
+
+{
+  echo "Mem used after step 2a: read and filter ref file"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+# unzip, filter, and deduplicate gwas file
+if [[ "$file" == *.gz ]]; then
+    gzip -cd "$file" \
+    | awk -F'\t' -v col="$chrom_col_ind" -v chrom="$chrom" 'NR==1 || $col == chrom' \
+    | awk -F'\t' -v snp_col="$snp_col_ind" '
+            NR==1 {print; next}
+            {count[$snp_col]++; lines[NR]=$0; keys[NR]=$snp_col}
+            END {for (i=2; i<=NR; i++) if (count[keys[i]]==1) print lines[i]}
+      ' > "$file_filt"
+else
+    awk -F'\t' -v col="$chrom_col_ind" -v chrom="$chrom" 'NR==1 || $col == chrom' "$file" \
+    | awk -F'\t' -v snp_col="$snp_col_ind" '
+       NR==1 {print; next}
+       {count[$snp_col]++; lines[NR]=$0; keys[NR]=$snp_col}
+       END {for (i=2; i<=NR; i++) if (count[keys[i]]==1) print lines[i]}
+      ' > "$file_filt"
+fi
+
+{
+  echo "Mem used after step 2b: read and filter gwas file"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+# A1 is effect allele!!!
+
+# step 3: harmonization of gwas file to reference file
+# I need to generalize this.  there is some column hardcoding in here
+# what can I do about allele freq??
+
+# above we assumed first column was chromosome.  add a catcher?
+# above we assumed all positive strand in ref.  add a catcher?
+# above we assumed 6th (last) column was ref, 5th column was alt allele. https://www.cog-genomics.org/plink/2.0/formats  add a catcher?
+
+# first, create output file:
+# Get parent directory name
+parentdir=$(basename "$(dirname "$file")")        # C100001554
+# Get base file name without extensions
+fname=$(basename "$file")                         # C100001554_regenie_rsid.tsv.gz
+# removes everything after first dot, may be too agressive!!!
+fname_noext="${fname%%.*}"                        # C100001554_regenie_rsid
+# Compose new output file name
+harmon="${fname_noext}_chrom${chrom}_harmon_snps.tsv"
+
+awk -v snp_col="$snp_col_ind" \
+    -v chrom_col="$chrom_col_ind" \
+    -v gwas_ref_al_col="$A1_col_ind" \
+    -v gwas_alt_al_col="$A2_col_ind" \
+    -v beta_hat_col="$beta_hat_col_ind" \
+    -v af_col="$af_col_ind" '
+BEGIN {
+    # Load filtered reference from ARGV[1]
+    # HARDCODING
+    while ((getline < ARGV[1]) > 0) {
+        ref_alt[$1] = $2    # $1 = rsID, $2 = ALT, $3 = REF from processed BIM
+        ref_ref[$1] = $3
+    }
+    ARGV[1] = ""           # So awk does not process this file as main input
+}
+# OR for actual harmonization, continue script here processing main file (ARGV[2])
+#FNR == 1 { print $0; next }  # example: print header, or your harmonization logic
+FNR==1 {
+    split($0, hdr, "\t")
+    print hdr[snp_col] "\t" hdr[chrom_col] "\t" hdr[gwas_ref_al_col] "\t" hdr[gwas_alt_al_col] "\t" hdr[beta_hat_col] "\t" hdr[af_col] \
+    "\tharmon_ref_allele\tharmon_alt_allele\tharmon_beta\tharmon_alt_freq\tharmon_is_change"
+    next
+}
+
+{
+    # assign values for the current row
+    snp = $(snp_col)
+    chrom = $(chrom_col)
+    gwas_ref_al = $(gwas_ref_al_col)
+    gwas_alt_al = $(gwas_alt_al_col)
+    beta_hat = $(beta_hat_col)
+    af = $(af_col)
+
+    # Check for reference availability
+    if (!(snp in ref_alt)) next; # skip if not in reference
+
+    ref_ref_al = ref_ref[snp]
+    ref_alt_al = ref_alt[snp]
+
+    # Check for ambiguous SNP (A/T or C/G), skip if ambiguous
+    ambig_snp = (gwas_ref_al == "A" && gwas_alt_al == "T") || (gwas_ref_al == "T" && gwas_alt_al == "A") \
+        || (gwas_ref_al == "C" && gwas_alt_al == "G") || (gwas_ref_al == "G" && gwas_alt_al == "C");
+    if (ambig_snp) next;
+
+    # Strandedness: alleles should always match reference since reference is on forward strand
+    harmon_REF = ref_ref_al;
+    harmon_ALT = ref_alt_al;
+
+    # Try all possible allele orientations
+    # Case 1: Exact match
+    if (gwas_alt_al == ref_alt_al && gwas_ref_al == ref_ref_al) {
+        flip = 0;
+        # Output as is
+        harmon_change = 0;
+    }
+    # Case 2: Flipped effect/non-effect
+    else if (gwas_alt_al == ref_ref_al && gwas_ref_al == ref_alt_al) {
+        flip = 1;
+        # Output: harmonized alleles as reference
+        harmon_change = 1;
+    }
+    # Case 3: complement alleles
+    else if (dna_complement(gwas_alt_al) == ref_alt_al && dna_complement(gwas_ref_al) == ref_ref_al) {
+        flip = 0;
+        # Output harmonized alleles as reference, but input alleles are complement
+        harmon_change = 1;
+    }
+    else if (dna_complement(gwas_alt_al) == ref_ref_al && dna_complement(gwas_ref_al) == ref_alt_al) {
+        flip = 1;
+        # Output harmonized alleles as reference, but swapped
+        harmon_change = 1;
+    }
+    else {
+        # Could not harmonize alleles, skip.
+        next;
+    }
+
+    # Flip effect size if effect allele is reference (as opposed to alternate)
+    if (flip) {
+        harmon_beta = -beta_hat;
+        harmon_alt_freq = 1 - af;
+    } else {
+        harmon_beta = beta_hat;
+        harmon_alt_freq = af;
+    }
+    # Special handling: For complemented alleles, swap input alleles if needed to match reference, also output alleles as ref/alt
+    # Output harmonized columns
+    #print $0 "\t" harmon_REF "\t" harmon_ALT;
+    # CHANGE HARMON ALLELE FREQ
+    print snp "\t" chrom "\t" gwas_ref_al "\t" gwas_alt_al "\t" beta_hat "\t" af \
+    "\t" harmon_REF "\t" harmon_ALT "\t" harmon_beta "\t" harmon_alt_freq "\t" harmon_change;
+}
+function dna_complement(base) {
+    if (base == "A") return "T";
+    if (base == "T") return "A";
+    if (base == "C") return "G";
+    if (base == "G") return "C";
+    return base;
+}
+' "$ref_bim_filt" "$file_filt" | \
+{ read -r header; echo "$header"; cat; } > "$harmon"
+# deduplication of outfile not necessary.  input files were already deduplicated
+
+{
+  echo "Mem used after step 3: snp harmonization btwn gwas and ref"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+# step 4:  making harmonization the standard
+
+# output is of the format:  C100001554_regenie_rsid_chrom1_harmon_snps.tsv
+# need to read this back in and use the harmonized parts instead of the regular ones
+# so harmonized ref allele, alt allele, effect size, alt allele freq
+# so need a merge and then drop old columns
+
+# ok to hardcode the harmonized columns bc I created the file (it will stay same)
+# new_ref[$1] = $7 means for each rsID in harmonized.txt, store the value from column 7 ("new ref allele") associated with that rsID.
+# HARDCODING DELIMITER
+awk -F'\t' \
+-v snp_col="$snp_col_ind" \
+-v chrom_col="$chrom_col_ind" \
+-v gwas_ref_al_col="$A2_col_ind" \
+-v gwas_alt_al_col="$A1_col_ind" \
+-v beta_hat_col="$beta_hat_col_ind" \
+-v af_col="$af_col_ind" \
+'
+BEGIN { OFS = "\t" }
+NR==FNR {
+    # Load harmonized new values into arrays by rsid
+    harmon_ref[$1] = $7;    # $1 = rsid, $7 = new_ref_allele
+    harmon_alt[$1] = $8;
+    harmon_beta[$1] = $9;
+    harmon_af[$1] = $10;
+    next
+}
+FNR==1 { print $0; next }  # Print header unchanged
+($1 in harmon_ref) {
+    # replacing select cols with new values, then print whole thing, which now contains same columns & order but new vals
+    $gwas_ref_al_col  = harmon_ref[$1]
+    $gwas_alt_al_col  = harmon_alt[$1]
+    $beta_hat_col = harmon_beta[$1]
+    $af_col   = harmon_af[$1]
+    print $0
+}
+' "$harmon" "$file_filt" > "${fname_noext}_replaced_harmonized_chr${chrom}.tsv"
+# want a better name for that eventually
+
+{
+  echo "Mem used after step 4: replacing old data w/ harmonized data"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+# Step 5: creation of new vars using harmonized data
+# Write header to output
+echo -e "chrom\tpos\tsnp\tA1\tA2\tbeta_hat\tse\tZ\tp_value\tsample_size\tallele_freq" > "$output"
+
+# Main process: decompress and apply AWK filter/formatter
+# DELIMITER HARDCODING
+awk -F'\t' \
+-v chrom_col="$chrom_col_ind" \
+-v chrom="$chrom" \
+-v af_col="$af_col_ind" \
+-v af_thresh="$af_thresh" \
+-v beta_hat_col="$beta_hat_col_ind" \
+-v effect_is_or="$effect_is_or" \
+-v se_col="$se_col_ind" \
+-v pos_col="$pos_col_ind" \
+-v snp_col="$snp_col_ind" \
+-v A1_col="$A1_col_ind" \
+-v A2_col="$A2_col_ind" \
+-v ss_col="$ss_col_ind" \
+-v output="$output" '
+BEGIN {
+    OFS="\t";
+}
+NR==1 { next } # Skip header
+{
+    # Filter on chromosome
+    if ($chrom_col != chrom) next;
+
+    # AF filtering
+    af_ok = 1;
+    if (af_col != "" && af_col != "NA") {
+        af = $af_col;
+        if (af == "" || af == "NA") af_ok = 0;
+        else if (af <= af_thresh || af >= (1 - af_thresh)) af_ok = 0;
+    }
+    if (!af_ok) next;
+
+    # Beta adjustment for effect size (log-transform if odds ratio)
+    beta_val = $beta_hat_col;
+    if (effect_is_or == "TRUE") {
+        beta_val = log(beta_val);
+    }
+
+    # Compute se value safely
+    se_val = ($se_col != "" && $se_col != "NA") ? $se_col : "NA";
+
+    # Compute Z = beta/se if both available
+    Z = (se_val != "NA" && se_val != "" && beta_val != "NA" && beta_val != "") ? beta_val / se_val : "NA";
+
+    # Compute p-value using normal_cdf function ONLY if Z is valid
+    if (Z != "NA" && Z != "") {
+        absz = Z >= 0 ? Z : -Z;
+        pvalue = 2 * (1 - normal_cdf(absz));
+    } else {
+        pvalue = "NA";
+    }
+
+    # Output in required order
+    print $chrom_col, $pos_col, $snp_col, $A1_col, $A2_col, beta_val, se_val, Z, pvalue, $ss_col, $af_col >> output;
+}
+# Abramowitz & Stegun, 7.1.26, Normal CDF approximation
+function normal_cdf(x,   a1,a2,a3,a4,a5,p,t,erf) {
+    a1 = 0.254829592; a2 = -0.284496736; a3 = 1.421413741;
+    a4 = -1.453152027; a5 = 1.061405429; p = 0.3275911;
+    t = 1 / (1 + p * x / sqrt(2));
+    erf = 1 - (((((a5 * t + a4) * t) + a3) * t + a2) * t + a1) * t * exp(- (x * x) / 2 );
+    return 0.5 * (1 + erf);
+}
+' "${fname_noext}_replaced_harmonized_chr${chrom}.tsv"
+
+echo " - calculated:  af filtering, beta OR adjustment, Z, p-value"
+
+{
+  echo "Mem used after step 5: creation of beta, se, Z, pval, and writing to output"
+  awk '/VmRSS/{print}' /proc/self/status
+} >> format_flat_chrom_sh_memory.log
+
+echo " - formatted output written to $output"

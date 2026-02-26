@@ -1,0 +1,192 @@
+#!/bin/bash
+
+#!/bin/bash
+# Format GWAS summary statistics for CAUSE
+# Usage example:
+# ./format_gwas.sh --input input.tsv --output output.tsv \
+#    --snp SNP --beta_hat BETA --se SE --A1 A1 --A2 A2 \
+#    --chrom CHR --pos POS --p_value PVAL --sample_size N \
+#    --allele_freq AF --compute_pval TRUE
+
+# debugging - - -
+set -x
+
+# read inputs - - -
+
+# Default values
+compute_pval=TRUE
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+  case $1 in
+    --input) input="$2"; shift ;;
+    --output) output="$2"; shift ;;
+    --snp) SNP_COL="$2"; shift ;;
+    --beta_hat) BETA_COL="$2"; shift ;;
+    --se) SE_COL="$2"; shift ;;
+    --A1) A1_COL="$2"; shift ;;
+    --A2) A2_COL="$2"; shift ;;
+    --chrom) CHROM_COL="$2"; shift ;;
+    --pos) POS_COL="$2"; shift ;;
+    --p_value) PVALUE_COL="$2"; shift ;;
+    --sample_size) SAMPLESIZE_COL="$2"; shift ;;
+    --allele_freq) AF_COL="$2"; shift ;;
+    --compute_pval) compute_pval="$2"; shift ;;
+    *) echo "Unknown parameter passed: $1"; exit 1 ;;
+  esac
+  shift
+done
+
+# insist on certain inputs - - -
+if [[ -z $input || -z $output || -z $SNP_COL || -z $BETA_COL || -z $SE_COL || -z $A1_COL || -z $A2_COL ]]; then
+  echo "Usage: format_gwas.sh --input input.tsv --output output.tsv \\
+    --snp SNP --beta_hat BETA --se SE --A1 A1 --A2 A2 \\
+    [--chrom CHR] [--pos POS] [--p_value PVAL] [--sample_size N] [--allele_freq AF] [--compute_pval TRUE|FALSE]"
+  exit 1
+fi
+# NEED TO ADD SOME MORE MISSING HANDLING
+
+# format gwas summary stats - - -
+TMP=$(mktemp)
+
+# Create header-indexed versions (get column numbers)
+# You will need csvtk for robust column-select and reorder (use 'module load csvtk' on a cluster if available).
+
+# 1. Select and rename fields, uppercase alleles
+# you could use awk, but we need csvtk anyway for joins
+csvtk rename -f "$SNP_COL,snp" -f "$BETA_COL,beta_hat" -f "$SE_COL,se" -f "$A1_COL,A1" -f "$A2_COL,A2" \
+  ${CHROM_COL:+-f "$CHROM_COL,chrom"}   ${POS_COL:+-f "$POS_COL,pos"} \
+  ${PVALUE_COL:+-f "$PVALUE_COL,p_value"}  ${SAMPLESIZE_COL:+-f "$SAMPLESIZE_COL,sample_size"}  ${AF_COL:+-f "$AF_COL,allele_freq"} \
+  "$input" \
+| csvtk mutate -f A1,A2 -F -e 'toupper($A1),toupper($A2)' > "$TMP"
+
+# get column names
+#source get_col.sh                # OR . get_col.sh
+#parse_header "yourfile.tsv"      # Build the associative array col_indices
+#snp_col=$(get_col "SNP")         # Retrieve the index for column "SNP"
+#awk -v snp_col="$snp_col" ...
+
+parse_header "$input"
+A1_col_ind=$(get_col "A1")
+A2_col_ind=$(get_col "A2")
+snp_ind=$(get_col "snp")
+
+# 2. Remove illegal alleles
+awk -F'\t' -v a1_col="$A1_col_ind" -v a2_col="$A2_col_ind" '
+NR==1 {print; next}
+($a1_col=="A" || $a1_col=="C" || $a1_col=="G" || $a1_col=="T") &&
+($a2_col=="A" || $a2_col=="C" || $a2_col=="G" || $a2_col=="T")
+' "$TMP" > "$TMP.legal"
+
+# 3. Remove ambiguous alleles (AT/TA/GC/CG)
+awk -F'\t' -v a1_col="$A1_col_ind" -v a2_col="$A2_col_ind" '
+NR==1 {print; next}
+!(
+   ( ($a1_col=="A" && $a2_col=="T") || ($a1_col=="T" && $a2_col=="A") ) ||
+   ( ($a1_col=="G" && $a2_col=="C") || ($a1_col=="C" && $a2_col=="G") )
+ )
+{print}
+' "$TMP.legal" > "$TMP.unambig"
+
+# 4. Remove duplicate SNPs (excluding header)
+# a[$snp_col] is an associative array in awk, where the key is the value in column $snp_col on that row (e.g., a SNP ID)
+# On the first occurrence, a[$snp_col] is zero. So !0 is true, and the line gets printed.
+# After that, a[$snp_col] is incremented each time the value appears again. For subsequent duplicates, the value is non-zero, !1 is false, so the line does not get printed.
+awk -F'\t' -v snp_col="$snp_ind" 'NR==1 {print; next} !a[$snp_col]++' "$TMP.unambig" > "$TMP.nodup"
+
+# 5. Calculate p-value if compute_pval is TRUE AND p_value is missing.
+if [[ $compute_pval == "TRUE" ]]; then
+  awk -F'\t' 'BEGIN{OFS="\t"} NR==1 {for(i=1;i<=NF;i++) idx[$i]=i; print; next}
+    { if($idx["p_value"]=="" || $idx["p_value"]=="NA"){
+        z=($idx["beta_hat"]/($idx["se"]!="0"?$idx["se"]:1)); # avoid div by zero
+        p=2*(1-systat(z));
+        $idx["p_value"]=p
+      }
+      print
+    }
+    function systat(z){ # normal approx
+      # erf(z/sqrt(2))
+      return 0.5*erfc(-z/sqrt(2));
+    }
+    function erfc(x){
+      return 1 - erf(x)
+    }
+    function erf(x){
+      # Approximation of the error function
+      # Abramowitz and Stegun formula 7.1.26
+      a1=0.254829592
+      a2=-0.284496736
+      a3=1.421413741
+      a4=-1.453152027
+      a5=1.061405429
+      p=0.3275911
+      sign=1
+      if(x < 0) sign = -1
+      x=abs(x)
+      t=1.0/(1.0+p*x);
+      y=1.0-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*exp(-x*x)
+      return sign*y
+    }
+  ' "$TMP.nodup" > "$output"
+else
+  cp "$TMP.nodup" "$output"
+fi
+
+# do flipping
+awk -F'\t' -v a1_col=$a1_col -v a2_col=$a2_col -v beta_col=$beta_col -v af_col="$af_col" -v OFS="\t" '
+function flip_allele(x) {
+  return (x == "A") ? "T" : (x == "T") ? "A" : (x == "G") ? "C" : (x == "C") ? "G" : x
+}
+NR==1 {
+  # Print header, and add new columns if necessary
+  print $0
+  next
+}
+{
+  # Copy original alleles
+  A1 = $a1_col
+  A2 = $a2_col
+
+  # Determine if the strand needs to be flipped (using presence of T)
+  if (A1 == "T" || A2 == "T") {
+    A1f = flip_allele(A1)
+    A2f = flip_allele(A2)
+  } else {
+    A1f = A1
+    A2f = A2
+  }
+
+  # Now align so A1 is always "A" (if not, swap & invert beta)
+  if (A1f == "A") {
+    eA1 = A1f
+    eA2 = A2f
+    new_beta = $beta_col
+    if (af_col) {
+      new_af = (af_col && af_col != "") ? $af_col : ""
+    }
+  } else {
+    # Swap alleles, invert beta
+    eA1 = A2f
+    eA2 = A1f
+    new_beta = -$beta_col
+    if (af_col) {
+      if ($af_col != "") new_af = 1 - $af_col
+      else new_af = ""
+    }
+  }
+
+  # Print the aligned record, with A1, A2, beta_hat, [allele_freq if present] replaced
+  for (i=1; i<=NF; i++) {
+    if (i == a1_col) printf "%s", eA1
+    else if (i == a2_col) printf "%s", eA2
+    else if (i == beta_col) printf "%s", new_beta
+    else if (af_col && i == af_col) printf "%s", new_af
+    else printf "%s", $i
+    printf (i == NF ? "\n" : OFS)
+  }
+}
+' input.tsv > output_aligned.tsv
+
+
+rm -f "$TMP" "$TMP.legal" "$TMP.unambig" "$TMP.nodup"
+echo "Formatted GWAS file written to $output"

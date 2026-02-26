@@ -68,7 +68,11 @@ N <- apply(SS, 2, median)
 t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
                                 N = N,
                                 R = R$R,
-                                params = params))
+                                params = params 
+                                #mode = "z-score",
+                                #method = "fixed_factors"
+				)
+		)
 
 
 f$snps <- snps

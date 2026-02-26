@@ -1,0 +1,312 @@
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3528 kB
+Mem used after step 2a: read and filter ref file
+VmRSS:	    3540 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3568 kB
+Mem used after step 3: snp harmonization btwn gwas and ref
+VmRSS:	    3544 kB
+Mem used after step 4: replacing old data w/ harmonized data
+VmRSS:	    3656 kB
+Mem used after step 5: creation of beta, se, Z, pval, and writing to output
+VmRSS:	    3528 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3544 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3556 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3608 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3540 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3720 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3652 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3528 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3468 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3636 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3708 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3468 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3624 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3640 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3764 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3648 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3528 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3524 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3764 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3648 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3648 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3600 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3592 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3560 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3424 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3660 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3640 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3772 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3624 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3600 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3624 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3612 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3568 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3612 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3608 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3664 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3572 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3628 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3568 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3732 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3580 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3688 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3560 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3552 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3636 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3504 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3544 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3732 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3736 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3672 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3728 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3552 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3744 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3520 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3600 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3528 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3688 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3660 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3772 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3624 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3608 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3588 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3704 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3624 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3508 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3680 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3628 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3680 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3660 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3672 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3612 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3596 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3764 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3652 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3624 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3724 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3768 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3612 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3632 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3572 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3680 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3620 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3660 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3572 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3696 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3588 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3668 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3692 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3624 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3572 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3564 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3768 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3744 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3676 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3748 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3644 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3672 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3636 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3688 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3668 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3612 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3660 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3752 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3568 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3592 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3644 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3684 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3492 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3476 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3728 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3732 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3584 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3736 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3576 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3772 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3632 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3764 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3628 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3588 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3568 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3564 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3608 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3584 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3524 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3548 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3696 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3572 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3660 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3560 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3664 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3748 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3496 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3524 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3748 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3552 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3704 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3740 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3660 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3556 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3720 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3644 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3688 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3684 kB
+Mem used after step 1: parsing gwas file header
+VmRSS:	    3636 kB
+Mem used after step 2b: read and filter gwas file
+VmRSS:	    3748 kB
