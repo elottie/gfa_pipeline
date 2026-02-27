@@ -14,6 +14,6 @@
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-Rscript ldsc_strip.R
+Rscript ldsc_strip_toy.R
 
 echo "Job finished at $(date)"
