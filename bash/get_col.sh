@@ -1,35 +1,80 @@
 #!/bin/bash
 
-# overall usage:
-#source get_col.sh                # OR . get_col.sh
+# purpose:
+# a set of functions to get the column indices given the column names, since this is not easy in bash
 
-#parse_header "yourfile.tsv"      # Build the associative array col_indices
+# usage:
+# source get_col.sh
+# parse_header "$file" "$delimiter"      # build the associative array col_indices
+# snp_col=$(get_col "SNP")         # retrieve the index for column named "SNP"
+# awk -v snp_col="$snp_col" ...
 
-#snp_col=$(get_col "SNP")         # Retrieve the index for column "SNP"
+# --- get_file_delimiter() ---
+# purpose: guess and return the file delimiter from the first line
+# usage: get_file_delimiter "myfile.csv"
+get_file_delimiter() {
+    local file="$1"
+    local header
+    if [[ "$file" == *.gz ]]; then
+        header=$(zcat "$file" | head -n 1)
+    else
+        header=$(head -n 1 "$file")
+    fi
 
-#awk -v snp_col="$snp_col" ...
+    # list of candidate delimiters (actual tab, not string '\t')
+    local delimiters=(',' $'\t' ';' '|' ':' ' ')
+    local max_count=0
+    local guess=""
+    local delim count
 
-# Function to parse header and build associative array
+    for delim in "${delimiters[@]}"; do
+        count=$(awk -F"$delim" '{print NF-1}' <<< "$header")
+        if (( count > max_count )); then
+            max_count=$count
+            guess=$delim
+        fi
+    done
+
+    # Only normalize spaces if the guess is a run of spaces and not a tab
+    if [[ "$guess" =~ ^[[:space:]]+$ ]] && [[ "$guess" != $'\t' ]]; then
+        guess=" "
+    fi
+
+    # Print the delimiter (tabs and spaces correctly)
+    if [[ "$guess" == $'\t' ]]; then
+        echo $'\t'
+    elif [[ "$guess" == ' ' ]]; then
+        echo " "
+    else
+        echo "$guess"
+    fi
+}
+
+# --- parse_header() ---
+# purpose: function to parse header and build associative array of column names (sets global col_indices)
+# usage: parse_header "$file" "$delimiter"
 parse_header() {
     local file="$1"
-
-    if [[ ! -r "$file" ]]; then
-        echo "Error: File '$file' does not exist or is not readable." >&2
-        return 1
-    fi
-
+    local header
     if [[ "$file" == *.gz ]]; then
-        header=$(awk 'NR==1 {print; exit}' <(gzip -cd "$file"))
+        header=$(zcat "$file" | head -n 1 || true)
     else
-        header=$(awk 'NR==1 {print; exit}' "$file")
+        header=$(head -n 1 "$file")
     fi
 
+    local delimiter="$2"
+
+    # make sure header provided
     if [[ -z "$header" ]]; then
-        echo "Error: Header is empty or could not be read from '$file'." >&2
+        echo "Error: No header line provided to parse_header." >&2
         return 1
     fi
 
-    IFS=$'\t' read -r -a cols <<< "$header"
+    # use delimiter
+    IFS="$delimiter" read -r -a cols <<< "$header"
+
+    # make an associative array between column names and indices, e.g. col_indices["snp"]=1, col_indices["chrom"]=2
+    # sed line is just stripping spaces and other problematic characters in column name
     declare -gA col_indices
     for i in "${!cols[@]}"; do
         colname=${cols[$i]}
@@ -38,8 +83,10 @@ parse_header() {
     done
     return 0
 }
-# Usage: parse_header "myfile.tsv" (sets global col_indices)
 
+# --- get_col() ---
+# purpose: takes column name-index associative array and prints out results and warnings
+# usage: get_col "your_column_name"
 get_col() {
     local name="$1"
     if [[ "$name" != "" && "$name" != "NA" ]]; then
@@ -54,7 +101,7 @@ get_col() {
     fi
 }
 
-# Optional: main section for standalone use
+# --- for debugging, section for standalone use ---
 if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
     file="$1"
     if [[ -z "$file" ]]; then

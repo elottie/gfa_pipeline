@@ -55,11 +55,6 @@ ss_col_ind=$(get_col "$sample_size_name")
 
 echo " - parsed gwas file header"
 
-{
-  echo "Mem used after step 1: parsing gwas file header"
-  awk '/VmRSS/{print}' /proc/self/status
-} >> format_flat_chrom_sh_memory.log
-
 # step 2:  read in whole files, filter to chrom, and deduplicate
 # best to do upfront to reuse
 # written here instead of above w/ headers for extra clarity at the cost of a little efficiency
@@ -119,8 +114,6 @@ parentdir=$(basename "$(dirname "$file")")        # C100001554
 fname=$(basename "$file")                         # C100001554_regenie_rsid.tsv.gz
 # removes everything after first dot, may be too agressive!!!
 fname_noext="${fname%%.*}"                        # C100001554_regenie_rsid
-# Compose new output file name
-harmon="${fname_noext}_chrom${chrom}_harmon_snps.tsv"
 
 
 # Filter rows by allele frequency
