@@ -17,23 +17,23 @@ BEGIN {
 
 # --- Parse header and map colnames to indices ---
 NR == 1 {
-#    for (i = 1; i <= NF; i++) {
-#        col[ $i ] = i
-#    }
+    for (i = 1; i <= NF; i++) {
+        col[ $i ] = i
+    }
     # Optionally rename header columns
- #   $col[need_snp]   = "snp"
- #   $col[need_beta]  = "beta_hat"
- #   $col[need_se]    = "se"
- #   $col[need_A1]    = "A1"
- #   $col[need_A2]    = "A2"
- #   $col[need_pos]   = "pos"
- #   $col[need_pval]  = "p_value"
- #   $col[need_ss]    = "sample_size"
- #   $col[need_af]    = "allele_freq"
+   $col[need_snp]   = "snp"
+   $col[need_beta]  = "beta_hat"
+   $col[need_se]    = "se"
+   $col[need_A1]    = "A1"
+   $col[need_A2]    = "A2"
+   $col[need_pos]   = "pos"
+   $col[need_pval]  = "p_value"
+   $col[need_ss]    = "sample_size"
+   $col[need_af]    = "allele_freq"
 
     # Output header
- #   print
-    print "snp"
+   print
+#    print "snp"
     next
 }
 
@@ -58,10 +58,10 @@ NR == 1 {
          (a1=="G" && a2=="C") ) next
 
     # Remove duplicate SNPs
-    #snp_id = $col["snp"]
+    snp_id = $col["snp"]
     if (snp_seen[snp]++) next
 
-#    print
-    print snp
+    print
+#    print snp
 }
 

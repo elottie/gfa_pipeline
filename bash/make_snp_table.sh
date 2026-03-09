@@ -1,6 +1,7 @@
 #!/bin/bash
 
-gwas_info_file="../C100001554_And_Friends_3Metabolites.csv"
+#gwas_info_file="../C100001554_And_Friends_3Metabolites.csv"
+gwas_info_file="../../../GFA_metabolites_2025_backup/5e5Sig_Herit_Mets_8ForLDSCStrip.csv"
 
 read highest_min lowest_max < <(
     awk -F',' 'NR==1 {
@@ -32,8 +33,8 @@ read highest_min lowest_max < <(
                     } else {
                         med=(vals[int(n/2)]+vals[int(n/2)+1])/2
                     }
-                    low = med * 0.9
-                    high = med * 1.1
+                    low = med * 0.5
+                    high = med * 1.5
                     print low, high
                 }
             }
@@ -55,7 +56,7 @@ echo "highest_min: $highest_min"
 echo "lowest_max: $lowest_max"
 
 # Step 2: Build SNP table with extra flag column
-output="chr19_snp_table.tsv"
+output="chr19_snp_table_8traits.tsv"
 
 {
     echo -e "snp\tntraits\tminmaf\tminss\tmaxss\tss_range_flag\ttrait_flag\tmaf_flag"
@@ -93,6 +94,9 @@ output="chr19_snp_table.tsv"
             [[ "${cols[$i]}" == "$ss_col_name" ]] && ss_col_idx=$((i+1))
         done
 
+        echo "DEBUG: $trait_file snp=$snp_col_idx maf=$maf_col_idx chrom=$chrom_col_idx ss=$ss_col_idx"
+        $cat_cmd "$trait_file" | head -1
+
         trait=$(basename "$trait_file" | sed 's/\..*//')
 
         $cat_cmd "$trait_file" | awk -F'\t' -v trait="$trait" \
@@ -117,7 +121,7 @@ output="chr19_snp_table.tsv"
         ntraits = 0
         for(trait in traits[snp]) ntraits++
         flag = ((minss[snp] >= highest_min && maxss[snp] <= lowest_max) ? 1 : 0)
-        traitflag = (ntraits == 3 ? 1 : 0)
+        traitflag = (ntraits == 8 ? 1 : 0)
         maf_flag = (minmaf[snp] > 0.05 ? 1 : 0)
         printf "%s\t%s\t%.5f\t%s\t%s\t%s\t%s\t%s\n", snp, ntraits, minmaf[snp], minss[snp], maxss[snp], flag, traitflag, maf_flag
       }

@@ -17,7 +17,7 @@
 
 bash 1_combine_and_format.sh \
     1 \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/C100001554_And_Friends_3Metabolites.csv \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
     0.05 \
     0 \
     C100001554_1_comb_form_output.tsv
