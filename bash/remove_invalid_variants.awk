@@ -5,14 +5,14 @@ BEGIN {
     OFS = "\t"
     # Accept col names via -v
     need_snp = (snp_name == "" ? "snp" : snp_name)
-    need_beta = (beta_name == "" ? "beta_hat" : beta_name)
-    need_se = (se_name == "" ? "se" : se_name)
+#    need_beta = (beta_name == "" ? "beta_hat" : beta_name)
+#    need_se = (se_name == "" ? "se" : se_name)
     need_A1 = (A1_name == "" ? "A1" : A1_name)
     need_A2 = (A2_name == "" ? "A2" : A2_name)
 #    need_pos = (pos_name == "" ? "pos" : pos_name)
 #    need_pval = (pval_name == "" ? "p_value" : pval_name)
     need_ss = (ss_name == "" ? "sample_size" : ss_name)
-#    need_af = (af_name == "" ? "allele_freq" : af_name)
+    need_af = (af_name == "" ? "allele_freq" : af_name)
 }
 
 # --- Parse header and map colnames to indices ---
@@ -21,20 +21,20 @@ NR == 1 {
         col[ $i ] = i
     }
     # Optionally rename header columns
-   $col[need_snp]   = "snp"
-   $col[need_beta]  = "beta_hat"
-   $col[need_se]    = "se"
-   $col[need_A1]    = "A1"
-   $col[need_A2]    = "A2"
+#   $col[need_snp]   = "snp"
+#   $col[need_beta]  = "beta_hat"
+#   $col[need_se]    = "se"
+#   $col[need_A1]    = "A1"
+#   $col[need_A2]    = "A2"
 #   $col[need_pos]   = "pos"
 #   $col[need_pval]  = "p_value"
-   $col[need_ss]    = "sample_size"
+#   $col[need_ss]    = "sample_size"
 #   $col[need_af]    = "allele_freq"
 
     # Output header
 #   print
 #    print "snp"
-    print $col[need_snp], $col[need_A1], $col[need_A2], $col[need_beta], $col[need_se], $col[need_ss]
+    print $col[need_snp], $col[need_A1], $col[need_A2], $col[need_ss], $col[need_af]
     next
 }
 
@@ -64,6 +64,6 @@ NR == 1 {
 
 #    print
 #    print snp
-print $(col[need_snp]), a1, a2, $(col[need_beta]), $(col[need_se]), $(col[need_ss])
+print $(col[need_snp]), a1, a2, $(col[need_ss]), $(col[need_af])
 }
 

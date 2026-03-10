@@ -5,7 +5,7 @@
 #conda install csvtk
 #csvtk version
 
-set -x
+#set -x
 
 set -euo pipefail
 
@@ -29,8 +29,6 @@ dos2unix "$gwas_info_file"
 #unix2dos "$gwas_info_file"
 # most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
 
-# add the af thing.  if no af in columns, make an na column of it
-
 # read user metadata file - - -
 
 # Get the number of rows/traits
@@ -45,17 +43,17 @@ parse_header "$gwas_info_file" "$delimiter"      # build the associative array c
 
 col_raw_data=$(get_col "raw_data_path")
 col_snp=$(get_col "snp")
-col_pos=$(get_col "pos")
+#col_pos=$(get_col "pos")
 col_chrom=$(get_col "chrom")
 col_A1=$(get_col "A1")
 col_A2=$(get_col "A2")
-col_beta_hat=$(get_col "beta_hat")
-col_se=$(get_col "se")
-col_pval=$(get_col "p_value")
+#col_beta_hat=$(get_col "beta_hat")
+#col_se=$(get_col "se")
+#col_pval=$(get_col "p_value")
 col_af=$(get_col "af")
 col_sample_size=$(get_col "sample_size")
-col_pub_sample_size=$(get_col "pub_sample_size")
-col_effect_is_or=$(get_col "effect_is_or")
+#col_pub_sample_size=$(get_col "pub_sample_size")
+#col_effect_is_or=$(get_col "effect_is_or")
 col_name=$(get_col "name")
 
 # loop over gwas files and format - - -
@@ -76,8 +74,8 @@ for ((i=2; i<=2; i++)); do
     chrn=$(awk -F, -v row="$i" -v col="$col_chrom" 'NR==row {print $col}' "$gwas_info_file")
     A1=$(awk -F, -v row="$i" -v col="$col_A1" 'NR==row {print $col}' "$gwas_info_file")
     A2=$(awk -F, -v row="$i" -v col="$col_A2" 'NR==row {print $col}' "$gwas_info_file")
-    beta_hat=$(awk -F, -v row="$i" -v col="$col_beta_hat" 'NR==row {print $col}' "$gwas_info_file")
-    se=$(awk -F, -v row="$i" -v col="$col_se" 'NR==row {print $col}' "$gwas_info_file")
+#    beta_hat=$(awk -F, -v row="$i" -v col="$col_beta_hat" 'NR==row {print $col}' "$gwas_info_file")
+#    se=$(awk -F, -v row="$i" -v col="$col_se" 'NR==row {print $col}' "$gwas_info_file")
 #    pval=$(awk -F, -v row="$i" -v col="$col_pval" 'NR==row {print $col}' "$gwas_info_file")
     af=$(awk -F, -v row="$i" -v col="$col_af" 'NR==row {print $col}' "$gwas_info_file")
     sample_size=$(awk -F, -v row="$i" -v col="$col_sample_size" 'NR==row {print $col}' "$gwas_info_file")
@@ -93,26 +91,107 @@ for ((i=2; i<=2; i++)); do
     echo "parsed header"
     chr_col=$(get_col "$chrn")
     echo "$chr_col"
-
+    
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
         echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
         format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
     else
-    # STEP 1: Harmonize, chrom filter, fill sample size
-    # add elif for .gz
-         (
-         zcat "$f" \
-             | awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" 'NR==1 || $col == chrom_val' \
-             | awk -F"\t" -v OFS="\t" \
-                 -v compute_pval="TRUE" \
-                 -v snp_name="$snp" \
-                 -v beta_name="$beta_hat" \
-                 -v se_name="$se" \
-                 -v A1_name="$A1" \
-                 -v A2_name="$A2" \
-                 -v ss_name="$sample_size" \
-                 -f remove_invalid_variants.awk
-        ) > "$workdir/${trait_name}.gwasform.tsv"
+        trait_summary_table="$workdir/trait_sample_stats.tsv"
+        # here common means SNPs in common between all traits.  this will confuse people bc of af so I need to change
+        common_snps_and_maf="$workdir/common_snps_and_maf.tsv"
+
+        # Write header to summary table (only once)
+        echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table"    
+        
+        filtered_data=$(
+            zcat "$f" \
+                | awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" \
+                    'NR==1 || $col == chrom_val' \
+                | awk -F"\t" -v OFS="\t" \
+                    -v snp_name="$snp" \
+                    -v A1_name="$A1" \
+                    -v A2_name="$A2" \
+                    -v ss_name="$sample_size" \
+                    -v af_name="$af" \
+		    -f remove_invalid_variants.awk
+       )
+	
+	echo "created filtered data"
+	
+	# 1. Sample size statistics for trait summary table
+        echo "$filtered_data" | awk -F"\t" -v ss_col="$sample_size" -v trait="$trait_name" '
+            NR==1 { for(i=1;i<=NF;i++) if($i==ss_col) ss_idx=i; next }
+            $ss_idx!="" && $ss_idx ~ /^[0-9.]+$/ { vals[++n]=$ss_idx }
+            END {
+                if(n > 0) {
+                    asort(vals)
+                    if(n%2) {med=vals[int(n/2)+1]}
+                    else {med=(vals[int(n/2)]+vals[int(n/2)+1])/2}
+                    low=med*0.9
+                    high=med*1.1
+                    print trait, low, med, high
+                } else {
+                    print trait, "NA", "NA", "NA"
+                }
+            }
+        ' >> "$trait_summary_table"
+	
+        echo "created trait summ table"
+
+	# 2. Common SNPs and min MAF intersection/update
+        if ((i == 2)); then
+            echo "$filtered_data" | awk -F"\t" -v snp_col="$snp" -v af_col="$af" '
+                NR==1 { 
+                    for(i=0;i<=NF;i++) {
+                        if($i==snp_col) snp_idx=i;
+                        if($i==af_col) af_idx=i;
+                    }
+                    #print "Header:", $0;
+                    #print "Detected snp_col index:", snp_idx, "af_col index:", af_idx;
+                    next
+                }
+                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ {
+                    snps[$snp_idx]=1; minmaf[$snp_idx]=$af_idx 
+                }
+                END { 
+                    #print "Number of snps in table:", length(snps);
+                    for (s in snps) print s "\t" minmaf[s] 
+                }
+                ' > "$common_snps_and_maf"
+        else
+            echo "$filtered_data" | awk -F"\t" -v snp_col="$snp" -v af_col="$af" '
+                NR==1 { 
+                    for(i=1;i<=NF;i++) if($i==snp_col) snp_idx=i;
+                    for(i=1;i<=NF;i++) if($i==af_col) af_idx=i;
+                    next 
+                }
+                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ { print $snp_idx, $af_idx }
+            ' \
+            | awk -F"\t" '
+                NR==FNR { commonmaf[$1]=$2; next }
+                ($1 in commonmaf) {
+                    maf = $2
+                    if (maf < commonmaf[$1]) commonmaf[$1]=maf
+                }
+                END {
+                    for (snp in commonmaf) print snp "\t" commonmaf[snp]
+                }
+             ' "$common_snps_and_maf" - > temp_common_snps_and_maf.tsv
+             mv temp_common_snps_and_maf.tsv "$common_snps_and_maf"
+        fi
+
+        echo "created comm snps table"
+
+	#(
+        # zcat "$f" \
+        #     | awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" 'NR==1 || $col == chrom_val' \
+        #     | awk -F"\t" -v OFS="\t" \
+        #          -v snp_name="$snp" \
+        #          -v A1_name="$A1" \
+        #         -v A2_name="$A2" \
+        #         -v ss_name="$sample_size" \
+        #         -f remove_invalid_variants.awk
+        #) > "$workdir/${trait_name}.gwasform.tsv"
 # the awk of make_snp_table
 # the add_zscore.awk
 # the harmonization flag

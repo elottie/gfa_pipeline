@@ -56,6 +56,7 @@ get_file_delimiter() {
 parse_header() {
     local file="$1"
     local header
+    local i
     if [[ "$file" == *.gz ]]; then
         header=$(zcat "$file" | head -n 1 || true)
     else
