@@ -5,7 +5,7 @@
 #conda install csvtk
 #csvtk version
 
-#set -x
+set -x
 
 set -euo pipefail
 
@@ -20,7 +20,7 @@ sample_size_tol="$4"      # sample size tolerance
 out="$5"                  # output file
 
 # temp workspace for generated files
-workdir="$(date +%Y%m%d_%H%M%S)"
+workdir="1_comb_form_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$workdir"
 
 # just once, need to get rid of lovely windows carriage returns
@@ -58,15 +58,17 @@ col_name=$(get_col "name")
 
 # loop over gwas files and format - - -
 
-#source get_snp_valid_ss_range.sh
-#read highest_min lowest_max <<< "$(get_snp_valid_ss_range "$gwas_info_file")"
+trait_summary_table="$workdir/trait_sample_stats.tsv"
+# here common means SNPs in common between all traits.  this will confuse people bc of af so I need to change
+common_snps_and_maf="$workdir/common_snps_and_maf.tsv"
+common_snps_and_maf_tmp="$workdir/common_snps_and_maf.tmp"
 
-#echo "highest_min: $highest_min"
-#echo "lowest_max: $lowest_max"
+# Write header to summary table (only once)
+echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table" 
 
-trait_files=()
-#for ((i=2; i<=num_traits+1; i++)); do
-for ((i=2; i<=2; i++)); do
+for ((i=2; i<=num_traits+1; i++)); do
+#for ((i=2; i<=2; i++)); do
+#for ((i=2; i<=3; i++)); do
     # Read info fields for trait i (awk column indexing, adjust as needed for TSV)
     f=$(awk -F, -v row="$i" -v col="$col_raw_data" 'NR==row {print $col}' "$gwas_info_file")
     snp=$(awk -F, -v row="$i" -v col="$col_snp" 'NR==row {print $col}' "$gwas_info_file")
@@ -96,13 +98,6 @@ for ((i=2; i<=2; i++)); do
         echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
         format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
     else
-        trait_summary_table="$workdir/trait_sample_stats.tsv"
-        # here common means SNPs in common between all traits.  this will confuse people bc of af so I need to change
-        common_snps_and_maf="$workdir/common_snps_and_maf.tsv"
-
-        # Write header to summary table (only once)
-        echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table"    
-        
         filtered_data=$(
             zcat "$f" \
                 | awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" \
@@ -114,13 +109,16 @@ for ((i=2; i<=2; i++)); do
                     -v ss_name="$sample_size" \
                     -v af_name="$af" \
 		    -f remove_invalid_variants.awk
-       )
+            )
 	
 	echo "created filtered data"
-	
+
+        echo "$filtered_data" | wc -l  # CHECK IF NOT TRUNCATED
+
 	# 1. Sample size statistics for trait summary table
         echo "$filtered_data" | awk -F"\t" -v ss_col="$sample_size" -v trait="$trait_name" '
-            NR==1 { for(i=1;i<=NF;i++) if($i==ss_col) ss_idx=i; next }
+            BEGIN { OFS="\t" }
+	    NR==1 { for(i=1;i<=NF;i++) if($i==ss_col) ss_idx=i; next }
             $ss_idx!="" && $ss_idx ~ /^[0-9.]+$/ { vals[++n]=$ss_idx }
             END {
                 if(n > 0) {
@@ -135,152 +133,105 @@ for ((i=2; i<=2; i++)); do
                 }
             }
         ' >> "$trait_summary_table"
-	
-        echo "created trait summ table"
+
+	echo "created trait ss table"
+
+	read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_summary_table" | tail -n1)
 
 	# 2. Common SNPs and min MAF intersection/update
         if ((i == 2)); then
-            echo "$filtered_data" | awk -F"\t" -v snp_col="$snp" -v af_col="$af" '
-                NR==1 { 
-                    for(i=0;i<=NF;i++) {
-                        if($i==snp_col) snp_idx=i;
-                        if($i==af_col) af_idx=i;
+            echo "$filtered_data" | \
+	    awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v low="$low" -v high="$high" '
+	        BEGIN { OFS="\t" }
+                NR==1 {
+                    for (i=1; i<=NF; i++) {
+                        if ($i == snp_col) snp_idx = i
+                        if ($i == af_col) af_idx = i
+                        if ($i == ss_col) ss_idx = i
                     }
-                    #print "Header:", $0;
-                    #print "Detected snp_col index:", snp_idx, "af_col index:", af_idx;
+                    print $snp_idx, "maf", "within_sample_size_bounds"
                     next
                 }
-                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ {
-                    snps[$snp_idx]=1; minmaf[$snp_idx]=$af_idx 
-                }
-                END { 
-                    #print "Number of snps in table:", length(snps);
-                    for (s in snps) print s "\t" minmaf[s] 
+                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
+                    maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx
+                    ss_val = $ss_idx + 0
+                    flag = (ss_val >= low && ss_val <= high) ? 1 : 0
+                    print $snp_idx, maf, flag
                 }
                 ' > "$common_snps_and_maf"
         else
-            echo "$filtered_data" | awk -F"\t" -v snp_col="$snp" -v af_col="$af" '
-                NR==1 { 
-                    for(i=1;i<=NF;i++) if($i==snp_col) snp_idx=i;
-                    for(i=1;i<=NF;i++) if($i==af_col) af_idx=i;
-                    next 
-                }
-                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ { print $snp_idx, $af_idx }
-            ' \
-            | awk -F"\t" '
-                NR==FNR { commonmaf[$1]=$2; next }
-                ($1 in commonmaf) {
-                    maf = $2
-                    if (maf < commonmaf[$1]) commonmaf[$1]=maf
-                }
-                END {
-                    for (snp in commonmaf) print snp "\t" commonmaf[snp]
-                }
-             ' "$common_snps_and_maf" - > temp_common_snps_and_maf.tsv
-             mv temp_common_snps_and_maf.tsv "$common_snps_and_maf"
-        fi
-
+	    echo "$filtered_data" | \
+            awk -F"\t" -v snp_col="$snp" \
+                -v af_col="$af" \
+                -v ss_col="$sample_size" \
+                -v low="$low" \
+                -v high="$high" \
+                'BEGIN { OFS="\t" }
+                # First file: filtered_data, build lookup tables
+                NR==FNR {
+                    if(FNR==1) {
+                        for(i=1;i<=NF;i++) {
+                            if($i==snp_col) snp_idx=i
+                            if($i==af_col) af_idx=i
+                            if($i==ss_col) ss_idx=i
+                        }
+                        #print "Indices:", snp_idx, af_idx, ss_idx;
+                        next
+		    } else {
+        	        # Only store filtered_data in lookup
+                        af_val = $af_idx + 0
+                        ss_val = $ss_idx + 0
+                        snp_val = $snp_idx
+                        filtered_af[snp_val] = af_val
+                        filtered_ss[snp_val] = ss_val
+                        #print "Raw snp:", $snp_idx, "Raw af:", $af_idx, "Raw ss:", $ss_idx
+		        #print "Storing:", snp_val, "af:", af_val, "ss:", ss_val
+	            }
+		}
+                # Second file: common_snps_and_maf
+                NR!=FNR {
+                    snp = $1
+                    prior_maf = $2 + 0
+                    flag = $3
+                    # Only keep SNPs present in filtered_data
+                    if (snp in filtered_af && snp in filtered_ss) {
+                        # Choose minimum MAF
+                        maf1 = filtered_af[snp]
+                        maf2 = 1 - filtered_af[snp]
+                        min_maf = prior_maf
+	       		if(maf1 < min_maf) min_maf = maf1
+                        if(maf2 < min_maf) min_maf = maf2
+                        # print "maf1:", maf1, "maf2:", maf2, "min_maf:", min_maf
+			# Evaluate sample size flag
+                        ss_val = filtered_ss[snp]
+                        new_flag = flag
+                        if(flag==1 && (ss_val < low || ss_val > high)) new_flag = 0
+                        print snp, min_maf, new_flag
+                    }
+               }
+               ' - "$common_snps_and_maf" > "$common_snps_and_maf_tmp" &&
+               mv "$common_snps_and_maf_tmp" "$common_snps_and_maf"
+		
         echo "created comm snps table"
 
-	#(
-        # zcat "$f" \
-        #     | awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" 'NR==1 || $col == chrom_val' \
-        #     | awk -F"\t" -v OFS="\t" \
-        #          -v snp_name="$snp" \
-        #          -v A1_name="$A1" \
-        #         -v A2_name="$A2" \
-        #         -v ss_name="$sample_size" \
-        #         -f remove_invalid_variants.awk
-        #) > "$workdir/${trait_name}.gwasform.tsv"
-# the awk of make_snp_table
-# the add_zscore.awk
-# the harmonization flag
-        # connect
-#        bash make_snp_table.sh
-
-             #| awk -F"\t" -v OFS="\t" \
-             #    -v chrom="$chrom" \
-             #    -v snp_name="$snp" \
-             #    -v chrom_name="$chrn" \
-             #    -v af_name="$af" \
-             #    -v af_thresh="$af_thresh" \
-             #    -v effect_is_or="$effect_or" \
-             #    -f format_flat_chrom.awk \
-             #| awk -v pub_ss="$pub_sample_size" -f fill_sample_size.awk
-        #) > "$workdir/${trait_name}.filled.tsv"
-
-        # STEP 2: Determine sample_size column index and median
-        #ss_col=$(awk -F'\t' 'NR==1{for(i=1;i<=NF;i++) if($i=="sample_size") print i}' "$workdir/${trait_name}.filled.tsv")
-        #median=$(awk -v ss_col="$ss_col" 'NR>1 && $ss_col!="NA"{a[++N]=$ss_col} END{n=asort(a); m=int(n/2); print a[m]}' "$workdir/${trait_name}.filled.tsv")
-        #lower=$(awk -v m="$median" -v tol="$sample_size_tol" 'BEGIN{print (1-tol)*m}')
-        #upper=$(awk -v m="$median" -v tol="$sample_size_tol" 'BEGIN{print (1+tol)*m}')
-
-        # STEP 3: Apply sample_size filter and add Z
-        #awk -v ss_col="$ss_col" -v lower="$lower" -v upper="$upper" -f sample_size_tol_filter.awk "$workdir/${trait_name}.filled.tsv" \
-        #   | awk -f add_zscore.awk \
-        #   > "$trait_out"
+        fi
     fi
-
-    # ---- Add trait name column, ready for SQLite import ----
-    #awk -v trait="$trait_name" 'NR==1{print $0 "\ttrait_name"; next} {print $0 "\t" trait}' "$trait_out" > "$workdir/${trait_name}.with_trait.tsv"
-
-    #trait_files+=("$trait_out")
-
 done
 
-# concatenate, long format:
-# Use all with_trait.tsv files
-#first_file=$(ls $workdir/*.with_trait.tsv | head -n 1)
+# ---
+awk -F"\t" 'BEGIN { OFS="\t"; print "snp", "min_maf", "in_ss_range_all_traits", "above_min_maf_thresh" }
+{
+    af_flag = ($2 >= 0.05) ? 1 : 0
+    print $1, $2, $3, af_flag
+}' "$common_snps_and_maf" > "$common_snps_and_maf_tmp" &&
+mv "$common_snps_and_maf_tmp" "$common_snps_and_maf"
 
-# Print header from first file
-#head -n 1 "$first_file" > all_traits_long.tsv
+echo "wrote out snp table with maf and ss flags"
 
-# Print data from all files (skip first line—header)
-#for f in $workdir/*.with_trait.tsv; do
-#    tail -n +2 "$f"
-#done >> all_traits_long.tsv
+# write out a file where only the snps that pass ss and maf filters stay
+final_pass_snps="$workdir/snps_pass_all_filts.txt"
+awk -F"\t" 'NR>1 && $3==1 && $4==1 {print $1}' "$common_snps_and_maf" > "$final_pass_snps"
 
-#for trait_file in "${trait_files[@]}"; do
-#    sqlite3 my_gwas.db <<EOF
-#.mode tabs
-#.import $trait_file gwas
-#EOF
-#done
+echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
 
-# merge GWAS files NOT IN BASH - - -
-
-# Use csvtk, datamash, or join for multi-file full join if possible. Otherwise, note this as an R step.
-#echo "Full-joining all trait files: ${trait_files[@]}"
-
-# HARDCODING DELIMITER
-#csvtk join --outer-join --tabs -f chrom,snp,REF,ALT "${trait_files[@]}" > temp.tsv
-# Replace empty tabs with NA
-# This sed trick works for tab-separated files: replaces consecutive tabs or tabs at line ends
-#sed 's/\t\t/\tNA\t/g; s/\t$/\tNA/g' temp.tsv > fulldat.tsv
-
-# remove dup SNPs - - -
-
-# Find and filter out duplicate snps (assuming final merged file 'fulldat.tsv')
-#awk '
-#NR==1 {for(i=1;i<=NF;i++) if($i=="snp") snp=i; print; next;}
-#{
-#    if(seen[$snp]++ == 0) print;
-#}
-#' all_traits_long.tsv > fulldat.nodup.tsv
-
-# remove missing traits - - -
-
-# For each row, check Z columns, count NAs, keep only rows where all Z columns are present:
-#awk '
-#NR==1 {
-#    for(i=1;i<=NF;i++) if($i ~ /\.z$/) zcols[++zcount]=i;
-#    print
-#}
-#NR>1 {
-#    miss=0;
-#    for(j=1;j<=zcount;j++) if($zcols[j]=="NA") miss++;
-#    if(miss == 0) print;
-#}
-#' fulldat.nodup.tsv > "${out}"
-
-
+echo "finished formatting"

@@ -15,9 +15,10 @@
 
 #bash bash/1_combine_and_format.sh {wildcards.chrom} {input.gwas_info} {input.ref_bim} {params.af_thresh} {params.sample_size_tol} {output.out}
 
+#    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
 bash 1_combine_and_format.sh \
     1 \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
     0.05 \
     0 \
     C100001554_1_comb_form_output.tsv
