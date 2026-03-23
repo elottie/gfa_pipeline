@@ -15,6 +15,9 @@
 
 #bash bash/1_combine_and_format.sh {wildcards.chrom} {input.gwas_info} {input.ref_bim} {params.af_thresh} {params.sample_size_tol} {output.out}
 
+# need to put into snakemake call.  or maybe not if R is in their conda env
+module load R
+
 #    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
 bash 1_combine_and_format.sh \
     1 \
