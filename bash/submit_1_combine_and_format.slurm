@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --mem=8G                          # Memory (adjust as needed, e.g., 4G for 4 GB)
+#SBATCH --mem=512M                          # Memory (adjust as needed, e.g., 4G for 4 GB)
 #SBATCH --time=00:20:00                   # Max run time (hh:mm:ss, adjust as needed)
 #SBATCH --account=jvmorr1
 
@@ -16,15 +16,14 @@
 #bash bash/1_combine_and_format.sh {wildcards.chrom} {input.gwas_info} {input.ref_bim} {params.af_thresh} {params.sample_size_tol} {output.out}
 
 # need to put into snakemake call.  or maybe not if R is in their conda env
-module load R
 
 #    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
 bash 1_combine_and_format.sh \
     1 \
     /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
     0.05 \
-    0 \
-    C100001554_1_comb_form_output.tsv
+    0.1 \
+    final_pass_snps.txt
 
 
 #c                  <- as.numeric(args[1])  # chromosome

@@ -1,13 +1,66 @@
 #!/bin/bash
 
-# Users must get csvtk:
-#conda activate <your-gfa-env>
-#conda install csvtk
-#csvtk version
-
-set -x
+#set -x
 
 set -euo pipefail
+
+memsnap() {
+  # prints MaxRSS and AveRSS for the current job step
+  sstat -j "${SLURM_JOB_ID}.batch" --format=JobID,MaxRSS,AveRSS -n 2>/dev/null \
+    | awk '{print strftime("[%F %T]"), $0}'
+}
+
+stat -fc %T /sys/fs/cgroup
+
+# --- cgroup memory introspection (works on most cgroup v2 systems) ---
+cgmem_snap () {
+  local tag="${1:-snap}"
+  local cg="/sys/fs/cgroup"
+
+  echo "=== [$tag] $(date) ==="
+
+  # SLURM context (helps interpret sacct output)
+  echo "SLURM_JOB_ID=${SLURM_JOB_ID:-} SLURM_STEP_ID=${SLURM_STEP_ID:-} SLURM_PROCID=${SLURM_PROCID:-}"
+
+  if [[ -r "$cg/memory.current" ]]; then
+    echo "cgroup: $(cat $cg/cgroup.controllers 2>/dev/null | tr -s ' ' | head -c 200) ..."
+    echo "memory.current: $(cat $cg/memory.current)"
+    echo "memory.max:     $(cat $cg/memory.max)"
+  else
+    echo "No $cg/memory.current (maybe cgroup v1 or different mount); skipping cgroup v2 stats."
+  fi
+
+  if [[ -r "$cg/memory.stat" ]]; then
+    # Key fields:
+    #  anon = heap/stack (your process memory)
+    #  file = page cache charged to cgroup
+    #  slab = kernel objects (dentries/inodes etc.)
+    awk '
+      BEGIN { want["anon"]=1; want["file"]=1; want["slab"]=1;
+              want["active_file"]=1; want["inactive_file"]=1;
+              want["active_anon"]=1; want["inactive_anon"]=1 }
+      $1 in want { printf "%-14s %s\n", $1":", $2 }
+    ' "$cg/memory.stat"
+  fi
+
+  echo
+}
+
+# Optional: per-process RSS of the current bash (won't capture file cache)
+procrss_snap () {
+  local tag="${1:-rss}"
+  echo "=== [$tag] bash RSS ==="
+  awk '/VmRSS|VmHWM/ {print}' /proc/$$/status
+  echo
+}
+
+( while :; do
+    date
+    ps -u "$USER" -o pid,ppid,rss,cmd --sort=-rss | head -20
+    echo "----"
+    sleep 2
+  done ) > ps_rss.log &
+sampler=$!
 
 # read input arguments - - -
 
@@ -16,7 +69,7 @@ set -euo pipefail
 chrom="$1"                # e.g., from Snakemake wildcards
 gwas_info_file="$2"       # path to info file
 af_thresh="$3"            # allele freq threshold
-sample_size_tol="$4"      # sample size tolerance
+ss_tol="$4"      # sample size tolerance
 out="$5"                  # output file
 
 # temp workspace for generated files
@@ -56,19 +109,22 @@ col_sample_size=$(get_col "sample_size")
 #col_effect_is_or=$(get_col "effect_is_or")
 col_name=$(get_col "name")
 
+echo "after extracting col names"
+memsnap
+
 # loop over gwas files and format - - -
 
 trait_summary_table="$workdir/trait_sample_stats.tsv"
-# here common means SNPs in common between all traits.  this will confuse people bc of af so I need to change
-common_snps_and_maf="$workdir/common_snps_and_maf.tsv"
-common_snps_and_maf_tmp="$workdir/common_snps_and_maf.tmp"
+# here shared means SNPs in shared between all traits. 
+shared_snps_and_maf="$workdir/shared_snps_and_maf.tsv"
+shared_snps_and_maf_tmp="$workdir/shared_snps_and_maf.tmp"
 
 # Write header to summary table (only once)
 echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table" 
 
-for ((i=2; i<=num_traits+1; i++)); do
-#for ((i=2; i<=2; i++)); do
-#for ((i=2; i<=3; i++)); do
+#for ((i=2; i<=num_traits+1; i++)); do
+#for ((i=3; i<=3; i++)); do
+for ((i=2; i<=3; i++)); do
     # Read info fields for trait i (awk column indexing, adjust as needed for TSV)
     f=$(awk -F, -v row="$i" -v col="$col_raw_data" 'NR==row {print $col}' "$gwas_info_file")
     snp=$(awk -F, -v row="$i" -v col="$col_snp" 'NR==row {print $col}' "$gwas_info_file")
@@ -85,228 +141,372 @@ for ((i=2; i<=num_traits+1; i++)); do
 #    pub_sample_size=$(awk -F, -v row="$i" -v col="$col_pub_sample_size" 'NR==row {print $col}' "$gwas_info_file")
     trait_name=$(awk -F, -v row="$i" -v col="$col_name" 'NR==row {print $col}' "$gwas_info_file")
 
-    trait_out="$workdir/${trait_name}.final.tsv"
-
     delimiter=$(get_file_delimiter "$f")
-    echo "got delimiter"
-    parse_header "$f" "$delimiter"
-    echo "parsed header"
-    chr_col=$(get_col "$chrn")
-    echo "$chr_col"
-    
+
+    #trait_out="$workdir/${trait_name}.final.tsv"
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
         echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
-        format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
+    #    format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
     else
-        upstream() {
- 		 zcat "$f" \
-  			| awk -F"$delimiter" -v col="$chr_col" -v chrom_val="$chrom" -v OFS="\t" 'NR==1 || $col == chrom_val' \
-  			| awk -F"\t" -v OFS="\t" \
-      				-v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
-				-v beta_name="$beta_hat" -v se_name="$se" \
-      				-v ss_name="$sample_size" -v af_name="$af" \
-      				-f remove_invalid_variants.awk \
-  			| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
-	}
+        echo "maxrss before make_filt_data"
+        memsnap
 
-
-        upstream | wc -l  # CHECK IF NOT TRUNCATED
-
-        #upstream 2>/dev/null | head
-
-	# this fifo thing is named pipe to help us not run upstream twice (as you would to just use paste).  I'm not sure it would work well for ppl locally.  but reading 2x is slow
-        # keep the fifo for now
-	#make_filt_data() {
-        #    local tmpdir fifo
-        #    tmpdir=$(mktemp -d)
-        #    fifo="$tmpdir/pvals.fifo"
-        #    mkfifo "$fifo"
-            
-	#    cleanup() { rm -rf "$tmpdir"; }
-        #    trap cleanup EXIT INT TERM
-
-        #    upstream \
-        #    | tee >(  # side branch computes P and writes to fifo
-        #        awk -F$'\t' '
-        #            NR==1 {
-        #                for (i=1; i<=NF; i++) if ($i=="Z") { z=i; break }
-        #                if (!z) { print "ERROR: no Z column in header" > "/dev/stderr"; exit 2 }
-        #                next
-        #            }
-        #            { print $z }
-        #        ' \
-        #    | Rscript -e '
-        #        z_chr <- scan("stdin", what=character(), quiet=TRUE)
-        #        z_num <- suppressWarnings(as.numeric(z_chr))
-        #        p <- 2*pnorm(-abs(z_num))
-        #        out <- ifelse(is.na(z_num), "NA", format(p, scientific=TRUE, digits=16))
-        #        cat("P\n"); cat(out, sep="\n")
-        #    ' \
-        #    > "$fifo"
-        #    ) \
-        #    | paste -d $'\t' - "$fifo"
-
-            # cleanup will run via trap
-       # }
-	
-	
 	make_filt_data() {
-  	    paste -d $'\t' \
-    	        <( upstream ) \
-    		<(
-      		    upstream \
-      		        | awk -F$'\t' '
-          		    NR==1 {
-            			for (i=1; i<=NF; i++) if ($i=="Z") { z=i; break }
-            			if (!z) { print "ERROR: no Z column in header" > "/dev/stderr"; exit 2 }
-            			next
-          			}
-          		    { print $z }
-        		    ' \
-      			| Rscript -e '
-          		    z_chr <- scan("stdin", what=character(), quiet=TRUE)
-          		    z_num <- suppressWarnings(as.numeric(z_chr))
-          		    p <- 2*pnorm(-abs(z_num))
-          		    out <- ifelse(is.na(z_num), "NA", format(p, scientific=TRUE, digits=16))
-          		    cat("p\n"); cat(out, sep="\n")
-        		'
-   		 )
-	}  
-	    
-    	echo "added p-values to filtered data from R"
+            zcat "$f" |
+                awk -F"$delimiter" -v chr_header="$chrn" -v chrom_val="$chrom" -v OFS="\t" '
+                    NR==1 {
+                        for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i
+                        if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }
+                        print
+                        next
+                    }
+                    $chr_idx == chrom_val
+                    ' \
+		| awk -F"\t" -v OFS="\t" \
+      			-v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
+			-v beta_name="$beta_hat" -v se_name="$se" \
+      			-v ss_name="$sample_size" -v af_name="$af" \
+      			-f remove_invalid_variants.awk \
+		| { read -r header; printf '%s\n' "$header"; sort -T "$workdir" -S 100M -t $'\t' -k1,1 -u; } \
+  		| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
+	}
+        # add the copying over of pub ss if real ss not avail
+   
+	cgmem_snap "iter=$i BEFORE make_filt_data"
+        procrss_snap "iter=$i BEFORE make_filt_data"
+	
+	make_filt_data > tmp.txt
+	
+        cgmem_snap "iter=$i AFTER make_filt_data"
+        procrss_snap "iter=$i AFTER make_filt_data"
 
+	echo "maxrss after make_filt_data"
+        memsnap
+
+#	echo "----- iter $i -----"
+#	sstat -j "$SLURM_JOB_ID" --format=JobID,MaxRSS,AveRSS -n
+
+	# show cgroup v1 cache vs rss if available
+	#cgbase=/sys/fs/cgroup/memory
+	#jobcg=$(find "$cgbase" -maxdepth 6 -type d -name "job_${SLURM_JOB_ID}*" 2>/dev/null | head -n 1)
+	#echo "jobcg=$jobcg"
+	#if [[ -n "$jobcg" && -r "$jobcg/memory.stat" ]]; then
+  #		egrep '^(rss|cache|mapped_file|inactive_file|active_file|inactive_anon|active_anon) ' "$jobcg/memory.stat"
+#	fi
+
+	#printf "A1=%s A2=%s f=%s chrom=%s delimiter=%q chrn=%s snp=%s beta_hat=%s se=%s sample_size=%s af=%s\n" \
+        # "$A1" "$A2" "$f" "$chrom" "$delimiter" "$chrn" "$snp" "$beta_hat" "$se" "$sample_size" "$af"
+
+	#export -f make_filt_data
+        #export f delimiter chrn chrom snp A1 A2 beta_hat se sample_size af  # and any others it references
+        #/usr/bin/time -v bash -lc 'make_filt_data > /dev/null'
+
+            #/usr/bin/time -v env LC_ALL=C sort -S 200M -t $'\t' -k1,1 "$trait_keyed" > /dev/null
+	
+	#n=$(make_filt_data | wc -l)
+#	echo "trait=$trait_name make_filt_data_lines=$n" >&2
+
+	#/usr/bin/time -v bash -c 'make_filt_data > /dev/null'
+
+	#ps -eo pid,ppid,rss,cmd --sort=-rss | head -20
 
 	#make_filt_data | wc -l  # CHECK IF NOT TRUNCATED
         #make_filt_data 2>/dev/null | head
 
 	# 1. Sample size statistics for trait summary table
-	make_filt_data | awk -F"\t" -v ss_col="$sample_size" -v trait="$trait_name" '
-            BEGIN { OFS="\t" }
-	    NR==1 { for(i=1;i<=NF;i++) if($i==ss_col) ss_idx=i; next }
-            $ss_idx!="" && $ss_idx ~ /^[0-9.]+$/ { vals[++n]=$ss_idx }
-            END {
-                if(n > 0) {
-                    asort(vals)
-                    if(n%2) {med=vals[int(n/2)+1]}
-                    else {med=(vals[int(n/2)]+vals[int(n/2)+1])/2}
-                    low=med*0.9
-                    high=med*1.1
-                    print trait, low, med, high
-                } else {
-                    print trait, "NA", "NA", "NA"
-                }
-            }
-        ' >> "$trait_summary_table"
+	#make_filt_data | awk -F"\t" -v ss_col="$sample_size" -v trait="$trait_name" -v ss_tol="$ss_tol" '
+  	#    BEGIN { OFS="\t"; ss_tol += 0 }
+        #    NR==1 { for(i=1;i<=NF;i++) if($i==ss_col) ss_idx=i; next }
+        #    $ss_idx!="" && $ss_idx ~ /^[0-9.]+$/ { vals[++n]=$ss_idx }
+        #    END {
+        #        if(n > 0) {
+        #            asort(vals)
+        #            if(n%2) {med=vals[int(n/2)+1]}
+        #            else {med=(vals[int(n/2)]+vals[int(n/2)+1])/2}
+        #            low  = med * (1 - ss_tol)
+        #            high = med * (1 + ss_tol)
+        #            print trait, low, med, high
+        #        } else {
+        #            print trait, "NA", "NA", "NA"
+        #        }
+        #    }
+        #' >> "$trait_summary_table"
 
-	echo "created trait ss table"
+	# extract numeric SS values, sort numerically (disk-backed), get count
+	#tmp="$workdir/${trait_name}.ssvals"
+	#make_filt_data | awk -F"\t" -v ss_col="$sample_size" '
+ 	#     NR==1 {for(i=1;i<=NF;i++) if($i==ss_col) ss=i; next}
+        #     $ss!="" && $ss ~ /^[0-9.]+$/ {print $ss}
+        #     ' > "$tmp"
 
-	read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_summary_table" | tail -n1)
+        #n=$(wc -l < "$tmp")
+        #if (( n > 0 )); then
+        #    med=$(sort -n "$tmp" | awk -v n="$n" '
+        #        NR==int((n+1)/2){a=$1}
+        #        NR==int((n+2)/2){b=$1}
+        #        END{print (n%2)?a:(a+b)/2}
+        #    ')
+        #    low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
+        #    high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
+        #    printf "%s\t%s\t%s\t%s\n" "$trait_name" "$low" "$med" "$high" >> "$trait_summary_table"
+        #else
+        #    printf "%s\tNA\tNA\tNA\n" "$trait_name" >> "$trait_summary_table"
+        #fi
+        #rm -f "$tmp"
+
+	#echo "created trait ss table"
+        #memsnap
+
+	#read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_summary_table" | tail -n1)
+        low=1000
+	high=10000
 
 	# 2. Common SNPs and min MAF intersection/update
-        if ((i == 2)); then
-            make_filt_data | \
-	    awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v p_col="p" -v low="$low" -v high="$high" '
-	        BEGIN { OFS="\t" }
-                NR==1 {
-                    for (i=1; i<=NF; i++) {
-                        if ($i == snp_col) snp_idx = i
-                        if ($i == af_col) af_idx = i
-                        if ($i == ss_col) ss_idx = i
-			#if ($i == z_col) z_idx = i
-			if ($i == p_col) p_idx = i
-                    }
-                    next
-                }
-                $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
-                    maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx
-                    ss_val = $ss_idx + 0
-                    ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0
-		    #z = (z_idx && $(z_idx)!="") ? $(z_idx) : "NA"
-		    p = (p_idx && $(p_idx)!="") ? $(p_idx) : "NA"
-                    print $snp_idx, maf, p, ss_flag
-                }
-                ' > "$common_snps_and_maf"
-        else
-	    make_filt_data | \
-            awk -F"\t" -v snp_col="$snp" \
-                -v af_col="$af" \
-                -v ss_col="$sample_size" \
-                -v p_col="p" \
-		-v low="$low" \
-                -v high="$high" \
-                'BEGIN { OFS="\t" }
-                # First file: filtered_data, build lookup tables
-                NR==FNR {
-                    if(FNR==1) {
-                        for(i=1;i<=NF;i++) {
-                            if($i==snp_col) snp_idx=i
-                            if($i==af_col) af_idx=i
-			    if($i == p_col) p_idx = i
-                            if($i==ss_col) ss_idx=i
-                        }
-                        #print "Indices:", snp_idx, af_idx, ss_idx;
-                        next
-		    } else {
-        	        # Only store filtered_data in lookup
-                        af_val = $af_idx + 0
-			p_val = $p_idx + 0
-                        ss_val = $ss_idx + 0
-                        snp_val = $snp_idx
-                        filtered_af[snp_val] = af_val
-                        filtered_p[snp_val] = p_val
-			filtered_ss[snp_val] = ss_val
-                        #print "Raw snp:", $snp_idx, "Raw af:", $af_idx, "Raw ss:", $ss_idx
-		        #print "Storing:", snp_val, "af:", af_val, "ss:", ss_val
-	            }
-		}
-                # Second file: common_snps_and_maf
-                NR!=FNR {
-                    snp = $1
-                    prior_maf = $2 + 0
-		    prior_p = $3 + 0
-                    flag = $4
-                    # Only keep SNPs present in filtered_data
-                    if (snp in filtered_af && snp in filtered_p && snp in filtered_ss) {
-                        # Choose minimum MAF
-                        maf1 = filtered_af[snp]
-                        maf2 = 1 - filtered_af[snp]
-                        min_maf = prior_maf
-	       		if(maf1 < min_maf) min_maf = maf1
-                        if(maf2 < min_maf) min_maf = maf2
-			# Choose minimum p
-                        p1 = filtered_p[snp]
-                        min_p = prior_p
-                        if(p1 < min_p) min_p = p1
-			# Evaluate sample size flag
-                        ss_val = filtered_ss[snp]
-                        new_flag = flag
-                        if(flag==1 && (ss_val < low || ss_val > high)) new_flag = 0
-                        print snp, min_maf, min_p, new_flag
-                    }
-               }
-               ' - "$common_snps_and_maf" > "$common_snps_and_maf_tmp" &&
-               mv "$common_snps_and_maf_tmp" "$common_snps_and_maf"
-		
-        echo "created comm snps table"
+        #if ((i == 2)); then
+        #    make_filt_data | \
+	#    awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '
+	#        BEGIN { OFS="\t" }
+        #        NR==1 {
+        #            for (i=1; i<=NF; i++) {
+        #                if ($i == snp_col) snp_idx = i
+        #                if ($i == af_col) af_idx = i
+        #                if ($i == ss_col) ss_idx = i
+#			if ($i == z_col) z_idx = i
+ #                   }
+ #                   next
+ #               }
+ #               $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
+ #                   maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx
+ #                   ss_val = $ss_idx + 0
+ #                   ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0
+#		    # absolute the z
+#		    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
+#		    if (z != "NA" && z < 0) z = -z
+#                    print $snp_idx, maf, z, ss_flag
+#                }
+#            ' | LC_ALL=C sort -S 200M -t $'\t' -k1,1 > "$shared_snps_and_maf"
+#	    echo "after making first shared snp table"
+#	    memsnap
+#	    export -f make_filt_data
+#	    export snp af sample_size low high shared_snps_and_maf f delimiter chrn chrom snp A1 A2 beta_hat se sample_size af # plus any vars make_filt_data uses
 
-        fi
+#	/usr/bin/time -v bash -lc '
+#  	make_filt_data |
+#  	awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '"'"'
+#    	BEGIN { OFS="\t" }
+#    	NR==1 {
+#      		for (i=1; i<=NF; i++) {
+#       		 if ($i == snp_col) snp_idx = i
+#        	if ($i == af_col) af_idx = i
+#        	if ($i == ss_col) ss_idx = i
+#        	if ($i == z_col) z_idx = i
+#      	}
+#      	next
+#    	}
+#    	$snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
+#      	maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx
+#      	ss_val = $ss_idx + 0
+#      	ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0
+#      	z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
+#      	if (z != "NA" && z < 0) z = -z
+#      	print $snp_idx, maf, z, ss_flag
+#    	}
+#  	'"'"' |
+#  	LC_ALL=C sort -S 200M -t $'"'"'\t'"'"' -k1,1 > "$shared_snps_and_maf"
+#	'
+
+#       else
+	#    make_filt_data | \
+        #    awk -F"\t" -v snp_col="$snp" \
+        #        -v af_col="$af" \
+        #        -v ss_col="$sample_size" \
+        #        -v z_col="Z" \
+	#	-v low="$low" \
+        #        -v high="$high" \
+        #        'BEGIN { OFS="\t" }
+        #        # First file: filtered_data, build lookup tables
+        #        NR==FNR {
+        #            if(FNR==1) {
+        #                for(i=1;i<=NF;i++) {
+        #                    if($i==snp_col) snp_idx=i
+        #                    if($i==af_col) af_idx=i
+        #                    if($i==ss_col) ss_idx=i
+	# 	            if($i == z_col) z_idx = i
+        #                }
+        #                #print "Indices:", snp_idx, af_idx, ss_idx;
+        #                next
+	#		    } else {
+        # 	        # Only store filtered_data in lookup
+        #                snp_val = $snp_idx
+	#			af_val = $af_idx + 0
+        #                ss_val = $ss_idx + 0
+	#		z_val = $z_idx + 0
+        #                filtered_af[snp_val] = af_val
+	#		filtered_ss[snp_val] = ss_val
+#			filtered_z[snp_val] = z_val
+#                        #print "Raw snp:", $snp_idx, "Raw af:", $af_idx, "Raw ss:", $ss_idx
+##		        #print "Storing:", snp_val, "af:", af_val, "ss:", ss_val
+#	            }
+#		}
+#                # Second file: shared_snps_and_maf
+#                NR!=FNR {
+#                    snp = $1
+#                    prior_maf = $2 + 0
+#		    prior_z = $3 + 0
+#                    ss_flag = $4
+#                    # Only keep SNPs present in filtered_data
+#                    if (snp in filtered_af && snp in filtered_ss && snp in filtered_z) {
+#                        
+#			# Choose minimum MAF
+#                        maf1 = filtered_af[snp]
+#                        maf2 = 1 - filtered_af[snp]
+#                        min_maf = prior_maf
+#	       		if(maf1 < min_maf) min_maf = maf1
+#                        if(maf2 < min_maf) min_maf = maf2
+#			
+#			# Choose absolute maximum Z
+#                        z1 = filtered_z[snp]
+#			# absolute the prior_z
+#			max_abs_z = prior_z
+#			if (max_abs_z < 0) max_abs_z = -max_abs_z
+#			# absolute the current z
+#			abs_z1 = z1
+#			if (abs_z1 < 0) abs_z1 = -abs_z1
+#			# choose the greater absolute z
+#			if (abs_z1 > max_abs_z) max_abs_z = abs_z1
+#			
+#			# Evaluate sample size flag
+#                        ss_val = filtered_ss[snp]
+#                        new_ss_flag = ss_flag
+#                        if(ss_flag==1 && (ss_val < low || ss_val > high)) new_ss_flag = 0
+#                       
+#			print snp, min_maf, max_abs_z, new_ss_flag
+#                    }
+#               }
+#               ' - "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
+#               mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
+
+	#else
+ #           trait_keyed="$(mktemp)"
+#            trait_sorted="$(mktemp)"
+
+            # Extract SNP, AF, SS, |Z| from this trait (header-aware), headerless output
+#            make_filt_data |
+#                awk -F"\t" -v OFS="\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" '
+#                    NR==1{
+#                        for(i=1;i<=NF;i++){
+#                            if($i==snp_col) snp_idx=i
+#                            if($i==af_col)  af_idx=i
+#                            if($i==ss_col)  ss_idx=i
+#                            if($i==z_col)    z_idx=i
+#                        }
+#                        next
+#                    }
+#                    $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
+#                        z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
+#                        if(z!="NA" && z<0) z=-z
+#                        print $snp_idx, ($af_idx+0), ($ss_idx+0), z
+#                    }
+#               ' > "$trait_keyed"
+#            LC_ALL=C sort -S 200M -t $'\t' -k1,1 "$trait_keyed" > "$trait_sorted"
+		
+#	    export -f make_filt_data
+#	    export f delimiter chrn chrom snp A1 A2 beta_hat se sample_size af prefix  # and any others it references
+#	    /usr/bin/time -v bash -lc 'make_filt_data > /dev/null'
+#		
+#	    /usr/bin/time -v env LC_ALL=C sort -S 200M -t $'\t' -k1,1 "$trait_keyed" > /dev/null
+
+            # INNER JOIN shared (SNP prior_maf prior_z ss_flag) with trait (SNP af ss zabs)
+            # Only SNPs present in BOTH will be output => intersection across traits
+#            join -t $'\t' -1 1 -2 1 \
+#                -o 1.1,1.2,1.3,1.4,2.2,2.3,2.4 \
+#                "$shared_snps_and_maf" "$trait_sorted" |
+#            awk -F"\t" -v OFS="\t" -v low="$low" -v high="$high" '
+#                {
+#                    snp=$1
+#                    prior_maf=$2+0
+#                    prior_z=$3
+#                    ss_flag=$4+0
+#                    af=$5+0
+#                    ss=$6+0
+#                    z=$7
+
+                    # update min_maf using af and 1-af
+#                    maf2=1-af
+#                    min_maf=prior_maf
+#                    if(af < min_maf)   min_maf=af
+#                    if(maf2 < min_maf) min_maf=maf2
+
+                    # update max_abs_z (treat NA as missing)
+#                    max_abs_z=prior_z
+#                    if(max_abs_z!="NA"){
+#                        max_abs_z+=0
+#                        if(max_abs_z<0) max_abs_z=-max_abs_z
+#                    }
+#                    if(z!="NA"){
+#                        z+=0
+#                        if(z<0) z=-z
+#                        if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z
+#                    }
+
+#                    new_ss_flag=ss_flag
+#                    if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0
+
+#                    print snp, min_maf, max_abs_z, new_ss_flag
+#                }
+#            ' > "$shared_snps_and_maf_tmp"
+
+#            mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
+
+	    #ps -eo pid,ppid,rss,cmd --sort=-rss | head -20
+
+#	    echo "updated shared snps table"
+#            memsnap
+
+#            rm -f "$trait_keyed" "$trait_sorted"
+#        fi
+    #echo "END ITER $i: $(date)"
+    #jobs -l || true
+    #ps -u "$USER" -o pid,ppid,stat,cmd --sort=ppid | awk '$4 ~ /zcat|awk|sort|gzip/ {print}'
+    #wait
+    #kill %1 2>/dev/null
+   
+    echo "END ITER 1 $(date)"
+    #jobs -l || true
+    #ps -u "$USER" -o pid,ppid,stat,rss,cmd --sort=-rss | head -25
+    #wait
+    #echo "AFTER WAIT $(date)"
+    #ps -u "$USER" -o pid,ppid,stat,rss,cmd --sort=-rss | head -10
+
+
     fi
 done
 
-# ---
-awk -F"\t" 'BEGIN { OFS="\t"; print "snp", "min_maf", "min_p", "in_ss_range_each_trait", "above_min_maf_thresh" }
-{
-    af_flag = ($2 >= 0.05) ? 1 : 0
-    print $1, $2, $3, $4, af_flag
-}' "$common_snps_and_maf" > "$common_snps_and_maf_tmp" &&
-mv "$common_snps_and_maf_tmp" "$common_snps_and_maf"
+echo "finished trait loop"
+memsnap
 
-echo "wrote out snp table with maf and ss flags"
+# ---
+#awk -F"\t" -v af_thresh="$af_thresh" '
+#BEGIN { OFS="\t"; print "snp", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
+#{
+#    af_flag = ($2 >= af_thresh) ? 1 : 0
+#    print $1, $2, $3, $4, af_flag
+#}' "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
+#mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
+
+#echo "wrote out snp table with maf and ss flags"
+#memsnap
 
 # write out a file where only the snps that pass ss and maf filters stay
-final_pass_snps="$workdir/snps_pass_all_filts.txt"
-awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$common_snps_and_maf" > "$final_pass_snps"
+#final_pass_snps="$workdir/$out"
+#awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shared_snps_and_maf" > "$final_pass_snps"
+#awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
 
-echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
+#echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
+#memsnap
 
-echo "finished formatting"
+#echo "finished formatting"
+#memsnap
+
+kill "$sampler" 2>/dev/null || true
+wait "$sampler" 2>/dev/null || true

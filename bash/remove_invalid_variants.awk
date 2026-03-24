@@ -56,7 +56,7 @@ NR == 1 {
          (a1=="G" && a2=="C") ) next
 
     # Remove duplicate SNPs
-    if (snp_seen[snp]++) next
+    # handled outside for lowest rss
 
     print snp, a1, a2, beta, se, ss, af
 }
