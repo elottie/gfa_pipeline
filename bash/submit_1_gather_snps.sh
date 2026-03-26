@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --mem=512M                          # Memory (adjust as needed, e.g., 4G for 4 GB)
-#SBATCH --time=00:20:00                   # Max run time (hh:mm:ss, adjust as needed)
+                          # Memory (adjust as needed, e.g., 4G for 4 GB)
+#SBATCH --time=00:10:00                   # Max run time (hh:mm:ss, adjust as needed)
 #SBATCH --account=jvmorr1
 
 # Load any necessary modules here
@@ -18,12 +18,12 @@
 # need to put into snakemake call.  or maybe not if R is in their conda env
 
 #    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
-bash 1_combine_and_format.sh \
-    1 \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
-    0.05 \
-    0.1 \
-    final_pass_snps.txt
+#bash 1_gather_snps.sh \
+#    1 \
+#    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
+#    0.05 \
+#    0.1 \
+#    final_pass_snps.txt
 
 
 #c                  <- as.numeric(args[1])  # chromosome
@@ -33,9 +33,9 @@ bash 1_combine_and_format.sh \
 #out                <- args[5]
 
 #conda activate snakemake9
-#Rscript 1_combine_and_format.R \
-#    1 \
-#    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/C100001554_And_Friends_3Metabolites.csv \
-#    0.05 \
-#    0 \
-#    C100001554_1_comb_form_output_R.tsv
+Rscript 1_mod_combine_and_format.R \
+    1 \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
+    0.05 \
+    0.1 \
+    8mets_1_comb_form_output_R.tsv

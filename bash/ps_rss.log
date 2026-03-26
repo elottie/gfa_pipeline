@@ -1,238 +1,271 @@
-Tue Mar 24 11:39:51 EDT 2026
+Wed Mar 25 09:09:09 EDT 2026
     PID    PPID   RSS CMD
-2216201 2216196  3668 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216194 2216178  3144 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  1940 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216202 2216196   848 head -20
+2076950 2076936  3260 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2076957 2076952  2204 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1736 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076958 2076952   840 head -20
 ----
-Tue Mar 24 11:39:53 EDT 2026
+Wed Mar 25 09:09:11 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 22100 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216323 2216196  3784 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216324 2216196   868 head -20
+2077074 2077072 49040 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077076 2076952  2268 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077077 2076952  1024 head -20
 ----
-Tue Mar 24 11:39:55 EDT 2026
+Wed Mar 25 09:09:13 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 54572 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216330 2216196  3812 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216331 2216196   848 head -20
+2077074 2077072 61184 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077080 2076952  2316 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077081 2076952   848 head -20
 ----
-Tue Mar 24 11:39:57 EDT 2026
+Wed Mar 25 09:09:15 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 61436 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216338 2216196  3916 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216339 2216196   944 head -20
+2077074 2077072 61184 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077087 2076952  2256 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077088 2076952   856 head -20
 ----
-Tue Mar 24 11:39:59 EDT 2026
+Wed Mar 25 09:09:17 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 61436 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216344 2216196  3724 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216345 2216196   936 head -20
+2077074 2077072 61184 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077097 2076952  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077098 2076952   936 head -20
 ----
-Tue Mar 24 11:40:02 EDT 2026
+Wed Mar 25 09:09:19 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 61436 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216356 2216196  3712 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216357 2216196   944 head -20
+2077074 2077072 61184 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077101 2076952  2228 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077102 2076952   848 head -20
 ----
-Tue Mar 24 11:40:04 EDT 2026
+Wed Mar 25 09:09:22 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 61436 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216379 2216196  3864 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216380 2216196   968 head -20
+2077074 2077072 61184 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2077070 2077067  3152 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077071 2077067  3128 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077106 2076952  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077069 2077067  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+2077107 2076952   844 head -20
 ----
-Tue Mar 24 11:40:06 EDT 2026
+Wed Mar 25 09:09:24 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 61436 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216385 2216196  3816 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216318 2216194  3516 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216317 2216194  3460 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216316 2216194  1576 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
-2216386 2216196  1028 head -20
+2077074 2077072 72800 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3368 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077068 2076950  3240 awk -F\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z -v low=1000 -v high=10000  .        BEGIN { OFS="\t" }                 NR==1 {                     for (i=1; i<=NF; i++) {                         if ($i == snp_col) snp_idx = i                         if ($i == af_col) af_idx = i                         if ($i == ss_col) ss_idx = i ...if ($i == z_col) z_idx = i                     }                     next                 }                 $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx                     ss_val = $ss_idx + 0                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0 ..    # absolute the z ..    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA" ..    if (z != "NA" && z < 0) z = -z                     print $snp_idx, maf, z, ss_flag                 }             
+2077073 2077067  3196 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077072 2077067  2172 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077112 2076952  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077067 2076950  1792 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077113 2076952   864 head -20
 ----
-Tue Mar 24 11:40:08 EDT 2026
+Wed Mar 25 09:09:26 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 64340 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216395 2216196  3776 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216396 2216196   936 head -20
+2077172 2077170 10412 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077168 2077165  3188 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077169 2077165  3124 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077174 2076952  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077167 2077165  1696 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+2077175 2076952  1016 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:10 EDT 2026
+Wed Mar 25 09:09:28 EDT 2026
     PID    PPID   RSS CMD
-2216321 2216319 73144 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216405 2216196  3888 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216320 2216194  3468 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216319 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216406 2216196   848 head -20
+2077172 2077170 61628 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077168 2077165  3188 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077169 2077165  3124 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077180 2076952  2308 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077167 2077165  1696 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+2077181 2076952   940 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:12 EDT 2026
+Wed Mar 25 09:09:30 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 11232 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216463 2216196  3784 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216464 2216196   848 head -20
+2077172 2077170 61628 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077168 2077165  3188 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077169 2077165  3124 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077186 2076952  2264 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077167 2077165  1696 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+2077187 2076952   944 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:14 EDT 2026
+Wed Mar 25 09:09:32 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 44496 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216467 2216196  3784 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216468 2216196   936 head -20
+2077172 2077170 61628 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077168 2077165  3188 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077169 2077165  3124 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077196 2076952  2184 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077167 2077165  1696 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+2077197 2076952   944 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:16 EDT 2026
+Wed Mar 25 09:09:34 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 62184 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216471 2216196  3892 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216472 2216196   844 head -20
+2077172 2077170 61628 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077168 2077165  3188 awk -F. -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077169 2077165  3124 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077218 2076952  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077167 2077165  1696 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+2077219 2076952   932 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:18 EDT 2026
+Wed Mar 25 09:09:37 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 62184 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216479 2216196  3772 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216480 2216196   856 head -20
+2077172 2077170 73772 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077224 2076952  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
+2077225 2076952   844 head -20
 ----
-Tue Mar 24 11:40:20 EDT 2026
+Wed Mar 25 09:09:39 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 62184 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216483 2216196  3820 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216484 2216196   936 head -20
+2077172 2077170 73772 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077229 2076952  2232 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077230 2076952   852 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:23 EDT 2026
+Wed Mar 25 09:09:41 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 62184 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216488 2216196  3720 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216489 2216196   936 head -20
+2077172 2077170 73772 sort -T 1_comb_form_20260325_090909 -S 100M -t . -k1,1 -u
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077166 2077164  3276 awk -F\t -v OFS=\t -v snp_col=RSID -v af_col=A1FREQ -v ss_col=N -v z_col=Z                          NR==1{                             for(i=1;i<=NF;i++){                                 if($i==snp_col) snp_idx=i                                 if($i==af_col)  af_idx=i                                 if($i==ss_col)  ss_idx=i                                 if($i==z_col)   z_idx=i                             }                             next                         }                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"                         if(z!="NA" && z<0) z=-z                         print $snp_idx, ($af_idx+0), ($ss_idx+0), z                         }                     
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2077171 2077165  3124 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077233 2076952  2296 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2077170 2077165  2192 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077164 2077162  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077165 2077164  1812 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077234 2076952  1024 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
 ----
-Tue Mar 24 11:40:25 EDT 2026
+Wed Mar 25 09:09:43 EDT 2026
     PID    PPID   RSS CMD
-2216461 2216459 62184 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216494 2216196  3804 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216458 2216194  3492 awk -F\t -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
-2216457 2216194  3424 awk -F? -v chr_header=CHROM -v chrom_val=1 -v OFS=\t                      NR==1 {                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }                         print                         next                     }                     $chr_idx == chrom_val                     
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216456 2216194  1640 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
-2216495 2216196   860 head -20
+2076950 2076936  3376 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077163 2076950  3148 awk -F\t -v OFS=\t -v low=1000 -v high=10000                  {                     snp=$1                     prior_maf=$2+0                     prior_z=$3                     ss_flag=$4+0                     af=$5+0                     ss=$6+0                     z=$7                      # update min_maf using af and 1-af                     maf2=1-af                     min_maf=prior_maf                     if(af < min_maf)   min_maf=af                     if(maf2 < min_maf) min_maf=maf2                      # update max_abs_z (treat NA as missing)                     max_abs_z=prior_z                     if(max_abs_z!="NA"){                         max_abs_z+=0                         if(max_abs_z<0) max_abs_z=-max_abs_z                     }                     if(z!="NA"){                         z+=0                         if(z<0) z=-z                         if(max_abs_z=="NA" || z>max_abs_z) max_abs_z=z                     }                      new_ss_flag=ss_flag                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0                      print snp, min_maf, max_abs_z, new_ss_flag                 }             
+2076936 2076883  3116 /bin/bash /var/spool/slurmd.spool/job46081502/slurm_script
+2077237 2076952  2212 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+2076952 2076950  1932 bash 1_gather_snps.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
+2077238 2076952   848 head -20
+2077162 2076950   844 join -t . -1 1 -2 1 -o 1.1 1.2 1.3 1.4 2.2 2.3 2.4 1_comb_form_20260325_090909/shared_snps_and_maf.tsv /dev/fd/63
+2077164 2077162     0 [bash] <defunct>
 ----
-Tue Mar 24 11:40:27 EDT 2026
-    PID    PPID   RSS CMD
-2216461 2216459 74064 sort -T 1_comb_form_20260324_113951 -S 100M -t ? -k1,1 -u
-2216503 2216196  3776 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
-2216460 2216194  3504 awk -F\t -v OFS=\t -v beta_name=BETA -v se_name=SE -f add_zscore.awk
-2216194 2216178  3252 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216178 2216129  2992 /bin/bash /var/spool/slurmd.spool/job45993755/slurm_script
-2216196 2216194  2196 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216459 2216194  2116 bash 1_combine_and_format.sh 1 /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv 0.05 0.1 final_pass_snps.txt
-2216504 2216196   856 head -20
-----
-Tue Mar 24 11:40:29 EDT 2026
