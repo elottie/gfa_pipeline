@@ -1,6 +1,7 @@
-# library(dplyr)
-# library(purrr)
-# library(readr)
+#library(dplyr)
+library(tidyr)
+library(purrr)
+library(readr)
 library(GFA)
 # library(stringr)
 
@@ -15,24 +16,24 @@ library(GFA)
 
 # --- make toy setup to test Jean's updated R_ldsc ---
 # Toy Z-score matrix: rows = SNPs, columns = traits
-Z_hat <- matrix(c(
-  1.2, 0.8,   # SNP1
-  1.1, 0.7,   # SNP2
-  0.9, 0.5,   # SNP3
-  1.0, 0.6    # SNP4
-), nrow = 4, byrow = TRUE)
+#Z_hat <- matrix(c(
+#  1.2, 0.8, 0.9, 1.9,  # SNP1
+#  1.1, 0.7, 1.5, 0.2,  # SNP2
+#  0.9, 0.5, 1.8, 0.7,  # SNP3
+#  1.0, 0.6, 2.1, 0.9    # SNP4
+#), nrow = 4, byrow = TRUE)
 # LD scores (numeric vector) for each SNP.  come from LD ref panel, not me
-ldscores <- c(1.5, 2.0, 1.8, 2.2)
+#ldscores <- c(1.5, 2.0, 1.8, 2.2)
 # LD size, num of variants used to compute LD scores, right now arbitrary scalar
-ld_size <- 4
-# N: sample sizes per trait (if equal across SNPs, can be a vector)
-N <- c(1000, 1200)
-blocks <- NULL
-ncores <- 1
-# the new option, comparisons of traits
-comparisons <- matrix(c(1,2), ncol=2)
-print(comparisons)
-# tell Jean abt 2-col err!
+#ld_size <- 4
+#N: sample sizes per trait (if equal across SNPs, can be a vector)
+#N <- c(1000, 1200, 1200, 1100)
+#blocks <- NULL
+#ncores <- 1
+# the new option, comparisons of traits.  comparisons MUST be df, not matrix
+#comparisons <- data.frame(trait1 = c(1,3),
+#                          trait2 = c(2,4))
+#print(comparisons)
 
 #result <- R_ldsc(
 #  Z_hat = Z_hat,
@@ -46,116 +47,361 @@ print(comparisons)
 #)
 #print(result)
 
-# --- set up blocks for input to ldsc_strip.  one day, a rule makes? ---
-get_set <- function(mat, block_size, i, j, trait_names) {
-  row_start <- (i - 1) * block_size + 1
-  row_end   <- min(i * block_size, nrow(mat))
-  col_start <- (j - 1) * block_size + 1
-  col_end   <- min(j * block_size, ncol(mat))
-  block <- mat[row_start:row_end, col_start:col_end]
-  row_names <- trait_names[row_start:row_end]
-  col_names <- trait_names[col_start:col_end]
-  list(block=block, row_names=row_names, col_names=col_names)
+# --- snakemake input ---
+#rule R_ldsc_full:
+#    input: Z = expand(data_dir + "{{prefix}}_zmat.{chrom}.RDS", chrom = range(1, 23)),
+#           gwas_info = info_input,
+#           m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
+#           l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
+#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
+#    params: cond_num = cond_num
+#    wildcard_constraints: pt = r"[\d.]+"
+#    script: "R/3_R_ldsc_all.R"
+
+# --- function for processing traits ---
+# I need the harmonization function to pull from the ld prune directory from snakemake
+add_ref_alleles <- function(filtered_trait, bim_path, snps_in_ref,
+                                        snp_col = "RSID",
+                                        a1_col = "ALLELE1", a2_col = "ALLELE0") {
+
+  # Uppercase GWAS alleles
+  filtered_trait[[a1_col]] <- toupper(filtered_trait[[a1_col]])
+  filtered_trait[[a2_col]] <- toupper(filtered_trait[[a2_col]])
+
+  # awk: read snp list (file 1), then scan .bim (file 2) and print SNP + alleles
+  # .bim columns: 1=CHR 2=SNP 3=CM 4=BP 5=A1 6=A2
+  cmd <- sprintf(
+    "awk 'NR==FNR {s[$1]=1; next} ($2 in s) {print $2\"\\t\"toupper($5)\"\\t\"toupper($6)}' %s %s",
+    shQuote(snps_in_ref), shQuote(bim_path)
+  )
+
+  ref <- read.table(pipe(cmd), header = FALSE, sep = "\t",
+                    stringsAsFactors = FALSE, quote = "")
+  colnames(ref) <- c("SNP", "ld_effect_allele", "ld_ref_allele")
+  
+  
+  # Match (memory-light) and drop non-matches
+  idx  <- match(filtered_trait[[snp_col]], ref$SNP)
+  keep <- !is.na(idx)
+
+  filtered_trait <- filtered_trait[keep, , drop = FALSE]
+  filtered_trait$ld_effect_allele <- ref$ld_effect_allele[idx[keep]]
+  filtered_trait$ld_ref_allele    <- ref$ld_ref_allele[idx[keep]]
+
+  filtered_trait
 }
-#get_triangle <- function(mat, block_size, i, trait_names) {
-#  set <- get_set(mat, block_size, i, i, trait_names)
-#  mask <- upper.tri(set$block)
-#  inds <- which(mask, arr.ind=TRUE)
-#  data.frame(
-#    trait1 = set$row_names[inds[,1]],
-#    trait2 = set$col_names[inds[,2]],
-#    value  = set$block[mask]
-#  )
-#}
 
-# example traits, expand them out to a matrix for me to understand what is happening
-trait_names <- paste0("Trait", 1:8)
-mat <- matrix(NA, ncol=8, nrow = 8)
-dimnames(mat) <- list(trait_names, trait_names)
 
-block_size <- 2
-n_blocks <- ceiling(length(trait_names) / block_size)   # 4 in this example
+harmonize_to_ld_alleles <- function(filtered_trait,
+                                    a1_col = "ALLELE1", a2_col = "ALLELE0",
+                                    beta_col = "BETA",
+                                    ld_eff_col = "ld_effect_allele",
+                                    ld_ref_col = "ld_ref_allele",
+                                    drop_unmatched = TRUE) {
 
-all_blocks <- list()
-# make the blocks and store them in all_blocks.  treat triangles like blocks for now
-for (i in 1:n_blocks) {
-  for (j in 1:n_blocks) {
-    if (j > i) { # Above diagonal blocks: full pairs
-      block_name <- paste0("block_", i, "_", j)
-      all_blocks[[block_name]] <- get_set(mat, block_size, i, j, trait_names)
-    } else if (j == i) { # On the diagonal: only store upper triangle pairs
-      block_name <- paste0("triangle_", i)
-      #all_blocks[[block_name]] <- get_triangle(mat, block_size, i, trait_names)
-      all_blocks[[block_name]] <- get_set(mat, block_size, i, j, trait_names)
-    }
-    # (j < i) is not stored, as those are redundant
+  ft <- filtered_trait
+
+  # uppercase inputs
+  ft[[a1_col]]     <- toupper(ft[[a1_col]])
+  ft[[a2_col]]     <- toupper(ft[[a2_col]])
+  ft[[ld_eff_col]] <- toupper(ft[[ld_eff_col]])
+  ft[[ld_ref_col]] <- toupper(ft[[ld_ref_col]])
+
+  # drop strand-ambiguous SNPs already happened in step 1: A/T, T/A, C/G, G/C
+
+  # complement map
+  comp <- c(A="T", T="A", C="G", G="C")
+
+  A1 <- ft[[a1_col]]
+  A2 <- ft[[a2_col]]
+  LE <- ft[[ld_eff_col]]
+  LR <- ft[[ld_ref_col]]
+
+  # complements (NA if allele not A/C/G/T)
+  A1c <- unname(comp[A1])
+  A2c <- unname(comp[A2])
+
+  # case definitions relative to LD designation (LE/LR)
+  same        <- (A1 == LE & A2 == LR)
+  swapped     <- (A1 == LR & A2 == LE)
+  comp_same   <- (A1c == LE & A2c == LR)
+  comp_swap   <- (A1c == LR & A2c == LE)
+
+  matched <- same | swapped | comp_same | comp_swap
+
+  if (drop_unmatched) {
+    ft <- ft[matched, , drop = FALSE]
+    # recompute vectors for kept rows
+    A1 <- ft[[a1_col]]; A2 <- ft[[a2_col]]
+    LE <- ft[[ld_eff_col]]; LR <- ft[[ld_ref_col]]
+    A1c <- unname(comp[A1]); A2c <- unname(comp[A2])
+    same      <- (A1 == LE & A2 == LR)
+    swapped   <- (A1 == LR & A2 == LE)
+    comp_same <- (A1c == LE & A2c == LR)
+    comp_swap <- (A1c == LR & A2c == LE)
+  } else {
+    ft$A1_harmon <- NA_character_
+    ft$A2_harmon <- NA_character_
+    ft$beta_harmon <- ft[[beta_col]]
   }
+
+  # beta: flip sign if GWAS needed swapping (direct swap or complement swap)
+  flip_beta <- swapped | comp_swap
+  ft$beta_harmon <- ft[[beta_col]]
+  ft$beta_harmon[flip_beta] <- -ft$beta_harmon[flip_beta]
+
+  # If you want to also overwrite original columns, uncomment:
+  # ft[[a1_col]] <- ft$A1_harmon
+  # ft[[a2_col]] <- ft$A2_harmon
+  # ft[[beta_col]] <- ft$beta_harmon
+
+  ft
 }
 
-# show block names and the blocks themselves
-names(all_blocks)
-all_blocks
+process_trait <- function(trait, snps_in_ref, bim_path,
+                          base_dir = "../../../gwas_summary_statistics/METSIM/with_rsid") {
 
-# --- create the relevant strip out of all blocks ---
+  full_trait <- file.path(base_dir, trait, paste0(trait, "_regenie_rsid.tsv.gz"))
+  message("... processing trait: ", full_trait)
 
-# do I expect the user to provide the right blocks, or do I need to select strip myself?
-strip_list <- all_blocks[1:4]
+  cmd <- sprintf(
+    "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || snps[$1]' %s -",
+    shQuote(full_trait), shQuote(snps_in_ref)
+  )
+
+  filtered_trait <- read.table(pipe(cmd), header = TRUE, sep = "\t")
+  print('head filtered_trait fter reading in:')
+  print(head(filtered_trait))
+
+  filtered_trait_with_alleles <- add_ref_alleles(filtered_trait, bim_path, snps_in_ref)
+  print('head filtered_trait_with_alleles:')
+  print(head(filtered_trait_with_alleles))
+  
+  filtered_trait_harmon <- harmonize_to_ld_alleles(filtered_trait_with_alleles) 
+  print('head filtered_trait_harmon:')
+  print(head(filtered_trait_harmon))
+  
+  filtered_trait <- filtered_trait_harmon
+
+  filtered_trait$Z <- filtered_trait$beta_harmon / filtered_trait$SE
+  print('head filtered_trait with z:')
+  print(head(filtered_trait))
+
+  list(
+    Z = filtered_trait$Z,
+    med_ss = median(filtered_trait$N)
+  )
+}
+
+# --- temp workdir for testing cleanliness --
+workdir <- paste0("3_ldsc_strip_", format(Sys.time(), "%Y%m%d_%H%M%S"))
+dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
+
+snps_in_ref <- file.path(workdir, "chr1_8traits_snps_in_ld_file.tsv")
+ldsc_out <- file.path(workdir, "ldsc_results.RDS")
+
+# --- get just SNPs present in all traits AND ld ref files ---
+print('filtering universal_snps.txt to only those found in ld ref files')
+
+# gather inputs
+l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
+chroms <- 1
+m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
+ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
+# I had to add from ld pruning options:
+bim_path <- "/nfs/turbo/sph-jvmorr/ld_reference_files/1kg_plink_hg38/EUR_autosomal.bim"
+
+# All lines from ld_file.tsv where the second column matches a value in the first column of snps_pass_all_filts.txt.
+awk_snps_in_ref <- paste(
+  "zcat", ld_files, "|",
+  "awk -F'\\t' 'BEGIN{OFS=\"\\t\"; print \"snp\", \"l2\"} NR==FNR {snps[$1]=1; next} snps[$2] {print $2, $6}' ../bash/1_comb_form_chr1_8traits/snps_pass_all_filts.txt -",
+  ">", snps_in_ref
+)
+
+system(awk_snps_in_ref)
+
+#l2 is col 2
+
+# if M is num of variants used to compute ld scores, should be constant?
+M <- purrr:::map(1, function(c){
+  read_lines(m_files[c])
+}) %>% unlist() %>% as.numeric() %>% sum()
+
+print('completed ld filtering')
+
+# --- set up blocks for input to ldsc_strip.  use gwas info file ---
+
+# read in gwas_info for trait names
+gwas_info <- read_csv("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
+traits <- gwas_info$name
+
+# set block size, one day based on our knowledge of memory taken by trait.  150 GB ish on std partition
+# we want few blocks, but lower limit on blocks
+# assuming each trait file is 5 GB unzipped (it will be smaller from awk wizardry) and we hold 2 blocks at a time, then how many traits can we have per block?
+# 2 blocks * x traits / block * 5 gb / trait = 150 gb
+# x = 15 traits / block maximum
+# then we want to know how many blocks we can get away with
+# b blocks min = n total traits / (15 traits / block)
+# additional note:  each block needs at least 2 traits so we can make one pairwise comparison
+
+memory_limit_gb <- 150     # total available memory
+trait_memory_gb <- 5       # each trait file is 5 GB
+blocks_at_once <- 2    # we hold two blocks at once
+
+# Calculate max traits per block given memory constraint
+max_traits_per_block <- floor(memory_limit_gb / (blocks_at_once * trait_memory_gb)) # = 15
+min_traits_per_block <- 2
+
+ntraits <- length(traits)
+
+# Find minimum number of blocks so every block has at least min_traits_per_block AND not more than traits_per_block
+min_nblocks <- ceiling(ntraits / max_traits_per_block)        # Minimum blocks, using largest block possible
+
+# Pick the smallest nblocks possible according to memory constraint and minimum traits per block
+#nblocks <- max(min_nblocks, 1) # avoid 0 blocks
+# I INTERVENE bc I want four right now for testing:
+nblocks <- 4
+
+block_size <- ceiling(ntraits / nblocks)
+
+# Assign traits to blocks
+strip_indices <- rep(1:nblocks, each=block_size, length.out=ntraits)
+strip_list <- split(traits, strip_indices)
+names(strip_list) <- paste0("set", seq_along(strip_list))
+
+# Guarantee no single-trait or empty block at the end
+while(length(strip_list[[length(strip_list)]]) < min_traits_per_block && length(strip_list) > 1) {
+  strip_list[[length(strip_list)-1]] <- c(strip_list[[length(strip_list)-1]], strip_list[[length(strip_list)]])
+  strip_list <- strip_list[-length(strip_list)]
+  names(strip_list) <- paste0("set", seq_along(strip_list))
+}
+
+print(paste("Smart-selected nblocks:", length(strip_list)))
+print('These blocks are:')
+print(strip_list)
+
+# one day snakemake wildcard
 strip_number <- 1
-
-nblocks <- length(strip_list)
 
 # --- strip processing! ---
 results <- list()
-for(s2 in strip_number:nblocks){
+ldsc_results <- list()
+#for(s2 in strip_number:nblocks){
+#for(s2 in strip_number:2){
+for(s2 in strip_number:1){
+    #block1_traits <- NULL
+    block2_traits <- NULL
+	
     if(s2 == strip_number){
         # read data for set 1 (first block)
-        block_name <- names(strip_list)[s2]
         block1_traits <- strip_list[[s2]]
-        is_triangle <- grepl("^triangle_", block_name)
+        cat("Reading (and eventually harmon) ALL TRAITS of set 1 (block", s2, "), has traits:",
+        paste(block1_traits, collapse=", "), "\n")
 
-        if(is_triangle) {
-            cat("Reading TRIANGLE of set 1 (", block_name, "), has row traits:",
-                paste(block1_traits$row_names, collapse=", "),
-                "; column traits:",
-                paste(block1_traits$col_names, collapse=", "), "\n")
-        } else {
-            cat("Reading ALL TRAITS of set 1 (", block_name, "), has row traits:",
-                paste(block1_traits$row_names, collapse=", "),
-                "; column traits:",
-                paste(block1_traits$col_names, collapse=", "), "\n")
+        for (trait in block1_traits) {
+          # I should probably make this part a function
+	  results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)  
         }
-    
     }
+
     if(s2 == strip_number + 1){
         # read set 2 (second block)
         block2_traits <- strip_list[[s2]]
-        cat("Reading JUST COLUMN TRAITS of set 1 (block", s2, "), has row traits:",
-        paste(block2_traits$row_names, collapse=", "),
-        "; column traits:",
-        paste(block2_traits$col_names, collapse=", "), "\n")
+        cat("Reading (and eventually harmon) ALL TRAITS of set 2 (block", s2, "), has traits:",
+        paste(block2_traits, collapse=", "), "\n")
         
+        for (trait in block2_traits) {
+          results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)          
+        }
+    
+    
     } else if(s2 > strip_number + 1){
         # drop old set 2 (previous block), read new set 2 (current block)
         prev_block2_traits <- strip_list[[s2 - 1]]
-        new_block2_traits <- strip_list[[s2]]
-        cat("Dropping JUST COLUMN TRAITS of previous set 2 (block", s2-1, "), has row traits:",
-        paste(prev_block2_traits$row_names, collapse=", "),
-        "; column traits:",
-        paste(prev_block2_traits$col_names, collapse=", "), "\n")
+        block2_traits <- strip_list[[s2]]
+        cat("Dropping ALL TRAITS of previous set 2 (block", s2-1, "), has traits:",
+        paste(prev_block2_traits, collapse=", "), "\n")
         
-        cat("Reading JUST COLUMN TRAITS of new set 2 (block", s2, "), has row traits:",
-        paste(new_block2_traits$row_names, collapse=", "),
-        "; column traits:",
-        paste(new_block2_traits$col_names, collapse=", "), "\n")
+        cat("Reading (and eventually harmon) ALL TRAITS of new set 2 (block", s2, "), has traits:",
+        paste(block2_traits, collapse=", "), "\n")
+    
+        for (trait in block2_traits) {
+          results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)
+        }
     }
     
-    # Example calculation
-    #results[[s2]] <- list(block_num = s2, snps = strip_list[[s2]], n_snps = length(strip_list[[s2]]))
+    str(results)
+
+    # Add within-block comparisons for block1_traits
+    #if (!is.null(block1_traits) && is.null(block2_traits)) {
+    # need to add handling for blocks which have traits w/ no snps left
+    #    within_comparisons <- t(combn(block1_traits, 2))
+    #    colnames(within_comparisons) <- c("trait1", "trait2")
+    #    within_comparisons <- as.data.frame(within_comparisons, stringsAsFactors = FALSE)
+    #    cat("Unique within-block comparisons for block", s2, ":\n")
+    #    print(within_comparisons)
+        #results[[paste0("block_", s2, "_within")]] <- within_comparisons
+	# need N, median of samples sizes, and Zs
+    #    l2 <- as.numeric(scan(pipe("awk -F'\t' 'NR>1{print $6}' chr1_8traits_snps_in_ld_file.tsv"), what="character"))
+    #    print('l2:')
+#	print(head(l2))
+        
+	#`print(head(Z_hat))
+#	result <- R_ldsc(
+#           Z_hat = Z_hat,
+#           ldscores = l2,
+#           N = N,
+#           make_well_conditioned = FALSE,
+#           comparisons = comparisons
+#`:        )
+#    }
+
+    ### Pairwise comparison if both blocks are defined:
+    if(!is.null(block1_traits) && !is.null(block2_traits)) {
+        comparisons <- expand.grid(trait1 = block1_traits,
+                                   trait2 = block2_traits,
+                                   stringsAsFactors = FALSE)
+        cat("Pairwise comparisons between block", strip_number, "and", s2, ":\n")
+	print(comparisons)
+
+        # Get unique trait codes
+        all_traits <- unique(c(block1_traits, block2_traits))
+        # Map each trait name to its index in all_traits
+        num_trait1 <- match(comparisons$trait1, all_traits)
+        num_trait2 <- match(comparisons$trait2, all_traits)
+        # Build numeric data frame (or matrix)
+        num_compar <- data.frame(trait1 = num_trait1,
+                         trait2 = num_trait2)
+	print(num_compar)
+
+        # need N, median of samples sizes, and Zs
+        l2 <- as.numeric(scan(pipe(sprintf("awk -F'\t' 'NR>1{print $2}' %s", snps_in_ref)), what="character"))
+        print('l2:')
+        print(head(l2))
+        
+        med_ss_vec <- sapply(results, function(x) x$med_ss)
+        Z_hat <- as.data.frame(lapply(results, function(x) x$Z))	
+
+        result <- R_ldsc(
+           Z_hat = Z_hat,
+           ldscores = l2,
+           N = med_ss_vec,
+           ld_size = M,
+	   make_well_conditioned = FALSE,
+           comparisons = num_compar
+        )
+	print(result)
+
+	# Store each result in your ldsc_results list
+        block_comp_name <- paste0("block_", strip_number, "_vs_block_", s2)
+        ldsc_results[[block_comp_name]] <- list("ldsc"=result,"str_compare"=comparisons,"num_compare"=num_compar)
+    }
 }
 
-#print(results)
+str(results)
+str(ldsc_results)
 
-#saveRDS(ret, file=out)
+saveRDS(ldsc_results, file=ldsc_out)
 
 
 

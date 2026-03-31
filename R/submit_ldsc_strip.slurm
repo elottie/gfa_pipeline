@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --job-name=ldsc_strip       # Job name
+#SBATCH --account=jvmorr0    # Account name (e.g., your PI's shortcode)
+#SBATCH --partition=standard      # Partition (sometimes "standard", "gpu", etc.)
+#SBATCH --nodes=1                 # Number of nodes
+#SBATCH --ntasks=1                # Number of tasks
+#SBATCH --mem=8G                 # Memory (adjust as needed)
+
+#module purge
+#module load R
+# use conda env
+
+# Optional: Print start time and host
+echo "Starting job on $(hostname) at $(date)"
+
+# Run your script
+Rscript ldsc_strip_toy.R
+
+echo "Job finished at $(date)"
