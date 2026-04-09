@@ -1,11 +1,15 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 set -euo pipefail
 
 # make all awks, joins, and sorts consistent
 export LC_ALL=C
+
+# temp workspace for generated files
+workdir="1_comb_form_$(date +%Y%m%d_%H%M%S)"
+mkdir -p "$workdir"
 
 memsnap() {
   # prints MaxRSS and AveRSS for the current job step
@@ -18,7 +22,7 @@ memsnap() {
     ps -u "$USER" -o pid,ppid,rss,cmd --sort=-rss | head -20
     echo "----"
     sleep 2
-  done ) > ps_rss.log &
+  done ) > "$workdir/1_ps_rss.log" &
 sampler=$!
 
 # read input arguments - - -
@@ -27,13 +31,10 @@ sampler=$!
 
 chrom="$1"                # e.g., from Snakemake wildcards
 gwas_info_file="$2"       # path to info file
-af_thresh="$3"            # allele freq threshold
-ss_tol="$4"      # sample size tolerance
-out="$5"                  # output file
-
-# temp workspace for generated files
-workdir="1_comb_form_$(date +%Y%m%d_%H%M%S)"
-mkdir -p "$workdir"
+trait_summary_table="$3"  # table of ss medians for each trait
+af_thresh="$4"            # allele freq threshold
+ss_tol="$5"      # sample size tolerance
+out="$6"                  # output file
 
 # just once, need to get rid of lovely windows carriage returns
 dos2unix "$gwas_info_file"
@@ -79,9 +80,9 @@ shared_snps_and_maf_tmp="$workdir/shared_snps_and_maf.tmp"
 # Write header to summary table (only once)
 #echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table" 
 
-#for ((i=2; i<=num_traits+1; i++)); do
+for ((i=2; i<=num_traits+1; i++)); do
 #for ((i=3; i<=3; i++)); do
-for ((i=2; i<=3; i++)); do
+#for ((i=2; i<=3; i++)); do
     # Read info fields for trait i (awk column indexing, adjust as needed for TSV)
     f=$(awk -F, -v row="$i" -v col="$col_raw_data" 'NR==row {print $col}' "$gwas_info_file")
     snp=$(awk -F, -v row="$i" -v col="$col_snp" 'NR==row {print $col}' "$gwas_info_file")
@@ -136,8 +137,15 @@ for ((i=2; i<=3; i++)); do
 
 	# 1. Sample size statistics for trait summary table
 	#read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_summary_table" | tail -n1)
-        low=1000
-	high=10000
+        read -r trait med < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2}' "$trait_summary_table")
+	low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
+        high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
+
+        echo $low
+	echo $high
+
+        #low=1000
+	#high=10000
 
 	# 2. Common SNPs and min MAF intersection/update
         if ((i == 2)); then
@@ -245,27 +253,27 @@ echo "finished trait loop"
 memsnap
 
 # ---
-#awk -F"\t" -v af_thresh="$af_thresh" '
-#BEGIN { OFS="\t"; print "snp", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
-#{
-#    af_flag = ($2 >= af_thresh) ? 1 : 0
-#    print $1, $2, $3, $4, af_flag
-#}' "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
-#mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
+awk -F"\t" -v af_thresh="$af_thresh" '
+BEGIN { OFS="\t"; print "snp", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
+{
+    af_flag = ($2 >= af_thresh) ? 1 : 0
+    print $1, $2, $3, $4, af_flag
+}' "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
+mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
 
-#echo "wrote out snp table with maf and ss flags"
-#memsnap
+echo "wrote out snp table with maf and ss flags"
+memsnap
 
 # write out a file where only the snps that pass ss and maf filters stay
-#final_pass_snps="$workdir/$out"
-#awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shared_snps_and_maf" > "$final_pass_snps"
-#awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
+final_pass_snps="$workdir/$out"
+awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shared_snps_and_maf" > "$final_pass_snps"
+awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
 
-#echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
-#memsnap
+echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
+memsnap
 
-#echo "finished formatting"
-#memsnap
+echo "finished formatting"
+memsnap
 
 kill "$sampler" 2>/dev/null || true
 wait "$sampler" 2>/dev/null || true

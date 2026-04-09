@@ -7,13 +7,13 @@
 #SBATCH --mem=4G                 # Memory (adjust as needed)
 
 #module purge
-#module load R
+#module load python3.11
 # use conda env
 
 # Optional: Print start time and host
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-Rscript ldsc_strip_toy.R
+python run_make_ldsc_strip_list.py
 
 echo "Job finished at $(date)"

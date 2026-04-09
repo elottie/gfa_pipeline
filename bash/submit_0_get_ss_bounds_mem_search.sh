@@ -4,8 +4,8 @@ set -euo pipefail
 # bash mem_search.sh 8
 
 traits="${1:?usage: mem_search.sh TRAITS}"
-low="${2:-0}"     # MB that fails (set appropriately)
-high="${3:-100}"    # MB that succeeds (set appropriately)
+low="${2:-400}"     # MB that fails (set appropriately)
+high="${3:-600}"    # MB that succeeds (set appropriately)
 delta="${4:-10}"    # precision in MB
 
 mkdir -p logs
@@ -21,7 +21,8 @@ while (( high - low > delta )); do
   mid=$(( low + (high - low)/2 ))
   echo "Trying traits=$traits mem=${mid}M (bounds: low=$low high=$high)"
 
-  jobid=$(sbatch --parsable --mem="${mid}M" submit_linux_demos.sh)
+  #jobid=$(sbatch --parsable --mem="${mid}M" submit_1_gather_snps.sh)
+  jobid=$(sbatch --parsable --mem="${mid}M" submit_0_get_ss_bounds.sh)
   echo "Submitted $jobid"
 
   # --- WAIT HERE: replace your squeue loop with this ---

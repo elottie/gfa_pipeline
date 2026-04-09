@@ -18,12 +18,13 @@
 # need to put into snakemake call.  or maybe not if R is in their conda env
 
 #    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
-#bash 1_gather_snps.sh \
-#    1 \
-#    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
-#    0.05 \
-#    0.1 \
-#    final_pass_snps.txt
+bash 1_gather_snps.sh \
+    1 \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/bash/keep8_0_get_ss_bounds_20260330_092135/ss_table.tsv  \
+    0.05 \
+    0.1 \
+    final_pass_snps.txt
 
 
 #c                  <- as.numeric(args[1])  # chromosome
@@ -33,9 +34,9 @@
 #out                <- args[5]
 
 #conda activate snakemake9
-Rscript 1_mod_combine_and_format.R \
-    1 \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
-    0.05 \
-    0.1 \
-    8mets_1_comb_form_output_R.tsv
+#Rscript 1_mod_combine_and_format.R \
+#    1 \
+#    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
+#    0.05 \
+#    0.1 \
+#    8mets_1_comb_form_output_R.tsv

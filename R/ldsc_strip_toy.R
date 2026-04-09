@@ -1,9 +1,13 @@
-#library(dplyr)
+library(dplyr)
 library(tidyr)
 library(purrr)
 library(readr)
 library(GFA)
 # library(stringr)
+
+# added
+library(data.table)
+library(bench)
 
 # --- for once I graduate to snakemake ---
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
@@ -59,106 +63,117 @@ library(GFA)
 #    script: "R/3_R_ldsc_all.R"
 
 # --- function for processing traits ---
-# I need the harmonization function to pull from the ld prune directory from snakemake
-add_ref_alleles <- function(filtered_trait, bim_path, snps_in_ref,
-                                        snp_col = "RSID",
-                                        a1_col = "ALLELE1", a2_col = "ALLELE0") {
+get_col_map <- function(gwas_info, trait, trait_col = "name") {
+  row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
+  if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  # Uppercase GWAS alleles
-  filtered_trait[[a1_col]] <- toupper(filtered_trait[[a1_col]])
-  filtered_trait[[a2_col]] <- toupper(filtered_trait[[a2_col]])
-
-  # awk: read snp list (file 1), then scan .bim (file 2) and print SNP + alleles
-  # .bim columns: 1=CHR 2=SNP 3=CM 4=BP 5=A1 6=A2
-  cmd <- sprintf(
-    "awk 'NR==FNR {s[$1]=1; next} ($2 in s) {print $2\"\\t\"toupper($5)\"\\t\"toupper($6)}' %s %s",
-    shQuote(snps_in_ref), shQuote(bim_path)
-  )
-
-  ref <- read.table(pipe(cmd), header = FALSE, sep = "\t",
-                    stringsAsFactors = FALSE, quote = "")
-  colnames(ref) <- c("SNP", "ld_effect_allele", "ld_ref_allele")
-  
-  
-  # Match (memory-light) and drop non-matches
-  idx  <- match(filtered_trait[[snp_col]], ref$SNP)
-  keep <- !is.na(idx)
-
-  filtered_trait <- filtered_trait[keep, , drop = FALSE]
-  filtered_trait$ld_effect_allele <- ref$ld_effect_allele[idx[keep]]
-  filtered_trait$ld_ref_allele    <- ref$ld_ref_allele[idx[keep]]
-
-  filtered_trait
+  as.list(row[1, c("beta_hat","se","A1","A2","af")])
 }
 
+# align_beta <- function(X, a1_name, a2_name, beta_hat_name, af_name, upper=TRUE){
+#   A1 = X[[a1_name]]
+#   A2 = X[[a2_name]]
+# 
+#   flp = c("A" = "T", "G" = "C", "T" = "A",
+#           "C" = "G", "a"  = "t", "t" = "a",
+#           "c" = "g", "g" = "c")
+#   if(upper){
+#     X <- X %>% mutate( flip_strand = A1 == "T" | A2 == "T")
+#   }else{
+#     X <- X %>% mutate( flip_strand = A1 == "t" | A2 == "t")
+#   }
+# 
+#   if(missing(af_name)){
+#     X <- mutate(X, af = NA)
+#     af_name <- "tempaf"
+#     af_missing <- TRUE
+#   }else{
+#     af_missing <- FALSE
+#   }
+# 
+# 
+#   # CHANGED the select of A1 and A2
+#   X <- X %>% mutate(A1flp = case_when(flip_strand ~ flp[A1],
+#                                       TRUE ~ A1),
+#                     A2flp = case_when(flip_strand ~ flp[A2],
+#                                       TRUE ~ A2),
+#                     # afflp = case_when(flip_strand ~ 1-get(af_name),
+#                     #                    TRUE ~ get(af_name)),
+#                     tempbh = case_when(A1flp == "A" | A1flp == "a" ~ get(beta_hat_name),
+#                                      TRUE ~ -1*get(beta_hat_name)),
+#                     tempaf = case_when(A1flp == "A" | A1flp == "a" ~ get(af_name),
+#                                        TRUE ~ 1-get(af_name))) %>%
+#     select(-a1_name, -a2_name) %>%
+#     select(-all_of(c(af_name, beta_hat_name))) %>%
+#     mutate(A1 = case_when(A1flp == "A" | A1flp=="a" ~ A1flp,
+#                           TRUE ~ A2flp),
+#            A2 = case_when(A1flp == "A" | A1flp=="a" ~ A2flp,
+#                           TRUE ~ A1flp)) %>%
+#     select(-A1flp, -A2flp, -flip_strand)
+# 
+#   ix <- which(names(X)== "tempbh")
+#   names(X)[ix] <- beta_hat_name
+#   ix <- which(names(X)== "tempaf")
+#   names(X)[ix] <- af_name
+#   if(af_missing) X <- select(X, -tempaf)
+#   return(X)
+# }
+# 
 
-harmonize_to_ld_alleles <- function(filtered_trait,
-                                    a1_col = "ALLELE1", a2_col = "ALLELE0",
-                                    beta_col = "BETA",
-                                    ld_eff_col = "ld_effect_allele",
-                                    ld_ref_col = "ld_ref_allele",
-                                    drop_unmatched = TRUE) {
+# Flip signs and strands so that allele 1 is always A (modifies X in place)
+align_beta_dt <- function(X, beta_hat_name, af_name, upper = TRUE) {
+  stopifnot(is.data.table(X))
+  stopifnot(all(c("A1","A2") %in% names(X)))
+  stopifnot(beta_hat_name %in% names(X))
 
-  ft <- filtered_trait
+  flp <- c("A"="T","G"="C","T"="A","C"="G",
+           "a"="t","t"="a","c"="g","g"="c")
 
-  # uppercase inputs
-  ft[[a1_col]]     <- toupper(ft[[a1_col]])
-  ft[[a2_col]]     <- toupper(ft[[a2_col]])
-  ft[[ld_eff_col]] <- toupper(ft[[ld_eff_col]])
-  ft[[ld_ref_col]] <- toupper(ft[[ld_ref_col]])
-
-  # drop strand-ambiguous SNPs already happened in step 1: A/T, T/A, C/G, G/C
-
-  # complement map
-  comp <- c(A="T", T="A", C="G", G="C")
-
-  A1 <- ft[[a1_col]]
-  A2 <- ft[[a2_col]]
-  LE <- ft[[ld_eff_col]]
-  LR <- ft[[ld_ref_col]]
-
-  # complements (NA if allele not A/C/G/T)
-  A1c <- unname(comp[A1])
-  A2c <- unname(comp[A2])
-
-  # case definitions relative to LD designation (LE/LR)
-  same        <- (A1 == LE & A2 == LR)
-  swapped     <- (A1 == LR & A2 == LE)
-  comp_same   <- (A1c == LE & A2c == LR)
-  comp_swap   <- (A1c == LR & A2c == LE)
-
-  matched <- same | swapped | comp_same | comp_swap
-
-  if (drop_unmatched) {
-    ft <- ft[matched, , drop = FALSE]
-    # recompute vectors for kept rows
-    A1 <- ft[[a1_col]]; A2 <- ft[[a2_col]]
-    LE <- ft[[ld_eff_col]]; LR <- ft[[ld_ref_col]]
-    A1c <- unname(comp[A1]); A2c <- unname(comp[A2])
-    same      <- (A1 == LE & A2 == LR)
-    swapped   <- (A1 == LR & A2 == LE)
-    comp_same <- (A1c == LE & A2c == LR)
-    comp_swap <- (A1c == LR & A2c == LE)
+  bh <- beta_hat_name
+  af_missing <- missing(af_name)
+  if (af_missing) {
+    af <- "..__alignbeta_af__"
+    X[, (af) := NA_real_]
   } else {
-    ft$A1_harmon <- NA_character_
-    ft$A2_harmon <- NA_character_
-    ft$beta_harmon <- ft[[beta_col]]
+    stopifnot(af_name %in% names(X))
+    af <- af_name
   }
 
-  # beta: flip sign if GWAS needed swapping (direct swap or complement swap)
-  flip_beta <- swapped | comp_swap
-  ft$beta_harmon <- ft[[beta_col]]
-  ft$beta_harmon[flip_beta] <- -ft$beta_harmon[flip_beta]
+  X[, ..__alignbeta_flip__ := if (upper) (A1 == "T" | A2 == "T") else (A1 == "t" | A2 == "t")]
 
-  # If you want to also overwrite original columns, uncomment:
-  # ft[[a1_col]] <- ft$A1_harmon
-  # ft[[a2_col]] <- ft$A2_harmon
-  # ft[[beta_col]] <- ft$beta_harmon
+  X[, `:=`(
+    ..__alignbeta_A1flp__ = fifelse(..__alignbeta_flip__, flp[A1], A1),
+    ..__alignbeta_A2flp__ = fifelse(..__alignbeta_flip__, flp[A2], A2)
+  )]
 
-  ft
+  X[, ..__alignbeta_condA__ := ..__alignbeta_A1flp__ %chin% c("A","a")]
+
+  # beta: be explicit and numeric
+  X[, (bh) := {
+    b <- .SD[[1L]]
+    if (!is.numeric(b)) b <- as.numeric(b)
+    fifelse(..__alignbeta_condA__, b, -b)
+  }, .SDcols = bh]
+
+  # af: similarly explicit
+  X[, (af) := {
+    p <- .SD[[1L]]
+    if (!is.numeric(p)) p <- as.numeric(p)
+    fifelse(..__alignbeta_condA__, p, 1 - p)
+  }, .SDcols = af]
+
+  X[, `:=`(
+    A1 = fifelse(..__alignbeta_condA__, ..__alignbeta_A1flp__, ..__alignbeta_A2flp__),
+    A2 = fifelse(..__alignbeta_condA__, ..__alignbeta_A2flp__, ..__alignbeta_A1flp__)
+  )]
+
+  X[, c("..__alignbeta_flip__", "..__alignbeta_A1flp__", "..__alignbeta_A2flp__", "..__alignbeta_condA__") := NULL]
+  if (af_missing) X[, (af) := NULL]
+
+  invisible(X)
 }
 
-process_trait <- function(trait, snps_in_ref, bim_path,
+process_trait <- function(trait, snps_in_ref,beta_name,se_name,af_name,gwas_info,
                           base_dir = "../../../gwas_summary_statistics/METSIM/with_rsid") {
 
   full_trait <- file.path(base_dir, trait, paste0(trait, "_regenie_rsid.tsv.gz"))
@@ -169,28 +184,48 @@ process_trait <- function(trait, snps_in_ref, bim_path,
     shQuote(full_trait), shQuote(snps_in_ref)
   )
 
-  filtered_trait <- read.table(pipe(cmd), header = TRUE, sep = "\t")
-  print('head filtered_trait fter reading in:')
-  print(head(filtered_trait))
+  m <- get_col_map(gwas_info, trait)
+  filtered_trait <- fread(cmd = cmd, sep = "\t", header = TRUE,
+            select = unname(unlist(m)))  # pick what you need
 
-  filtered_trait_with_alleles <- add_ref_alleles(filtered_trait, bim_path, snps_in_ref)
-  print('head filtered_trait_with_alleles:')
-  print(head(filtered_trait_with_alleles))
-  
-  filtered_trait_harmon <- harmonize_to_ld_alleles(filtered_trait_with_alleles) 
+  data.table::setnames(filtered_trait, old = unname(unlist(m)), new = names(m))
+
+  #filtered_trait <- read.table(pipe(cmd), header = TRUE, sep = "\t")
+  print('head filtered_trait after reading in:')
+  print(head(filtered_trait))
+ 
+#  b <- bench::mark(
+#  dplyr = {
+#    X <- as_tibble(filtered_trait)   # or whatever your original input class is
+#    GFA:::align_beta(X, beta_name, af_name)
+#  },
+#  dt = {
+#    X <- data.table::copy(filtered_trait)
+#    align_beta_dt(X, beta_name, af_name)
+#    X
+#  },
+#  iterations = 15,
+#  mem_alloc = TRUE,
+#  check = FALSE
+#  )
+
+#  filtered_trait_harmon <- GFA:::align_beta(filtered_trait,beta_name,af_name) 
+  filtered_trait_harmon <- align_beta_dt(filtered_trait,beta_name,af_name) 
   print('head filtered_trait_harmon:')
   print(head(filtered_trait_harmon))
-  
-  filtered_trait <- filtered_trait_harmon
 
-  filtered_trait$Z <- filtered_trait$beta_harmon / filtered_trait$SE
+  filtered_trait <- filtered_trait_harmon
+  
+  filtered_trait[, Z := beta_hat / se]
+#  filtered_trait$Z <- filtered_trait[[beta_name]] / filtered_trait[[se_name]]
   print('head filtered_trait with z:')
   print(head(filtered_trait))
 
   list(
-    Z = filtered_trait$Z,
-    med_ss = median(filtered_trait$N)
-  )
+    Z = filtered_trait$Z#,
+#    med_ss = NA #median(filtered_trait$N)
+#     bench <- b
+     )
 }
 
 # --- temp workdir for testing cleanliness --
@@ -300,9 +335,12 @@ for(s2 in strip_number:1){
 
         for (trait in block1_traits) {
           # I should probably make this part a function
-	  results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)  
+	  results[[trait]] <- process_trait(trait, snps_in_ref,"beta_hat","se","af",gwas_info)  
         }
     }
+
+str(results)
+stop('you told me to stop here')
 
     if(s2 == strip_number + 1){
         # read set 2 (second block)
@@ -311,7 +349,7 @@ for(s2 in strip_number:1){
         paste(block2_traits, collapse=", "), "\n")
         
         for (trait in block2_traits) {
-          results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)          
+          results[[trait]] <- process_trait(trait, snps_in_ref)          
         }
     
     
@@ -326,7 +364,7 @@ for(s2 in strip_number:1){
         paste(block2_traits, collapse=", "), "\n")
     
         for (trait in block2_traits) {
-          results[[trait]] <- process_trait(trait, snps_in_ref, bim_path)
+          results[[trait]] <- process_trait(trait, snps_in_ref)
         }
     }
     

@@ -4,3 +4,5 @@
 *.txt
 *.xlsx
 *.out
+# Ignore python compiling
+__pycache__/

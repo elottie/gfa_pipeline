@@ -1,0 +1,2328 @@
+Mon Mar 30 09:21:35 EDT 2026
+    PID    PPID   RSS CMD
+1226276 1226272  3188 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226282 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  1804 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226283 1226279   944 head -20
+----
+Mon Mar 30 09:21:37 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 27312 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226401 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226402 1226279   952 head -20
+----
+Mon Mar 30 09:21:39 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 57672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226405 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226406 1226279   948 head -20
+----
+Mon Mar 30 09:21:41 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 91728 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226413 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226414 1226279   876 head -20
+----
+Mon Mar 30 09:21:43 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 125784 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226417 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226418 1226279   868 head -20
+----
+Mon Mar 30 09:21:45 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 162800 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226421 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226422 1226279   864 head -20
+----
+Mon Mar 30 09:21:47 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226429 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226430 1226279   944 head -20
+----
+Mon Mar 30 09:21:49 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226435 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226436 1226279   944 head -20
+----
+Mon Mar 30 09:21:51 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226439 1226279  2320 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226440 1226279   952 head -20
+----
+Mon Mar 30 09:21:53 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226447 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226448 1226279   876 head -20
+----
+Mon Mar 30 09:21:55 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226452 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226453 1226279   956 head -20
+----
+Mon Mar 30 09:21:57 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226458 1226279  2116 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226459 1226279   872 head -20
+----
+Mon Mar 30 09:22:00 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226505 1226279  2328 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226506 1226279   948 head -20
+----
+Mon Mar 30 09:22:02 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226513 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226514 1226279   852 head -20
+----
+Mon Mar 30 09:22:04 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226541 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226542 1226279   956 head -20
+----
+Mon Mar 30 09:22:06 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226393 1226276  3412 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226394 1226276  3196 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226547 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226392 1226276  1628 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912117/C999912117_regenie_rsid.tsv.gz
+1226548 1226279   868 head -20
+----
+Mon Mar 30 09:22:08 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226551 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226397 1226276  1884 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226552 1226279   980 head -20
+----
+Mon Mar 30 09:22:10 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207536 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226397 1226276 36304 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226556 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226557 1226279   976 head -20
+----
+Mon Mar 30 09:22:12 EDT 2026
+    PID    PPID   RSS CMD
+1226395 1226276 207536 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226397 1226276 184464 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226561 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226562 1226279   860 head -20
+----
+Mon Mar 30 09:22:14 EDT 2026
+    PID    PPID   RSS CMD
+1226397 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226395 1226276 207536 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226565 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226566 1226279   976 head -20
+----
+Mon Mar 30 09:22:16 EDT 2026
+    PID    PPID   RSS CMD
+1226397 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226395 1226276 207536 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226396 1226276  3216 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226573 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226574 1226279   860 head -20
+----
+Mon Mar 30 09:22:18 EDT 2026
+    PID    PPID   RSS CMD
+1226397 1226276 191708 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226579 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226580 1226279   952 head -20
+----
+Mon Mar 30 09:22:20 EDT 2026
+    PID    PPID   RSS CMD
+1226584 1226276  3784 awk -v n=9361315                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999912117.ssvals.sorted
+1226276 1226272  3284 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226586 1226279  2320 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226587 1226279   864 head -20
+----
+Mon Mar 30 09:22:23 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276  5680 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226634 1226279  2252 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226635 1226279   864 head -20
+----
+Mon Mar 30 09:22:25 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 39472 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226641 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226642 1226279   880 head -20
+----
+Mon Mar 30 09:22:27 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 73264 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226649 1226279  2220 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226650 1226279   952 head -20
+----
+Mon Mar 30 09:22:29 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 106528 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226665 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226666 1226279   868 head -20
+----
+Mon Mar 30 09:22:31 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 140848 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226674 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226675 1226279  1040 head -20
+----
+Mon Mar 30 09:22:33 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 194760 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226698 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226699 1226279   976 head -20
+----
+Mon Mar 30 09:22:35 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226702 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226703 1226279   868 head -20
+----
+Mon Mar 30 09:22:37 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226708 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226709 1226279   864 head -20
+----
+Mon Mar 30 09:22:39 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226713 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226714 1226279   864 head -20
+----
+Mon Mar 30 09:22:41 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226720 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226721 1226279   952 head -20
+----
+Mon Mar 30 09:22:44 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226724 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226725 1226279   876 head -20
+----
+Mon Mar 30 09:22:46 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226728 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226729 1226279   948 head -20
+----
+Mon Mar 30 09:22:48 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226738 1226279  2284 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226739 1226279   956 head -20
+----
+Mon Mar 30 09:22:50 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226628 1226276  3244 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226627 1226276  3204 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226742 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226631 1226276  1904 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226626 1226276  1540 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912707/C999912707_regenie_rsid.tsv.gz
+1226743 1226279   976 head -20
+----
+Mon Mar 30 09:22:52 EDT 2026
+    PID    PPID   RSS CMD
+1226629 1226276 194352 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226631 1226276 125512 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226748 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226749 1226279   976 head -20
+----
+Mon Mar 30 09:22:54 EDT 2026
+    PID    PPID   RSS CMD
+1226631 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226629 1226276 194352 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226630 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226754 1226279  2236 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226755 1226279   956 head -20
+----
+Mon Mar 30 09:22:56 EDT 2026
+    PID    PPID   RSS CMD
+1226631 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226760 1226279  2212 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226761 1226279   948 head -20
+----
+Mon Mar 30 09:22:58 EDT 2026
+    PID    PPID   RSS CMD
+1226631 1226276 207520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226783 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226784 1226279   880 head -20
+----
+Mon Mar 30 09:23:00 EDT 2026
+    PID    PPID   RSS CMD
+1226788 1226276  3728 awk -v n=7720423                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999912707.ssvals.sorted
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226795 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226796 1226279   948 head -20
+----
+Mon Mar 30 09:23:02 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 17568 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226860 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226861 1226279   980 head -20
+----
+Mon Mar 30 09:23:04 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 49512 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226868 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226869 1226279   952 head -20
+----
+Mon Mar 30 09:23:07 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 85416 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226872 1226279  2116 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226873 1226279   864 head -20
+----
+Mon Mar 30 09:23:09 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 117624 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226876 1226279  2320 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226877 1226279   864 head -20
+----
+Mon Mar 30 09:23:11 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 151416 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226881 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226882 1226279   876 head -20
+----
+Mon Mar 30 09:23:13 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226885 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226886 1226279   864 head -20
+----
+Mon Mar 30 09:23:15 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226889 1226279  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226890 1226279   872 head -20
+----
+Mon Mar 30 09:23:17 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226897 1226279  2228 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226898 1226279   976 head -20
+----
+Mon Mar 30 09:23:19 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226903 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226904 1226279   872 head -20
+----
+Mon Mar 30 09:23:21 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226907 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226908 1226279   876 head -20
+----
+Mon Mar 30 09:23:23 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226913 1226279  2220 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226914 1226279   856 head -20
+----
+Mon Mar 30 09:23:25 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226921 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226922 1226279   864 head -20
+----
+Mon Mar 30 09:23:27 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226927 1226279  2184 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226928 1226279   868 head -20
+----
+Mon Mar 30 09:23:30 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226939 1226279  2136 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226940 1226279   952 head -20
+----
+Mon Mar 30 09:23:32 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226948 1226279  2328 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226949 1226279   864 head -20
+----
+Mon Mar 30 09:23:34 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226836 1226276  3236 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226837 1226276  3112 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226972 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226835 1226276  1584 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912798/C999912798_regenie_rsid.tsv.gz
+1226973 1226279   976 head -20
+----
+Mon Mar 30 09:23:36 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207704 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226978 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226840 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226979 1226279   876 head -20
+----
+Mon Mar 30 09:23:38 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207624 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226840 1226276 125452 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226984 1226279  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226985 1226279   948 head -20
+----
+Mon Mar 30 09:23:40 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207624 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226840 1226276 207612 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226989 1226279  2228 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226990 1226279   944 head -20
+----
+Mon Mar 30 09:23:42 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207624 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226840 1226276 207612 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226996 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226997 1226279  1032 head -20
+----
+Mon Mar 30 09:23:44 EDT 2026
+    PID    PPID   RSS CMD
+1226838 1226276 207624 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226840 1226276 207612 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226839 1226276  3380 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227000 1226279  2116 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227001 1226279   860 head -20
+----
+Mon Mar 30 09:23:46 EDT 2026
+    PID    PPID   RSS CMD
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1226840 1226276  2896 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227008 1226279  2172 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227009 1226279   852 head -20
+----
+Mon Mar 30 09:23:48 EDT 2026
+    PID    PPID   RSS CMD
+1227013 1226276  3764 awk -v n=9582324                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999912798.ssvals.sorted
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227017 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227018 1226279   948 head -20
+----
+Mon Mar 30 09:23:50 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 15424 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227064 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227065 1226279   876 head -20
+----
+Mon Mar 30 09:23:53 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 47368 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227070 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227071 1226279   956 head -20
+----
+Mon Mar 30 09:23:55 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 79048 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227077 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227078 1226279   856 head -20
+----
+Mon Mar 30 09:23:57 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 110728 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227083 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227084 1226279   872 head -20
+----
+Mon Mar 30 09:23:59 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 144520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227106 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227107 1226279   876 head -20
+----
+Mon Mar 30 09:24:01 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227116 1226279  2252 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227117 1226279   852 head -20
+----
+Mon Mar 30 09:24:03 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227140 1226279  2220 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227141 1226279   980 head -20
+----
+Mon Mar 30 09:24:05 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227146 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227147 1226279   868 head -20
+----
+Mon Mar 30 09:24:07 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227150 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227151 1226279  1036 head -20
+----
+Mon Mar 30 09:24:09 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227155 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227156 1226279   948 head -20
+----
+Mon Mar 30 09:24:11 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227160 1226279  2268 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227161 1226279   948 head -20
+----
+Mon Mar 30 09:24:14 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227164 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227165 1226279   952 head -20
+----
+Mon Mar 30 09:24:16 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227168 1226279  2308 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227169 1226279   976 head -20
+----
+Mon Mar 30 09:24:18 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227179 1226279  2252 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227180 1226279  1028 head -20
+----
+Mon Mar 30 09:24:20 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227183 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227184 1226279   960 head -20
+----
+Mon Mar 30 09:24:22 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227058 1226276  3276 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227059 1226276  3204 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227187 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227057 1226276  1688 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912822/C999912822_regenie_rsid.tsv.gz
+1227188 1226279   872 head -20
+----
+Mon Mar 30 09:24:24 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227193 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227062 1226276  1872 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227194 1226279  1028 head -20
+----
+Mon Mar 30 09:24:26 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227062 1226276 93064 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227200 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227201 1226279   872 head -20
+----
+Mon Mar 30 09:24:28 EDT 2026
+    PID    PPID   RSS CMD
+1227060 1226276 207520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227062 1226276 202416 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227214 1226279  2288 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227215 1226279   872 head -20
+----
+Mon Mar 30 09:24:30 EDT 2026
+    PID    PPID   RSS CMD
+1227062 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227060 1226276 207520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227224 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227225 1226279  1036 head -20
+----
+Mon Mar 30 09:24:32 EDT 2026
+    PID    PPID   RSS CMD
+1227062 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227060 1226276 207520 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227061 1226276  3212 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227246 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227247 1226279   868 head -20
+----
+Mon Mar 30 09:24:34 EDT 2026
+    PID    PPID   RSS CMD
+1227062 1226276 196996 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227252 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227253 1226279   880 head -20
+----
+Mon Mar 30 09:24:37 EDT 2026
+    PID    PPID   RSS CMD
+1227257 1226276  3828 awk -v n=9511035                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999912822.ssvals.sorted
+1226276 1226272  3288 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227261 1226279  2124 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227262 1226279   864 head -20
+----
+Mon Mar 30 09:24:39 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276  6736 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227308 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227309 1226279   876 head -20
+----
+Mon Mar 30 09:24:41 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 47128 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227317 1226279  2292 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227318 1226279   952 head -20
+----
+Mon Mar 30 09:24:43 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 78808 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227321 1226279  2284 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227322 1226279   856 head -20
+----
+Mon Mar 30 09:24:45 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 110488 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227325 1226279  2172 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227326 1226279   852 head -20
+----
+Mon Mar 30 09:24:47 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 143752 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227333 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227334 1226279   864 head -20
+----
+Mon Mar 30 09:24:49 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227339 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227340 1226279   872 head -20
+----
+Mon Mar 30 09:24:51 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227343 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227344 1226279   880 head -20
+----
+Mon Mar 30 09:24:53 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227352 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227353 1226279   976 head -20
+----
+Mon Mar 30 09:24:55 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227357 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227358 1226279   864 head -20
+----
+Mon Mar 30 09:24:57 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227363 1226279  2324 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227364 1226279   852 head -20
+----
+Mon Mar 30 09:25:00 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227384 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227385 1226279   876 head -20
+----
+Mon Mar 30 09:25:02 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227393 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227394 1226279   956 head -20
+----
+Mon Mar 30 09:25:04 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227417 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227418 1226279   864 head -20
+----
+Mon Mar 30 09:25:06 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227423 1226279  2136 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227424 1226279   876 head -20
+----
+Mon Mar 30 09:25:08 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227427 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227428 1226279   868 head -20
+----
+Mon Mar 30 09:25:10 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227302 1226276  3364 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227303 1226276  3192 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227509 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227301 1226276  1648 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999912844/C999912844_regenie_rsid.tsv.gz
+1227510 1226279   864 head -20
+----
+Mon Mar 30 09:25:12 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207696 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227567 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227306 1226276  1844 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227568 1226279   944 head -20
+----
+Mon Mar 30 09:25:14 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207548 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227306 1226276 58660 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227575 1226279  2144 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227576 1226279   952 head -20
+----
+Mon Mar 30 09:25:16 EDT 2026
+    PID    PPID   RSS CMD
+1227304 1226276 207548 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227306 1226276 188340 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227591 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227592 1226279   952 head -20
+----
+Mon Mar 30 09:25:18 EDT 2026
+    PID    PPID   RSS CMD
+1227306 1226276 207612 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227304 1226276 207548 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227605 1226279  2248 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227606 1226279   952 head -20
+----
+Mon Mar 30 09:25:21 EDT 2026
+    PID    PPID   RSS CMD
+1227306 1226276 207612 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227304 1226276 207548 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227305 1226276  3296 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227617 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227618 1226279   876 head -20
+----
+Mon Mar 30 09:25:23 EDT 2026
+    PID    PPID   RSS CMD
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227306 1226276  2864 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227629 1226279  2176 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227630 1226279   860 head -20
+----
+Mon Mar 30 09:25:25 EDT 2026
+    PID    PPID   RSS CMD
+1227640 1226276  3704 awk -v n=9623957                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999912844.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227647 1226279  2268 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227648 1226279   876 head -20
+----
+Mon Mar 30 09:25:27 EDT 2026
+    PID    PPID   RSS CMD
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1227702 1226276  3296 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227706 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227707 1226279   952 head -20
+----
+Mon Mar 30 09:25:29 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 37352 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227759 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227760 1226279   952 head -20
+----
+Mon Mar 30 09:25:31 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 66128 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227768 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227769 1226279   948 head -20
+----
+Mon Mar 30 09:25:33 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 101504 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227792 1226279  2148 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227793 1226279  1028 head -20
+----
+Mon Mar 30 09:25:35 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 134768 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227796 1226279  2220 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227797 1226279   952 head -20
+----
+Mon Mar 30 09:25:37 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 182080 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227802 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227803 1226279   868 head -20
+----
+Mon Mar 30 09:25:39 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227807 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227808 1226279   852 head -20
+----
+Mon Mar 30 09:25:41 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227928 1226279  2184 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227929 1226279  1040 head -20
+----
+Mon Mar 30 09:25:44 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227952 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227953 1226279   852 head -20
+----
+Mon Mar 30 09:25:46 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227964 1226279  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227965 1226279  1040 head -20
+----
+Mon Mar 30 09:25:48 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227982 1226279  2280 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227983 1226279   860 head -20
+----
+Mon Mar 30 09:25:50 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1227995 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1227996 1226279   980 head -20
+----
+Mon Mar 30 09:25:52 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228009 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1228010 1226279   948 head -20
+----
+Mon Mar 30 09:25:54 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228024 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1228025 1226279   872 head -20
+----
+Mon Mar 30 09:25:56 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228038 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1228039 1226279   944 head -20
+----
+Mon Mar 30 09:25:58 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228093 1226279  2228 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1228094 1226279   860 head -20
+----
+Mon Mar 30 09:26:00 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207688 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227701 1226276  3272 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1227700 1226276  3136 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228101 1226279  2192 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227699 1226276  1572 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913431/C999913431_regenie_rsid.tsv.gz
+1228102 1226279   856 head -20
+----
+Mon Mar 30 09:26:02 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 24588 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228124 1226279  2228 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1227704 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228125 1226279   872 head -20
+----
+Mon Mar 30 09:26:04 EDT 2026
+    PID    PPID   RSS CMD
+1227702 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227704 1226276 167028 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228132 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228133 1226279   872 head -20
+----
+Mon Mar 30 09:26:07 EDT 2026
+    PID    PPID   RSS CMD
+1227704 1226276 207684 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227702 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228136 1226279  2292 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228137 1226279  1036 head -20
+----
+Mon Mar 30 09:26:09 EDT 2026
+    PID    PPID   RSS CMD
+1227704 1226276 207684 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1227702 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1227703 1226276  3340 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228141 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228142 1226279   856 head -20
+----
+Mon Mar 30 09:26:11 EDT 2026
+    PID    PPID   RSS CMD
+1227704 1226276 207684 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228225 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228226 1226279   856 head -20
+----
+Mon Mar 30 09:26:13 EDT 2026
+    PID    PPID   RSS CMD
+1228268 1226276  3732 awk -v n=9619597                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999913431.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228286 1226279  2192 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228287 1226279  1032 head -20
+----
+Mon Mar 30 09:26:15 EDT 2026
+    PID    PPID   RSS CMD
+1228268 1226276  3732 awk -v n=9619597                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999913431.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228297 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228298 1226279  1036 head -20
+----
+Mon Mar 30 09:26:17 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 26864 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228356 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1228357 1226279   864 head -20
+----
+Mon Mar 30 09:26:19 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 57224 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228373 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1228374 1226279   864 head -20
+----
+Mon Mar 30 09:26:21 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 91016 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228385 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1228386 1226279   944 head -20
+----
+Mon Mar 30 09:26:23 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 123488 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1228461 1226279  2320 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1228462 1226279   876 head -20
+----
+Mon Mar 30 09:26:25 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 156224 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1230325 1226279  2292 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1230326 1226279   864 head -20
+----
+Mon Mar 30 09:26:28 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231014 1226279  2196 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231015 1226279   880 head -20
+----
+Mon Mar 30 09:26:30 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231062 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231063 1226279   976 head -20
+----
+Mon Mar 30 09:26:32 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231071 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231072 1226279   956 head -20
+----
+Mon Mar 30 09:26:34 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231095 1226279  2248 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231096 1226279   880 head -20
+----
+Mon Mar 30 09:26:36 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231101 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231102 1226279   856 head -20
+----
+Mon Mar 30 09:26:38 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231105 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231106 1226279   864 head -20
+----
+Mon Mar 30 09:26:40 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231110 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231111 1226279   960 head -20
+----
+Mon Mar 30 09:26:42 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231217 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231218 1226279   864 head -20
+----
+Mon Mar 30 09:26:44 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231319 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231320 1226279   952 head -20
+----
+Mon Mar 30 09:26:46 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231335 1226279  2180 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231336 1226279   864 head -20
+----
+Mon Mar 30 09:26:48 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1228339 1226276  3220 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1228340 1226276  3208 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231350 1226279  2184 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228338 1226276  1588 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999913553/C999913553_regenie_rsid.tsv.gz
+1231351 1226279   956 head -20
+----
+Mon Mar 30 09:26:51 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207700 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231362 1226279  2320 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228343 1226276  1908 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231363 1226279   948 head -20
+----
+Mon Mar 30 09:26:53 EDT 2026
+    PID    PPID   RSS CMD
+1228341 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1228343 1226276 147480 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231378 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231379 1226279   944 head -20
+----
+Mon Mar 30 09:26:55 EDT 2026
+    PID    PPID   RSS CMD
+1228343 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228341 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231393 1226279  2224 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231394 1226279   960 head -20
+----
+Mon Mar 30 09:26:57 EDT 2026
+    PID    PPID   RSS CMD
+1228343 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228341 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231408 1226279  2128 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231409 1226279   856 head -20
+----
+Mon Mar 30 09:26:59 EDT 2026
+    PID    PPID   RSS CMD
+1228343 1226276 207672 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1228341 1226276 207540 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1228342 1226276  3224 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231499 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231500 1226279   856 head -20
+----
+Mon Mar 30 09:27:01 EDT 2026
+    PID    PPID   RSS CMD
+1231508 1226276  3720 awk -v n=9573842                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999913553.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231510 1226279  2332 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231511 1226279   864 head -20
+----
+Mon Mar 30 09:27:03 EDT 2026
+    PID    PPID   RSS CMD
+1231508 1226276  3720 awk -v n=9573842                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999913553.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231539 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231540 1226279   864 head -20
+----
+Mon Mar 30 09:27:05 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 16500 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231588 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231589 1226279   864 head -20
+----
+Mon Mar 30 09:27:07 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 48708 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231592 1226279  2152 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231593 1226279   872 head -20
+----
+Mon Mar 30 09:27:09 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 80388 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231597 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231598 1226279  1040 head -20
+----
+Mon Mar 30 09:27:12 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 114444 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231602 1226279  2276 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231603 1226279  1040 head -20
+----
+Mon Mar 30 09:27:14 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 148500 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231722 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231723 1226279   868 head -20
+----
+Mon Mar 30 09:27:16 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231746 1226279  2164 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231747 1226279   960 head -20
+----
+Mon Mar 30 09:27:18 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231764 1226279  2240 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231765 1226279   864 head -20
+----
+Mon Mar 30 09:27:20 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231778 1226279  2272 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231779 1226279   860 head -20
+----
+Mon Mar 30 09:27:22 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231793 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231794 1226279   876 head -20
+----
+Mon Mar 30 09:27:24 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231808 1226279  2216 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231809 1226279  1036 head -20
+----
+Mon Mar 30 09:27:26 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231824 1226279  2244 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231825 1226279   860 head -20
+----
+Mon Mar 30 09:27:28 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231846 1226279  2296 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231847 1226279   948 head -20
+----
+Mon Mar 30 09:27:30 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231887 1226279  2336 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231888 1226279   976 head -20
+----
+Mon Mar 30 09:27:33 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231910 1226279  2188 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231911 1226279   872 head -20
+----
+Mon Mar 30 09:27:35 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231916 1226279  2232 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231917 1226279   952 head -20
+----
+Mon Mar 30 09:27:37 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231583 1226276  3364 awk -F\t -v OFS=\t NR>1 {print $1,$6}
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231582 1226276  3292 awk -F. -v OFS=\t -v snp_name=RSID -v A1_name=ALLELE1 -v A2_name=ALLELE0 -v beta_name=BETA -v se_name=SE -v ss_name=N -v af_name=A1FREQ -f remove_invalid_variants.awk
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231922 1226279  2136 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231581 1226276  1616 gzip -cd /nfs/turbo/sph-jvmorr/gwas_summary_statistics/METSIM/with_rsid/C999916935/C999916935_regenie_rsid.tsv.gz
+1231923 1226279   952 head -20
+----
+Mon Mar 30 09:27:39 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231926 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231586 1226276  1880 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231927 1226279   944 head -20
+----
+Mon Mar 30 09:27:41 EDT 2026
+    PID    PPID   RSS CMD
+1231584 1226276 207544 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1231586 1226276 158324 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1231934 1226279  2284 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231935 1226279   956 head -20
+----
+Mon Mar 30 09:27:43 EDT 2026
+    PID    PPID   RSS CMD
+1231586 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231584 1226276 207544 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1232014 1226279  2168 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1232015 1226279   944 head -20
+----
+Mon Mar 30 09:27:45 EDT 2026
+    PID    PPID   RSS CMD
+1231586 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1231584 1226276 207544 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -t . -k1,1 -u
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1231585 1226276  3180 awk -F\t -v OFS=\t $2 ~ /^[0-9.]+$/ {print $2}
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1232072 1226279  2200 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1232073 1226279   864 head -20
+----
+Mon Mar 30 09:27:47 EDT 2026
+    PID    PPID   RSS CMD
+1231586 1226276 207692 sort -T 0_get_ss_bounds_20260330_092135 -S 200M -n
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1232088 1226279  2160 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1232089 1226279   856 head -20
+----
+Mon Mar 30 09:27:49 EDT 2026
+    PID    PPID   RSS CMD
+1232103 1226276  3716 awk -v n=9393459                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999916935.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1232106 1226279  2252 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1232107 1226279   980 head -20
+----
+Mon Mar 30 09:27:51 EDT 2026
+    PID    PPID   RSS CMD
+1232103 1226276  3716 awk -v n=9393459                  NR==int((n+1)/2){a=$1}                 NR==int((n+2)/2){b=$1}                 END{print (n%2)?a:(a+b)/2}              0_get_ss_bounds_20260330_092135/C999916935.ssvals.sorted
+1226276 1226272  3292 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1226272 1226263  3064 /bin/bash /var/spool/slurmd.spool/job46385879/slurm_script
+1232119 1226279  2156 ps -u elottie -o pid,ppid,rss,cmd --sort=-rss
+1226279 1226276  2060 bash 0_get_ss_bounds.sh /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv ss_table.tsv
+1232120 1226279   980 head -20
+----
