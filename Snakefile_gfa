@@ -34,6 +34,8 @@ sstol_max = config["analysis"]["gfa"]["sample_size_tol"]
 cond_num = config["analysis"]["R"]["cond_num"]
 is_mvmr = 0
 
+mem_limit_gb = config["analysis"]["mem_limit_gb"]
+
 
 include: "common_rules.smk"
 
@@ -50,6 +52,9 @@ inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor
 
 rule all:
     input: inp
+
+#rule all:
+#    input: data_dir + "{prefix}_snps.{chrom}.RDS"
 
 # Run GFA
 def R_input(wcs):

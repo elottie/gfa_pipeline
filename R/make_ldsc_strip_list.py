@@ -2,16 +2,17 @@ import math
 import pandas as pd
 
 # necessary not to use ceiling so we don't just get one block with <2 traits
-def assign_traits(traits: list[str], nblocks: int) -> dict[str, list[str]]:
+def assign_traits(traits: list[str], nblocks: int) -> list[list[str]]:
     n = len(traits)
-    base_num_traits = n // nblocks  # min number of traits each set will get
-    bigger_sets = n % nblocks  # number of sets that get one extra trait (remainder) bc can't be evenly divded btwn sets
-    out = {}
+    base_num_traits = n // nblocks
+    bigger_sets = n % nblocks
+
+    out: list[list[str]] = []
     idx = 0
     for i in range(nblocks):
         set_size = base_num_traits + (1 if i < bigger_sets else 0)
-        out[f"set{i+1}"] = traits[idx:idx+set_size]
-        idx += size
+        out.append(traits[idx:idx + set_size])
+        idx += set_size
     return out
 
 def make_trait_sets(
@@ -51,9 +52,18 @@ def make_trait_sets(
 
     strip_list = assign_traits(traits, nblocks)
 
-    # Defensive check
-    sizes = [len(v) for v in strip_list.values()]
+    # Make absolutely sure no invalid blocks
+    sizes = [len(v) for v in strip_list]
     if min(sizes) < min_traits_per_block or max(sizes) > max_traits_per_block:
         raise RuntimeError(f"Internal error: block sizes {sizes} violate [{min_traits_per_block}, {max_traits_per_block}].")
 
     return strip_list
+
+
+if __name__ == "__main__":
+    import json
+
+    sets = make_trait_sets(csv_path=snakemake.input[0], memory_limit_gb=snakemake.params[0])
+    with open(snakemake.output[0], "w") as f:
+        json.dump(sets, f)
+

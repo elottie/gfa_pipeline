@@ -31,6 +31,7 @@ analysis:
     # cond_num: Maximum condition number. R is estimated pairwise using either ldsc or p-thresholding strategy.
     #     the result may not be positive definite or may have very high condition number. The estimated
     #     matrix will be projected to the neares positive definite matrix with condition number less than cond_num.
+    mem_limit_gb: 10
     R:
       type: ["ldsc", "pt"] # options are "pt", "ldsc", "none", lidt ok
       pthresh: [0.05] # list ok
