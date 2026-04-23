@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# what remains:
+# - handle what if beta is OR
+# - handle what if there is no ss (copy from pub ss)
+# - handle vcfs (long-term)
+
 set -x
 
 set -euo pipefail
@@ -8,7 +13,7 @@ set -euo pipefail
 export LC_ALL=C
 
 # temp workspace for generated files
-workdir="1_comb_form_$(date +%Y%m%d_%H%M%S)"
+workdir="1_workdir_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$workdir"
 
 memsnap() {
@@ -27,20 +32,16 @@ sampler=$!
 
 # read input arguments - - -
 
-#bash bash/1_combine_and_format.sh {wildcards.chrom} {input.gwas_info} {input.ref_bim} {params.af_thresh} {params.sample_size_tol} {output.out}
+# params {wildcards.chrom} {input.gwas_info} {input.sanple_size_file} {params.af_min} {output.out}
 
 chrom="$1"                # e.g., from Snakemake wildcards
 gwas_info_file="$2"       # path to info file
-trait_summary_table="$3"  # table of ss medians for each trait
+trait_ss_table="$3"  # table of ss medians for each trait
 af_thresh="$4"            # allele freq threshold
-ss_tol="$5"      # sample size tolerance
-out="$6"                  # output file
+out="$5"                  # output file
 
 # just once, need to get rid of lovely windows carriage returns
 dos2unix "$gwas_info_file"
-# for them to undo it, they can do
-#unix2dos "$gwas_info_file"
-# most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
 
 # read user metadata file - - -
 
@@ -72,13 +73,9 @@ memsnap
 
 # loop over gwas files and format - - -
 
-#trait_summary_table="$workdir/trait_sample_stats.tsv"
-# here shared means SNPs in shared between all traits. 
+# here shared means SNPs shared between all traits. 
 shared_snps_and_maf="$workdir/shared_snps_and_maf.tsv"
 shared_snps_and_maf_tmp="$workdir/shared_snps_and_maf.tmp"
-
-# Write header to summary table (only once)
-#echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table" 
 
 for ((i=2; i<=num_traits+1; i++)); do
 #for ((i=3; i<=3; i++)); do
@@ -101,12 +98,14 @@ for ((i=2; i<=num_traits+1; i++)); do
 
     #trait_out="$workdir/${trait_name}.final.tsv"
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
-        echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
+        echo "Error:  haven't written the vcf handling part of 1_gather_snps.sh"
+    #    echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
     #    format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
     else
         echo "maxrss before using make_filt_data"
         memsnap
 
+        # eventually need to add handling for what if beta is OR, and what if no ss column (copy from pub ss)
 	make_filt_data() {
             zcat "$f" |
                 awk -F"$delimiter" -v chr_header="$chrn" -v chrom_val="$chrom" -v OFS="\t" '
@@ -126,7 +125,6 @@ for ((i=2; i<=num_traits+1; i++)); do
 		| { read -r header; printf '%s\n' "$header"; sort -T "$workdir" -S 100M -t $'\t' -k1,1 -u; } \
   		| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
 	}
-        # add the copying over of pub ss if real ss not avail
    
 	#make_filt_data > tmp.txt
 	#echo "maxrss after using make_filt_data"
@@ -136,16 +134,15 @@ for ((i=2; i<=num_traits+1; i++)); do
         #make_filt_data 2>/dev/null | head
 
 	# 1. Sample size statistics for trait summary table
-	#read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_summary_table" | tail -n1)
-        read -r trait med < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2}' "$trait_summary_table")
-	low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
-        high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
+	#read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_ss_table" | tail -n1)
+        #read -r trait med < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2}' "$trait_ss_table")
+	#low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
+        #high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
 
-        echo $low
-	echo $high
+        read -r trait low high < <(awk -F'\t' -v trait="$trait_name" '$1==trait {print $1, $2, $4; exit}' "$trait_ss_table")
 
-        #low=1000
-	#high=10000
+	echo "$low"
+	echo "$high"
 
 	# 2. Common SNPs and min MAF intersection/update
         if ((i == 2)); then
@@ -181,6 +178,8 @@ for ((i=2; i<=num_traits+1; i++)); do
                         		
             # INNER JOIN shared (SNP prior_maf prior_z ss_flag) with trait (SNP af ss zabs)
             # Only SNPs present in BOTH will be output => intersection across traits
+
+            # make_filt_data is already sorted
 
 	    join -t $'\t' -1 1 -2 1 \
                 -o 1.1,1.2,1.3,1.4,2.2,2.3,2.4 \
@@ -265,15 +264,21 @@ echo "wrote out snp table with maf and ss flags"
 memsnap
 
 # write out a file where only the snps that pass ss and maf filters stay
-final_pass_snps="$workdir/$out"
+final_pass_snps="$out"
 awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shared_snps_and_maf" > "$final_pass_snps"
-awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
+#awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
 
 echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
+echo "add deletion of shared_snps_and_maf with flags here.  but not causing any harm right now"
+#rm -r $workdir
 memsnap
 
 echo "finished formatting"
 memsnap
+
+unix2dos "$gwas_info_file"
+# most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
+echo "returned lovely windows carriage returns"
 
 kill "$sampler" 2>/dev/null || true
 wait "$sampler" 2>/dev/null || true

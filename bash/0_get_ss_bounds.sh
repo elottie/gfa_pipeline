@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#set -x
+set -x
 
 set -euo pipefail
 
@@ -8,7 +8,7 @@ set -euo pipefail
 export LC_ALL=C
 
 # temp workspace for generated files
-workdir="0_get_ss_bounds_$(date +%Y%m%d_%H%M%S)"
+workdir="0_workdir_$(date +%Y%m%d_%H%M%S)"
 mkdir -p "$workdir"
 
 memsnap() {
@@ -27,7 +27,7 @@ sampler=$!
 
 # read input arguments - - -
 
-#bash bash/1_combine_and_format.sh {wildcards.chrom} {input.gwas_info} {input.ref_bim} {params.af_thresh} {params.sample_size_tol} {output.out}
+# bash bash/0_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}
 
 gwas_info_file="$1"       # path to info file
 ss_tol="$2"      # sample size tolerance
@@ -35,9 +35,6 @@ out="$3"                  # output file
 
 # just once, need to get rid of lovely windows carriage returns
 dos2unix "$gwas_info_file"
-# for them to undo it, they can do
-#unix2dos "$gwas_info_file"
-# most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
 
 # read user metadata file - - -
 
@@ -69,10 +66,10 @@ memsnap
 
 # loop over gwas files and format - - -
 
-trait_summary_table="$workdir/$out"
+trait_ss_table="$out"
  
 # Write header to summary table (only once)
-echo -e "trait\tss_low\tss_median\tss_high" > "$trait_summary_table" 
+echo -e "trait\tss_low\tss_median\tss_high" > "$trait_ss_table" 
 
 for ((i=2; i<=num_traits+1; i++)); do
 #for ((i=2; i<=2; i++)); do
@@ -80,7 +77,7 @@ for ((i=2; i<=num_traits+1; i++)); do
     # Read info fields for trait i (awk column indexing, adjust as needed for TSV)
     f=$(awk -F, -v row="$i" -v col="$col_raw_data" 'NR==row {print $col}' "$gwas_info_file")
     snp=$(awk -F, -v row="$i" -v col="$col_snp" 'NR==row {print $col}' "$gwas_info_file")
-    chrn=$(awk -F, -v row="$i" -v col="$col_chrom" 'NR==row {print $col}' "$gwas_info_file")
+#    chrn=$(awk -F, -v row="$i" -v col="$col_chrom" 'NR==row {print $col}' "$gwas_info_file")
     A1=$(awk -F, -v row="$i" -v col="$col_A1" 'NR==row {print $col}' "$gwas_info_file")
     A2=$(awk -F, -v row="$i" -v col="$col_A2" 'NR==row {print $col}' "$gwas_info_file")
     beta_hat=$(awk -F, -v row="$i" -v col="$col_beta_hat" 'NR==row {print $col}' "$gwas_info_file")
@@ -96,7 +93,8 @@ for ((i=2; i<=num_traits+1; i++)); do
     #trait_out="$workdir/${trait_name}.final.tsv"
 
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
-        echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
+        echo "Error:  haven't written vcf handling for 0_get_ss_bounds.sh"
+    #    echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
     #    format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
 
     else
@@ -134,7 +132,7 @@ for ((i=2; i<=num_traits+1; i++)); do
         #            print trait, "NA", "NA", "NA"
         #        }
         #    }
-        #' >> "$trait_summary_table"
+        #' >> "$trait_ss_table"
 
         # extract numeric SS values, sort numerically (disk-backed), get count
         tmp="$workdir/${trait_name}.ssvals.sorted"
@@ -152,9 +150,9 @@ for ((i=2; i<=num_traits+1; i++)); do
            low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
            high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
 
-           printf "%s\t%s\t%s\t%s\n" "$trait_name" "$low" "$med" "$high" >> "$trait_summary_table"
+           printf "%s\t%s\t%s\t%s\n" "$trait_name" "$low" "$med" "$high" >> "$trait_ss_table"
         else
-           printf "%s\tNA\tNA\tNA\n" "$trait_name" >> "$trait_summary_table"
+           printf "%s\tNA\tNA\tNA\n" "$trait_name" >> "$trait_ss_table"
         fi
 
         rm -f "$tmp"
@@ -167,5 +165,12 @@ done
 echo "finished trait loop"
 memsnap
 
+echo "cleaned up workdir"
+#rm -r $workdir
+
 kill "$sampler" 2>/dev/null || true
 wait "$sampler" 2>/dev/null || true
+
+# for them to undo it, they can do
+unix2dos "$gwas_info_file"
+# most of the time, they don't need to undo it:  Excel, R, Python recognizes Unix endings fine.  just an issue for simple things like Notepad

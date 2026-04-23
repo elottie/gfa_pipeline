@@ -7,6 +7,9 @@
 #ss_tol="$2"      # sample size tolerance
 #out="$3"                  # output file
 
+mkdir -p ../gfa_data
+
 bash 0_get_ss_bounds.sh \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip_1.csv \
-    ss_table.tsv
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
+    0.1 \
+    ../gfa_data/5e5Sig_Herit_Mets8_sample_size_table.tsv

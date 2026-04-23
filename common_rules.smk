@@ -35,30 +35,31 @@ def info_input(wcs):
     global prefix_dict
     return prefix_dict[wcs.prefix]
 
+# do we need 'files' in this and the following rule?
 rule sample_size_bounds:
     input: files = raw_data_input, gwas_info = info_input
-    output: out =  data_dir + "{prefix}_sample_size_table.RDS"
-    shell:  'bash bash/0_get_ss_bounds.sh {input.gwas_info} {output.out}'
+    output: out =  data_dir + "{prefix}_sample_size_table.tsv"
+    params: sample_size_tol = sstol_max    
+    shell:  'bash bash/0_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}'
 
   
 rule gather_snps:
     input: files = raw_data_input, 
                    gwas_info = info_input, 
-                   sample_size_file = data_dir + "{prefix}_sample_size_table.RDS"
-    output: out =  data_dir + "{prefix}_snps.{chrom}.RDS" # output is two column file with list of rsids and minimum p-value/max z-score
+                   sample_size_file = data_dir + "{prefix}_sample_size_table.tsv"
+    output: out =  data_dir + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
     params: af_thresh = af_min,
-            sample_size_tol = sstol_max,
             is_mvmr = is_mvmr
     wildcard_constraints: chrom = r"\d+"
     resources: mem_mb = 20000 # could adjust resources
             # add is_mvmr to script at some point
-    shell: 'bash bash/1_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sanple_size_file} {params.af_min} {params.sstol_max} {output.out}' 
+    shell: 'bash bash/1_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
 
 
 # LD prune with plink
 pthresh = 1 # jean change later or remove
 rule ld_prune_plink:
-    input: snp_list = data_dir + "{prefix}_snps.{chrom}.RDS", 
+    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv", 
            bfile = config["analysis"]["ldprune"]["ref_path"] + ".bed"
     output: out = data_dir + "{prefix}_pruned_snps.ldpruned_r2{r2_thresh}_kb{kb}_{p}.{chrom}.RDS"
     params: ref_path = config["analysis"]["ldprune"]["ref_path"],
@@ -67,6 +68,7 @@ rule ld_prune_plink:
     resources: mem_mb = 10000 # could adjust resources
     script: 'R/2_ld_prune_chrom_plink.R' # to update
 
+# eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
 rule make_nice_data:
     input: raw_data_input, snp_list = data_dir + "{prefix}_pruned_snps.{ldstring}.{chrom}.RDS"
     output: data_dir + "{prefix}_zmat.ldpruned_{ldstring}.{chrom}.RDS"
