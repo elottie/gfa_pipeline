@@ -23,7 +23,7 @@ library(jsonlite)
 snp_files <- sprintf("../gfa_data/5e5Sig_Herit_Mets8_snps_chr%d.tsv", 1:22)
 gwas_info <- fread("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
 strip_list <- fromJSON("ldsc_trait_sets.json", simplifyVector = FALSE)  # list of character vectors
-strip_num <- 1
+strip_num <- 3
 # these go away with snakemake input --
 l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
 chroms <- 1:22
@@ -85,11 +85,9 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref) {
   print('head filt_trait_harmon:')
   print(head(filt_trait))
 
-  filt_trait[, `:=`(
-      beta_hat_num = as.numeric(beta_hat),
-      se_num       = as.numeric(se)
-  )]
-  filt_trait[, Z := fifelse(se_num != 0, beta_hat_num / se_num, NA_real_)]
+  # we ensured beta_hat was numeric during align_beta.  just guard se
+  filt_trait[, se_num := as.numeric(se)]
+  filt_trait[, Z := fifelse(se_num != 0, beta_hat / se_num, NA_real_)]
   print('head filt_trait with z:')
   print(head(filt_trait))
   
@@ -160,8 +158,8 @@ l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref)), wha
 #print(nrow(Z_work))
 
 ldsc_results <- list()
-#for(s2 in strip_num:nblocks){
-for(s2 in strip_num:2){
+for(s2 in strip_num:length(strip_list)){
+#for(s2 in strip_num:2){
 #for(s2 in strip_num:1){
     #Z_hat_b2 <- NULL
     #ss_b2 <- NULL	
@@ -188,7 +186,7 @@ for(s2 in strip_num:2){
         all_traits <- unique(as.character(block1_traits))
     }
 
-    if(s2 >= strip_num + 1){
+    if(s2 > strip_num){
         # read set 2 (second block)
         block2_traits <- strip_list[[s2]]
         cat("Reading and harmon ALL TRAITS of set 2 (block", s2, "), has traits:",
@@ -214,7 +212,27 @@ for(s2 in strip_num:2){
         print(comparisons)
         # Get unique trait codes and turn string trait names to numbers
         all_traits <- unique(c(as.character(block1_traits), as.character(block2_traits)))
+        
+	# second to last-strip has special handling to get last triangle for free
+	if(strip_num == length(strip_list)-1){
+	    # read data for set 1 (first block)
+            #block1_traits <- strip_list[[s2]]
+            cat("Adding within-block comparisons for very last block ", s2, "), has traits:",
+            paste(block2_traits, collapse=", "), "\n")
 
+            # for ldsc:  add within-block comparisons for block1_traits
+            last_comparisons <- as.data.frame(t(combn(block2_traits, 2)), stringsAsFactors = FALSE)
+            names(last_comparisons) <- c("trait1", "trait2")
+            cat("Unique within-block comparisons for block", s2, ":\n")
+            print(last_comparisons)
+
+	    # add to earlier comparisons
+	    comparisons <- rbind(comparisons, last_comparisons)
+            comparisons <- unique(comparisons)  # optional, removes exact duplicate rows
+
+            # Get unique trait codes and turn string trait names to numbers
+            all_traits <- unique(c(as.character(all_traits),as.character(block2_traits)))
+	}
     }
     
     
