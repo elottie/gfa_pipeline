@@ -6,3 +6,4 @@
 *.out
 # Ignore python compiling
 __pycache__/
+*workdir*

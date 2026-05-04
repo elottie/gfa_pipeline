@@ -35,9 +35,9 @@ def info_input(wcs):
     global prefix_dict
     return prefix_dict[wcs.prefix]
 
-# do we need 'files' in this and the following rule?
+# do we need 'raw data input' in this and the following rule?  removed from this rule
 rule sample_size_bounds:
-    input: files = raw_data_input, gwas_info = info_input
+    input: gwas_info = info_input
     output: out =  data_dir + "{prefix}_sample_size_table.tsv"
     params: sample_size_tol = sstol_max    
     shell:  'bash bash/0_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}'
@@ -120,9 +120,10 @@ rule none_R:
 
 
 rule R_ldsc_strip:
-    input: raw_data_input, 
+    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv",
+           #raw_data_input, 
            gwas_info = info_input, 
-           strip_file =  data_dir + "{prefix}_trait_sets.json"
+           strip_list =  data_dir + "{prefix}_trait_sets.json"
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"

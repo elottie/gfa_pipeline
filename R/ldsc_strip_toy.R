@@ -7,17 +7,30 @@ library(GFA)
 
 # added
 library(data.table)
-library(bench)
+#library(bench)
 library(jsonlite)
 
 # --- for once I graduate to snakemake ---
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
-gwas_info <- read_csv(snakemake@input[["gwas_info"]])
-strip_list <- readRDS(snakemake@input[["strip_file"]])
-strip_number <- as.numeric(snakemake@wildcard[["strip_num"]])
-out <- snakemake@output[["out"]]
-ld_files <- unlist(snakemake@input[["l2"]])
-m_files <- unlist(snakemake@input[["m"]])
+#snp_files <- unlist(snakemake@input[["snp_list"]])
+#gwas_info <- read_csv(snakemake@input[["gwas_info"]])
+#strip_list <- readRDS(snakemake@input[["strip_file"]])
+#strip_num <- as.numeric(snakemake@wildcard[["strip_num"]])
+#out <- snakemake@output[["out"]]
+#ld_files <- unlist(snakemake@input[["l2"]])
+#m_files <- unlist(snakemake@input[["m"]])
+
+snp_files <- sprintf("../gfa_data/5e5Sig_Herit_Mets8_snps_chr%d.tsv", 1:22)
+gwas_info <- fread("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
+strip_list <- fromJSON("ldsc_trait_sets.json", simplifyVector = FALSE)  # list of character vectors
+strip_num <- 1
+# these go away with snakemake input --
+l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
+chroms <- 1:22
+# --
+m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
+ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
+out <- "../gfa_data/5e5Sig_Herit_Mets8_ldsc_results.RDS"
 
 # --- snakemake input ---
 #rule R_ldsc_full:
@@ -30,187 +43,141 @@ m_files <- unlist(snakemake@input[["m"]])
 #    wildcard_constraints: pt = r"[\d.]+"
 #    script: "R/3_R_ldsc_all.R"
 
+#rule R_ldsc_strip:
+#    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv",
+#           #raw_data_input,
+#           strip_list =  data_dir + "{prefix}_trait_sets.json"
+#           m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
+#           l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
+#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
+#    script: "R/ldsc_strip_toy.R"
+
 # --- function for processing traits ---
+# extract only the columns we need from data files
 map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
   row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
   if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  as.list(row[1, c("beta_hat","se","A1","A2","af")])
+  as.list(row[1, c("beta_hat","se","A1","A2","af","sample_size")])
 }
 
-# Flip signs and strands so that allele 1 is always A (modifies X in place)
-align_beta_dt <- function(X, upper = TRUE,
-                          beta_col = "beta_hat",
-                          af_col   = "af") {
-  stopifnot(data.table::is.data.table(X))
-  stopifnot(all(c("A1", "A2") %in% names(X)))
-  stopifnot(beta_col %in% names(X))
+# do the data harmonization
+harmon_dat <- function(gwas_info, trait, snps_in_ref) {
 
-  flp <- c("A"="T","G"="C","T"="A","C"="G",
-           "a"="t","t"="a","c"="g","g"="c")
-
-  af_present <- af_col %in% names(X)
-  if (!af_present) {
-    X[, (af_col) := NA_real_]  # create temporarily so code can be uniform
-  }
-
-  X[, ..__alignbeta_flip__ :=
-       if (upper) (A1 == "T" | A2 == "T") else (A1 == "t" | A2 == "t")]
-
-  X[, `:=`(
-    ..__alignbeta_A1flp__ = data.table::fifelse(..__alignbeta_flip__, flp[A1], A1),
-    ..__alignbeta_A2flp__ = data.table::fifelse(..__alignbeta_flip__, flp[A2], A2)
-  )]
-
-  X[, ..__alignbeta_condA__ := ..__alignbeta_A1flp__ %chin% c("A","a")]
-
-  # beta_hat
-  X[, (beta_col) := {
-    b <- .SD[[1L]]
-    if (!is.numeric(b)) b <- as.numeric(b)
-    data.table::fifelse(..__alignbeta_condA__, b, -b)
-  }, .SDcols = beta_col]
-
-  # af
-  X[, (af_col) := {
-    p <- .SD[[1L]]
-    if (!is.numeric(p)) p <- as.numeric(p)
-    data.table::fifelse(..__alignbeta_condA__, p, 1 - p)
-  }, .SDcols = af_col]
-
-  # swap alleles to make A1 the A allele (after flip)
-  X[, `:=`(
-    A1 = data.table::fifelse(..__alignbeta_condA__, ..__alignbeta_A1flp__, ..__alignbeta_A2flp__),
-    A2 = data.table::fifelse(..__alignbeta_condA__, ..__alignbeta_A2flp__, ..__alignbeta_A1flp__)
-  )]
-
-  X[, c("..__alignbeta_flip__", "..__alignbeta_A1flp__", "..__alignbeta_A2flp__", "..__alignbeta_condA__") := NULL]
-
-  if (!af_present) X[, (af_col) := NULL]  # remove if it wasn't originally there
-
-  invisible(X)
-}
-
-get_harmon_z <- function(gwas_info, trait, snps_in_ref, base_dir = "../../../gwas_summary_statistics/METSIM/with_rsid") {
-
-  full_trait <- file.path(base_dir, trait, paste0(trait, "_regenie_rsid.tsv.gz"))
+  full_trait <- gwas_info[name==trait, 'raw_data_path'] 
   message("... processing trait: ", full_trait)
 
-  cmd <- sprintf(
+  awk_trait_in_ref <- sprintf(
     "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || snps[$1]' %s -",
     shQuote(full_trait), shQuote(snps_in_ref)
   )
 
-  m <- map_gwas_info_cols(gwas_info, trait)
-  filtered_trait <- fread(cmd = cmd, sep = "\t", header = TRUE,
-            select = unname(unlist(m)))  # pick what you need
+  dat_cols_sel <- map_gwas_info_cols(gwas_info, trait)
+  filt_trait <- fread(cmd = awk_trait_in_ref, sep = "\t", header = TRUE,
+            select = unname(unlist(dat_cols_sel)))  # pick what you need
+  setnames(filt_trait, old = unname(unlist(dat_cols_sel)), new = names(dat_cols_sel))
 
-  data.table::setnames(filtered_trait, old = unname(unlist(m)), new = names(m))
-
-  print('head filtered_trait after reading in:')
-  print(head(filtered_trait))
+  print('head filt_trait after reading in:')
+  print(head(filt_trait))
  
-#  filtered_trait_harmon <- GFA:::align_beta(filtered_trait,beta_name,af_name) 
-  filtered_trait_harmon <- align_beta_dt(filtered_trait) 
-  print('head filtered_trait_harmon:')
-  print(head(filtered_trait_harmon))
+#  filtered_trait_harmon <- GFA:::aligss_beta(filtered_trait,beta_name,af_name) 
+  GFA:::align_beta(filt_trait) 
+  print('head filt_trait_harmon:')
+  print(head(filt_trait))
 
-  filtered_trait <- filtered_trait_harmon
- 
-  # ought to guard for beta_hat & se anomalies, set to NA to preserve order 
-  filtered_trait[, Z := beta_hat / se]
-  print('head filtered_trait with z:')
-  print(head(filtered_trait))
-
-  return(filtered_trait[["Z"]])
+  filt_trait[, `:=`(
+      beta_hat_num = as.numeric(beta_hat),
+      se_num       = as.numeric(se)
+  )]
+  filt_trait[, Z := fifelse(se_num != 0, beta_hat_num / se_num, NA_real_)]
+  print('head filt_trait with z:')
+  print(head(filt_trait))
+  
+  return(list(Z = filt_trait[["Z"]],
+              ss = filt_trait[["sample_size"]]))
 }
 
 # --- temp workdir for testing cleanliness --
-workdir <- paste0("3_ldsc_strip_", format(Sys.time(), "%Y%m%d_%H%M%S"))
+workdir <- paste0("3_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"))
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
-snps_in_ref <- file.path(workdir, "chr1_8traits_snps_in_ld_file.tsv")
-ldsc_out <- file.path(workdir, "ldsc_results.RDS")
+# temp output file defs
+snps_in_ref <- file.path(workdir, "snps_in_ld_file.tsv")
 
 # --- get just SNPs present in all traits AND ld ref files ---
 print('filtering universal_snps.txt to only those found in ld ref files')
 
-# gather inputs
-l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
-chroms <- 1
-m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
-ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
-
 # All lines from ld_file.tsv where the second column matches a value in the first column of snps_pass_all_filts.txt.
-awk_snps_in_ref <- paste(
-  "zcat", ld_files, "|",
-  "awk -F'\\t' 'BEGIN{OFS=\"\\t\"; print \"snp\", \"l2\"} NR==FNR {snps[$1]=1; next} snps[$2] {print $2, $6}' ../bash/1_comb_form_chr1_8traits/snps_pass_all_filts.txt -",
-  ">", snps_in_ref
-)
+# write header to output
+system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref)))
 
-system(awk_snps_in_ref)
+for (chr in 1:22) {
+  snp_file <- snp_files[chr]
+  ld_file  <- file.path(l2_dir, paste0(chr, ".l2.ldscore.gz"))
 
-#l2 is col 2
+  awk_snps_in_ref <- sprintf(
+    "zcat %s | awk -F'\\t' 'NR==FNR{snps[$1]=1; next} snps[$2]{print $2, $6}' %s - >> %s",
+    shQuote(ld_file),
+    shQuote(snp_file),
+    shQuote(snps_in_ref)
+  )
+  system(awk_snps_in_ref)
+}
+print('completed ld filtering')
 
+
+# other random input setup ---
 # if M is num of variants used to compute ld scores, should be constant?
 M <- purrr:::map(1, function(c){
   read_lines(m_files[c])
 }) %>% unlist() %>% as.numeric() %>% sum()
 
-print('completed ld filtering')
-
-# --- set up blocks for input to ldsc_strip.  use gwas info file ---
-
 # read in gwas_info for trait names
-gwas_info <- fread("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
 traits <- gwas_info$name
 
-# read in sample size stats
-# eventually just get column 1 and 2
-trait_ss <- fread("../bash/1_comb_form_chr1_8traits/trait_sample_stats.tsv",select=c(1,3))
-setnames(trait_ss, c("trait", "ss_median"))
-setkey(trait_ss, trait)   # enables fast lookup
-
-# pass in strip_list
-strip_list <- fromJSON("ldsc_trait_sets.json", simplifyVector = FALSE)  # list of character vectors
-
+# --- set up blocks for input to ldsc_strip ---
 print(paste("Received smart-selected nblocks:", length(strip_list)))
 print('These blocks are:')
 print(strip_list)
-
-# one day snakemake wildcard
-strip_number <- 1
 
 # --- strip processing! ---
 n_snps <- as.integer(system(paste0("wc -l < ",snps_in_ref), intern = TRUE)) - 1L   # number of SNPs after filtering, -1 for header
 print(n_snps)
 n_traits <- length(traits)
 
-l2 <- as.numeric(scan(pipe(sprintf("awk -F'\t' 'NR>1{print $2}' %s", snps_in_ref)), what="character"))
-print('l2:')
-print(head(l2))
+# max block2 size for making size of Z
+max_block2_size <- if (length(strip_list) >= 2) max(lengths(strip_list)[-1]) else NA_integer_
+block1_traits <- strip_list[[strip_num]]
+Z_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
+                 dimnames = list(NULL, c(block1_traits, rep("", max_block2_size))))
+ss_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
+                 dimnames = list(NULL, c(block1_traits, rep("", max_block2_size))))
+
+l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref)), what="character"))
+#print('l2:')
+#print(head(l2))
+#print(length(l2))
+#print(nrow(Z_work))
 
 ldsc_results <- list()
-#for(s2 in strip_number:nblocks){
-#for(s2 in strip_number:2){
-for(s2 in strip_number:1){
-    #block1_traits <- NULL
-    block2_traits <- NULL
-	
-    if(s2 == strip_number){
+#for(s2 in strip_num:nblocks){
+for(s2 in strip_num:2){
+#for(s2 in strip_num:1){
+    #Z_hat_b2 <- NULL
+    #ss_b2 <- NULL	
+
+    if(s2 == strip_num){
         # read data for set 1 (first block)
-        block1_traits <- strip_list[[s2]]
+        #block1_traits <- strip_list[[s2]]
         cat("Reading and harmon ALL TRAITS of set 1 (block", s2, "), has traits:",
         paste(block1_traits, collapse=", "), "\n")
 
-	Z_hat_b1 <- matrix(NA_real_, nrow = n_snps, ncol = n_traits,
-                dimnames = list(NULL, traits))   # or list(snps, traits) if you want
-
         for (trait in block1_traits) {
-	  z <- get_harmon_z(gwas_info, trait, snps_in_ref)  # must return length M in correct order
-          stopifnot(length(z) == n_snps)
-          Z_hat_b1[, trait] <- z  
-        }
+	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref)
+		
+	  Z_work[, trait] <- harmon$Z
+          ss_work[, trait] <- harmon$ss
+	}
 	
 	# for ldsc:  add within-block comparisons for block1_traits
 	comparisons <- as.data.frame(t(combn(block1_traits, 2)), stringsAsFactors = FALSE)
@@ -221,27 +188,29 @@ for(s2 in strip_number:1){
         all_traits <- unique(as.character(block1_traits))
     }
 
-    if(s2 > strip_number + 1){
+    if(s2 >= strip_num + 1){
         # read set 2 (second block)
         block2_traits <- strip_list[[s2]]
         cat("Reading and harmon ALL TRAITS of set 2 (block", s2, "), has traits:",
         paste(block2_traits, collapse=", "), "\n")
 
-        Z_hat_b2 <- matrix(NA_real_, nrow = n_snps, ncol = n_traits,
-                dimnames = list(NULL, traits))   # or list(snps, traits) if you want
-
-
-        for (trait in block2_traits) {
-          z <- get_harmon_z(gwas_info, trait, snps_in_ref)  # must return length M in correct order
-          stopifnot(length(z) == n_snps)
-          Z_hat_b2[, trait] <- z             
+        for (j in seq_along(block2_traits)) {
+            trait <- block2_traits[j]
+            harmon <- harmon_dat(gwas_info, trait, snps_in_ref)
+            Z_work[, length(block1_traits) + j] <- harmon$Z
+            ss_work[, length(block1_traits) + j] <- harmon$ss
+            colnames(Z_work)[length(block1_traits) + j] <- trait
+	    colnames(ss_work)[length(block1_traits) + j] <- trait
         }
 
+	# there may be some columns of Z_work and ss_work that are NA because of the way we defined the matrix to be > size of max block2
+	# this is okay.  ldsc_rg will only work with traits that are referenced in comparisons.  NA traits will not be referenced
+	
 	# for ldsc, pairwise comparison if both blocks are defined:
         comparisons <- expand.grid(trait1 = block1_traits,
                                    trait2 = block2_traits,
                                    stringsAsFactors = FALSE)
-        cat("Pairwise comparisons between block", strip_number, "and", s2, ":\n")
+        cat("Pairwise comparisons between block", strip_num, "and", s2, ":\n")
         print(comparisons)
         # Get unique trait codes and turn string trait names to numbers
         all_traits <- unique(c(as.character(block1_traits), as.character(block2_traits)))
@@ -265,17 +234,16 @@ for(s2 in strip_number:1){
         stringsAsFactors = FALSE
     )
 
-    # need N, median of samples sizes, and Zs
-    relev_Z <- Z_hat[, all_traits, drop = FALSE]
-    print(head(relev_Z))
-    # fast keyed lookup; returns in the same order as trait_order
-    med_ss_vec <- trait_ss[colnames(relev_Z), ss_median]
-    print(head(med_ss_vec))
+    # need Zs and sample sizes
+    print('head of Z_work:')
+    print(head(Z_work))
+    print('head of ss_work:')
+    print(head(ss_work))
 
     ldsc_result <- R_ldsc(
-        Z_hat = relev_Z,
+        Z_hat = Z_work,
         ldscores = l2,
-        N = med_ss_vec,
+        N = ss_work,
         ld_size = M,
 	make_well_conditioned = FALSE,
         comparisons = num_compar
@@ -283,14 +251,12 @@ for(s2 in strip_number:1){
     print(ldsc_result)
 
     # Store each result in your ldsc_results list
-    block_comp_name <- paste0("block_", strip_number, "_vs_block_", s2)
+    block_comp_name <- paste0("block_", strip_num, "_vs_block_", s2)
     ldsc_results[[block_comp_name]] <- list("ldsc"=ldsc_result,"trait_name_map"=trait_map)
 }
 
-print(head(Z_hat))
 str(ldsc_results)
+saveRDS(ldsc_results, file=out)
 
-saveRDS(ldsc_results, file=ldsc_out)
-
-
-
+# clean up workdir
+#unlink(workdir, recursive = TRUE, force = TRUE)

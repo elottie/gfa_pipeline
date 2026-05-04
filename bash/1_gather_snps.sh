@@ -122,8 +122,18 @@ for ((i=2; i<=num_traits+1; i++)); do
 			-v beta_name="$beta_hat" -v se_name="$se" \
       			-v ss_name="$sample_size" -v af_name="$af" \
       			-f remove_invalid_variants.awk \
-		| { read -r header; printf '%s\n' "$header"; sort -T "$workdir" -S 100M -t $'\t' -k1,1 -u; } \
-  		| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
+		| {
+                     read -r header
+                     printf '%s\n' "$header"
+
+                     sort -T "$workdir" -S 100M -t $'\t' -k1,1 \
+                     | awk -F'\t' '
+                          $1!=curr_SNP && NR>1 { if (count==1) print line }
+                          { if ($1!=curr_SNP) { curr_SNP=$1; count=0 } ; count++; line=$0 }
+                          END { if (NR && count==1) print line }
+                          '
+                  } \
+		| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
 	}
    
 	#make_filt_data > tmp.txt
@@ -269,16 +279,17 @@ awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shar
 #awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
 
 echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"
-echo "add deletion of shared_snps_and_maf with flags here.  but not causing any harm right now"
-#rm -r $workdir
 memsnap
 
 echo "finished formatting"
 memsnap
 
+kill "$sampler" 2>/dev/null || true
+wait "$sampler" 2>/dev/null || true
+
+echo "cleaned up workdir.  though not causing any harm right now"
+rm -rf -- "$workdir" || { sleep 2; rm -rf -- "$workdir"; }
+
 unix2dos "$gwas_info_file"
 # most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
 echo "returned lovely windows carriage returns"
-
-kill "$sampler" 2>/dev/null || true
-wait "$sampler" 2>/dev/null || true

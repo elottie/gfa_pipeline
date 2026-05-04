@@ -109,7 +109,12 @@ for ((i=2; i<=num_traits+1; i++)); do
                         -v ss_name="$sample_size" -v af_name="$af" \
                         -f remove_invalid_variants.awk \
 		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$6}' \
-                | sort -T "$workdir" -S 200M -t $'\t' -k1,1 -u \
+		| sort -T "$workdir" -S 200M -t $'\t' -k1,1 \
+                | awk -F'\t' '
+                     $1!=curr_SNP && NR>1 { if (count==1) print line }
+                     { if ($1!=curr_SNP) {curr_SNP=$1; count=0} ; count++; line=$0 }
+                     END { if (count==1) print line }
+                     ' \
 		| awk -F"\t" -v OFS="\t" '$2 ~ /^[0-9.]+$/ {print $2}' \
 		| sort -T "$workdir" -S 200M -n
 	}
@@ -165,11 +170,11 @@ done
 echo "finished trait loop"
 memsnap
 
-echo "cleaned up workdir"
-#rm -r $workdir
-
 kill "$sampler" 2>/dev/null || true
 wait "$sampler" 2>/dev/null || true
+
+echo "cleaned up workdir"
+rm -rf -- "$workdir" || { sleep 2; rm -rf -- "$workdir"; }
 
 # for them to undo it, they can do
 unix2dos "$gwas_info_file"

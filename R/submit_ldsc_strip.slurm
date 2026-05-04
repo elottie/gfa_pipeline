@@ -4,7 +4,7 @@
 #SBATCH --partition=standard      # Partition (sometimes "standard", "gpu", etc.)
 #SBATCH --nodes=1                 # Number of nodes
 #SBATCH --ntasks=1                # Number of tasks
-#SBATCH --mem=4G                 # Memory (adjust as needed)
+#SBATCH --mem=3G                 # Memory (adjust as needed)
 
 #module purge
 #module load R
@@ -14,7 +14,7 @@
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-#Rscript ldsc_strip_toy.R
-Rscript test_R_ldsc.R
+Rscript ldsc_strip_toy.R
+#Rscript test_R_ldsc.R
 
 echo "Job finished at $(date)"
