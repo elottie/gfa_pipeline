@@ -44,9 +44,8 @@ rule sample_size_bounds:
 
   
 rule gather_snps:
-    input: files = raw_data_input, 
-                   gwas_info = info_input, 
-                   sample_size_file = data_dir + "{prefix}_sample_size_table.tsv"
+    input: gwas_info = info_input, 
+           sample_size_file = data_dir + "{prefix}_sample_size_table.tsv"
     output: out =  data_dir + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
     params: af_thresh = af_min,
             is_mvmr = is_mvmr
@@ -70,8 +69,10 @@ rule ld_prune_plink:
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
 rule make_nice_data:
-    input: raw_data_input, snp_list = data_dir + "{prefix}_pruned_snps.{ldstring}.{chrom}.RDS"
-    output: data_dir + "{prefix}_zmat.ldpruned_{ldstring}.{chrom}.RDS"
+    input: gwas_info = info_input,
+           pruned_snp_list = data_dir + "{prefix}_pruned_snps.{ldstring}.{chrom}.RDS"
+    params: usage = "gfa"  # would be MR for those which want beta & se
+    output: out = data_dir + "{prefix}_zmat.ldpruned_{ldstring}.{chrom}.RDS"
     script: "R/make_nice_data.R"
 
 
@@ -118,7 +119,7 @@ rule none_R:
 #    wildcard_constraints: pt = r"[\d.]+"
 #    script: "R/3_R_ldsc_all.R"
 
-
+# we need to ensure strip numbers passed in are from 1:length(strip_list-1).  cuz it will handle the last one (length(strip_list)) interally for free
 rule R_ldsc_strip:
     input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv",
            #raw_data_input, 

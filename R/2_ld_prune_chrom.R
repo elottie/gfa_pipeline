@@ -19,7 +19,10 @@ clump_kb = 1000 # list ok
 p = "pvalue" # list ok,  "pvalue" or "rank"
 pthresh = 1
 # is_mvmr goes away and is handled in step1
-out <- "../gfa_data/5e5Sig_Herit_Mets8_ld_pruned.RDS"
+# this also goes away with snakemake --
+chrom <- 1
+# --
+out <- paste0("../gfa_data/5e5Sig_Herit_Mets8_ld_pruned_chr",chrom,".tsv")
 
 # --- temp workdir for testing cleanliness --
 workdir <- paste0("2_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"))
@@ -69,8 +72,9 @@ pruned_snps <- snps_and_Z[which(snps_and_Z[,1] %in% dat_clump$rsid),1]
 #print(head(pruned_snps))
 #print(length(pruned_snps))
 
-saveRDS(pruned_snps, file=out)
+#saveRDS(pruned_snps, file=out)
+writeLines(pruned_snps, out)
 
-# delete temp workdir
+# --- delete temp workdir ---
 unlink(workdir, recursive = TRUE, force = TRUE)
 print(paste('removed working directory:',workdir),quote=FALSE)

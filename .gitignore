@@ -4,7 +4,9 @@
 *.txt
 *.xlsx
 *.out
-*.RDS
 # Ignore python compiling
 __pycache__/
 *workdir*
+gfa_data/
+
+.nfs0000001517c3ff2500017276

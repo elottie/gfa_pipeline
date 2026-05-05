@@ -1,5 +1,5 @@
 library(dplyr)
-library(tidyr)
+#library(tidyr)
 library(purrr)
 library(readr)
 library(GFA)
@@ -52,48 +52,11 @@ out <- "../gfa_data/5e5Sig_Herit_Mets8_ldsc_results.RDS"
 #    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
 #    script: "R/ldsc_strip_toy.R"
 
-# --- function for processing traits ---
-# extract only the columns we need from data files
-map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
-  row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
-  if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
-
-  as.list(row[1, c("beta_hat","se","A1","A2","af","sample_size")])
-}
-
-# do the data harmonization
-harmon_dat <- function(gwas_info, trait, snps_in_ref) {
-
-  full_trait <- gwas_info[name==trait, 'raw_data_path'] 
-  message("... processing trait: ", full_trait)
-
-  awk_trait_in_ref <- sprintf(
-    "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || snps[$1]' %s -",
-    shQuote(full_trait), shQuote(snps_in_ref)
-  )
-
-  dat_cols_sel <- map_gwas_info_cols(gwas_info, trait)
-  filt_trait <- fread(cmd = awk_trait_in_ref, sep = "\t", header = TRUE,
-            select = unname(unlist(dat_cols_sel)))  # pick what you need
-  setnames(filt_trait, old = unname(unlist(dat_cols_sel)), new = names(dat_cols_sel))
-
-  print('head filt_trait after reading in:')
-  print(head(filt_trait))
- 
-#  filtered_trait_harmon <- GFA:::aligss_beta(filtered_trait,beta_name,af_name) 
-  GFA:::align_beta(filt_trait) 
-  print('head filt_trait_harmon:')
-  print(head(filt_trait))
-
-  # we ensured beta_hat was numeric during align_beta.  just guard se
-  filt_trait[, se_num := as.numeric(se)]
-  filt_trait[, Z := fifelse(se_num != 0, beta_hat / se_num, NA_real_)]
-  print('head filt_trait with z:')
-  print(head(filt_trait))
-  
-  return(list(Z = filt_trait[["Z"]],
-              ss = filt_trait[["sample_size"]]))
-}
+# --- source helpful funcs ---
+helper_path <- "harmon_helpers.R"
+# eventually need to switch to this
+#helper_path <- "R/harmon_helpers.R"
+source(helper_path)
 
 # --- temp workdir for testing cleanliness --
 workdir <- paste0("3_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"))
@@ -171,7 +134,7 @@ for(s2 in strip_num:length(strip_list)){
         paste(block1_traits, collapse=", "), "\n")
 
         for (trait in block1_traits) {
-	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref)
+	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref, return_ss=TRUE)
 		
 	  Z_work[, trait] <- harmon$Z
           ss_work[, trait] <- harmon$ss
@@ -194,7 +157,7 @@ for(s2 in strip_num:length(strip_list)){
 
         for (j in seq_along(block2_traits)) {
             trait <- block2_traits[j]
-            harmon <- harmon_dat(gwas_info, trait, snps_in_ref)
+            harmon <- harmon_dat(gwas_info, trait, snps_in_ref, return_ss=TRUE)
             Z_work[, length(block1_traits) + j] <- harmon$Z
             ss_work[, length(block1_traits) + j] <- harmon$ss
             colnames(Z_work)[length(block1_traits) + j] <- trait
@@ -276,5 +239,6 @@ for(s2 in strip_num:length(strip_list)){
 str(ldsc_results)
 saveRDS(ldsc_results, file=out)
 
-# clean up workdir
-#unlink(workdir, recursive = TRUE, force = TRUE)
+# --- clean up workdir ---
+unlink(workdir, recursive = TRUE, force = TRUE)
+print(paste('removed working directory:',workdir),quote=FALSE)
