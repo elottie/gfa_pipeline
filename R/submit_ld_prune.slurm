@@ -4,7 +4,7 @@
 #SBATCH --partition=standard      # Partition (sometimes "standard", "gpu", etc.)
 #SBATCH --nodes=1                 # Number of nodes
 #SBATCH --ntasks=1                # Number of tasks
-#SBATCH --mem=8G                 # Memory (adjust as needed)
+#SBATCH --mem=4G                 # Memory (adjust as needed)
 
 #module purge
 #module load R
@@ -14,6 +14,6 @@
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-Rscript 2_ld_prune_chrom_plink_toy.R
+Rscript 2_ld_prune_chrom.R
 
 echo "Job finished at $(date)"

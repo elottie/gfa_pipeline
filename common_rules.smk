@@ -66,7 +66,7 @@ rule ld_prune_plink:
             pthresh = pthresh
     wildcard_constraints: chrom = r"\d+"
     resources: mem_mb = 10000 # could adjust resources
-    script: 'R/2_ld_prune_chrom_plink.R' # to update
+    script: 'R/2_ld_prune_chrom.R' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
 rule make_nice_data:
@@ -127,7 +127,7 @@ rule R_ldsc_strip:
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
-    script: "R/ldsc_strip_toy.R"
+    script: "R/3_ldsc_strip.R"
 
 
 rule R_ldsc_collect:

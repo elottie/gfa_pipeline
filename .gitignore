@@ -4,6 +4,7 @@
 *.txt
 *.xlsx
 *.out
+*.RDS
 # Ignore python compiling
 __pycache__/
 *workdir*
