@@ -13,7 +13,7 @@ set -euo pipefail
 export LC_ALL=C
 
 # temp workspace for generated files
-workdir="1_workdir_$(date +%Y%m%d_%H%M%S)"
+workdir=$(mktemp -d -p . "1_workdir_$(date +%Y%m%d_%H%M%S)_XXXXXX")
 mkdir -p "$workdir"
 
 memsnap() {
@@ -64,8 +64,8 @@ col_beta_hat=$(get_col "beta_hat")
 col_se=$(get_col "se")
 col_af=$(get_col "af")
 col_sample_size=$(get_col "sample_size")
-#col_pub_sample_size=$(get_col "pub_sample_size")
-#col_effect_is_or=$(get_col "effect_is_or")
+col_pub_sample_size=$(get_col "pub_sample_size")
+col_effect_is_or=$(get_col "effect_is_or")
 col_name=$(get_col "name")
 
 echo "after extracting col names"
@@ -90,8 +90,8 @@ for ((i=2; i<=num_traits+1; i++)); do
     se=$(awk -F, -v row="$i" -v col="$col_se" 'NR==row {print $col}' "$gwas_info_file")
     af=$(awk -F, -v row="$i" -v col="$col_af" 'NR==row {print $col}' "$gwas_info_file")
     sample_size=$(awk -F, -v row="$i" -v col="$col_sample_size" 'NR==row {print $col}' "$gwas_info_file")
-#    effect_or=$(awk -F, -v row="$i" -v col="$col_effect_is_or" 'NR==row {print tolower($col)}' "$gwas_info_file")
-#    pub_sample_size=$(awk -F, -v row="$i" -v col="$col_pub_sample_size" 'NR==row {print $col}' "$gwas_info_file")
+    effect_or=$(awk -F, -v row="$i" -v col="$col_effect_is_or" 'NR==row {print tolower($col)}' "$gwas_info_file")
+    pub_sample_size=$(awk -F, -v row="$i" -v col="$col_pub_sample_size" 'NR==row {print $col}' "$gwas_info_file")
     trait_name=$(awk -F, -v row="$i" -v col="$col_name" 'NR==row {print $col}' "$gwas_info_file")
 
     delimiter=$(get_file_delimiter "$f")
@@ -108,7 +108,7 @@ for ((i=2; i<=num_traits+1; i++)); do
         # eventually need to add handling for what if beta is OR, and what if no ss column (copy from pub ss)
 	make_filt_data() {
             zcat "$f" |
-                awk -F"$delimiter" -v chr_header="$chrn" -v chrom_val="$chrom" -v OFS="\t" '
+                awk -F"$delimiter" -v OFS="\t" -v chr_header="$chrn" -v chrom_val="$chrom" '
                     NR==1 {
                         for (i=1; i<=NF; i++) if ($i == chr_header) chr_idx = i
                         if (!chr_idx) { print "ERROR: chrom header not found: " chr_header > "/dev/stderr"; exit 1 }
@@ -117,25 +117,32 @@ for ((i=2; i<=num_traits+1; i++)); do
                     }
                     $chr_idx == chrom_val
                     ' \
-		| awk -F"\t" -v OFS="\t" \
-      			-v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
-			-v beta_name="$beta_hat" -v se_name="$se" \
-      			-v ss_name="$sample_size" -v af_name="$af" \
-      			-f remove_invalid_variants.awk \
+		| awk -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
+		    -v beta_name="$beta_hat" -v se_name="$se" \
+      		    -v ss_name="$sample_size" -v af_name="$af" \
+		    -f remove_invalid_variants.awk \
 		| {
                      read -r header
                      printf '%s\n' "$header"
 
                      sort -T "$workdir" -S 100M -t $'\t' -k1,1 \
-                     | awk -F'\t' '
+                     | awk -F"\t" '
                           $1!=curr_SNP && NR>1 { if (count==1) print line }
                           { if ($1!=curr_SNP) { curr_SNP=$1; count=0 } ; count++; line=$0 }
                           END { if (NR && count==1) print line }
                           '
                   } \
-		| awk -F"\t" -v OFS="\t" -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
-	}
-   
+                | awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f fill_sample_size.awk \
+		| awk -v beta_name="$beta_hat" -v effect_or_flag="$effect_or" -f standardize_betas.awk \
+		| awk -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
+        }
+
+        echo "$effect_or"
+
+	make_filt_data | head
+
+	exit 1
+
 	#make_filt_data > tmp.txt
 	#echo "maxrss after using make_filt_data"
         #memsnap
@@ -180,6 +187,8 @@ for ((i=2; i<=num_traits+1; i++)); do
             ' > "$shared_snps_and_maf"
 	    echo "after making first shared snp table"
 	    memsnap
+	    echo 'head shared_snps_and_maf before join:'
+	    head "$shared_snps_and_maf"
         else
             #trait_keyed="$(mktemp)"
             #trait_sorted="$(mktemp)"
@@ -248,6 +257,9 @@ for ((i=2; i<=num_traits+1; i++)); do
                 }
             ' > "$shared_snps_and_maf_tmp"
 
+            echo "shared_snps_and_maf after join:"
+	    head "$shared_snps_and_maf_tmp"
+
             mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
 
 	    echo "updated shared snps table"
@@ -290,6 +302,6 @@ wait "$sampler" 2>/dev/null || true
 echo "cleaned up workdir.  though not causing any harm right now"
 rm -rf -- "$workdir" || { sleep 2; rm -rf -- "$workdir"; }
 
-unix2dos "$gwas_info_file"
+#unix2dos "$gwas_info_file"
 # most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
 echo "returned lovely windows carriage returns"

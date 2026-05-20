@@ -25,31 +25,22 @@
 #          380906402          1129289232  66.3% ../../../gwas_summary_statistics/METSIM/with_rsid/C100002015/C100002015_regenie_rsid.tsv
 #          402144894          1185053340  66.1% ../../../gwas_summary_statistics/METSIM/with_rsid/C100002397/C100002397_regenie_rsid.tsv
 
-gwas_info <- read.csv("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
-out <- '../gfa_data/5e5Sig_Herit_Mets8_ldsc_strip_list.RDS'
-
-# --- find out largest file size ---
-files <- unique(na.omit(gwas_info$raw_data_path))
-files <- files[file.exists(files) & grepl("\\.gz$", files)]
-stopifnot(length(files) > 0)
-
-find_file_sizes <- "xargs -d '\n' gzip -l | awk 'NR==1{next} $4==\"(totals)\" || $4==\"TOTAL\"{next} $2 ~ /^[0-9]+$/ {m=($2>m?$2:m)} END{print m}'"
-
-# make bytes to gb
-max_uncomp <- as.numeric(system(find_file_sizes, intern = TRUE, input = paste(files, collapse = "\n"))) / 1e9
-print(paste('max uncompressed size of trait from gwas_info:',max_uncomp),quote=F)
-max_uncomp_adj <- max_uncomp * 0.65
-print(paste('adjusted max uncompressed size of trait from gwas_info:',max_uncomp_adj),quote=F)
+gwas_info <- read.csv('../First8_Mets_ForLDSCStrip.csv')
+out <- '../gfa_data/First8_Mets_ldsc_strip_list.RDS'
 
 # --- make trait sets ---
-source('ldsc_strip_list_helpers.R')
+source('ldsc_strip_list_helpers_2.R')
 # eventually need to switch to:
 #source('R/ldsc_strip_list_helpers.R')
 
 #"../C100001554_And_Friends_3Metabolites.csv"
 #"../5e5Sig_Herit_Mets_8ForLDSCStrip.csv"
 # set trait_memory_gb=1 for getting the 4 sets I want
-sets <- make_trait_sets(gwas_info=gwas_info,memory_limit_gb=3.5,trait_memory_gb=max_uncomp_adj)
+#in_gb <- 2688 / 1024
+#in_gb <- 2750 / 1024
+#in_gb <- 2800 / 1024
+in_gb <- 6000 / 1024
+sets <- make_trait_sets(gwas_info=gwas_info,memory_limit_gb=in_gb)
 str(sets)
 
 saveRDS(sets,out)

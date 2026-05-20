@@ -7,11 +7,11 @@ mkdir -p ../gfa_data
 
 #    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/C100001554_And_Friends_3Metabolites.csv \
 bash 1_gather_snps.sh \
-    1 \
-    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/5e5Sig_Herit_Mets_8ForLDSCStrip.csv \
-    ../gfa_data/5e5Sig_Herit_Mets8_sample_size_table.tsv \
+    22 \
+    /nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/First8_Mets_ForLDSCStrip.csv \
+    ../gfa_data/First8_Mets_sample_size_table.tsv \
     0.05 \
-    ../gfa_data/5e5Sig_Herit_Mets8_snps_chr1.tsv
+    ../gfa_data/First8_Mets_snps_chr22.tsv
 
 
 #c                  <- as.numeric(args[1])  # chromosome

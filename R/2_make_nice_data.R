@@ -19,7 +19,7 @@ helper_path <- "harmon_helpers.R"
 source(helper_path)
 
 # --- temp workdir for testing cleanliness --
-workdir <- paste0("2_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"))
+workdir <- paste0("2_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
 # temp output file defs
@@ -63,7 +63,9 @@ for (trait in traits) {
 head(Z_work)
 head(ss_work)
 
-save(Z_work, ss_work, file=out)
+if (identical(colnames(Z_work),colnames(ss_work))){
+  save(Z_work, ss_work, file=out)
+}
 
 # --- delete temp workdir ---
 unlink(workdir, recursive = TRUE, force = TRUE)

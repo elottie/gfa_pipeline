@@ -1,20 +1,20 @@
 #!/bin/bash
-#SBATCH --job-name=make_ldsc_strip       # Job name
+#SBATCH --job-name=coll_ldsc_strip       # Job name
 #SBATCH --account=jvmorr1    # Account name (e.g., your PI's shortcode)
 #SBATCH --partition=standard      # Partition (sometimes "standard", "gpu", etc.)
 #SBATCH --nodes=1                 # Number of nodes
 #SBATCH --ntasks=1                # Number of tasks
-#SBATCH --mem=1G                 # Memory (adjust as needed)
+#SBATCH --mem=2688M                 # Memory (adjust as needed)
 
 #module purge
-#module load python3.11
+#module load R
 # use conda env
 
 # Optional: Print start time and host
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-#python run_make_ldsc_strip_list.py
-Rscript make_ldsc_strip_list_2.R
+Rscript 3_R_collect_ldsc_strips.R
+#Rscript test_R_ldsc.R
 
 echo "Job finished at $(date)"

@@ -8,7 +8,7 @@ set -euo pipefail
 export LC_ALL=C
 
 # temp workspace for generated files
-workdir="0_workdir_$(date +%Y%m%d_%H%M%S)"
+workdir=$(mktemp -d -p . "0_workdir_$(date +%Y%m%d_%H%M%S)_XXXXXX")
 mkdir -p "$workdir"
 
 memsnap() {
@@ -57,7 +57,7 @@ col_beta_hat=$(get_col "beta_hat")
 col_se=$(get_col "se")
 col_af=$(get_col "af")
 col_sample_size=$(get_col "sample_size")
-#col_pub_sample_size=$(get_col "pub_sample_size")
+col_pub_sample_size=$(get_col "pub_sample_size")
 #col_effect_is_or=$(get_col "effect_is_or")
 col_name=$(get_col "name")
 
@@ -85,7 +85,7 @@ for ((i=2; i<=num_traits+1; i++)); do
     af=$(awk -F, -v row="$i" -v col="$col_af" 'NR==row {print $col}' "$gwas_info_file")
     sample_size=$(awk -F, -v row="$i" -v col="$col_sample_size" 'NR==row {print $col}' "$gwas_info_file")
 #    effect_or=$(awk -F, -v row="$i" -v col="$col_effect_is_or" 'NR==row {print tolower($col)}' "$gwas_info_file")
-#    pub_sample_size=$(awk -F, -v row="$i" -v col="$col_pub_sample_size" 'NR==row {print $col}' "$gwas_info_file")
+    pub_sample_size=$(awk -F, -v row="$i" -v col="$col_pub_sample_size" 'NR==row {print $col}' "$gwas_info_file")
     trait_name=$(awk -F, -v row="$i" -v col="$col_name" 'NR==row {print $col}' "$gwas_info_file")
     
     delimiter=$(get_file_delimiter "$f")
@@ -108,6 +108,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                         -v beta_name="$beta_hat" -v se_name="$se" \
                         -v ss_name="$sample_size" -v af_name="$af" \
                         -f remove_invalid_variants.awk \
+		| awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f fill_sample_size.awk \
 		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$6}' \
 		| sort -T "$workdir" -S 200M -t $'\t' -k1,1 \
                 | awk -F'\t' '

@@ -2,7 +2,7 @@
 # awk -F"\t" -v compute_pval="TRUE" -v snp_name="rsid" -v beta_name="beta" -v se_name="se" -v A1_name="A1" -v A2_name="A2" -v pos_name="pos" -v pval_name="p_value" -v ss_name="sample_size" -v af_name="allele_freq" -f gwas_format.awk input.tsv > output.tsv
 
 BEGIN {
-    OFS = "\t"
+    FS = OFS = "\t"
     # Accept col names via -v
     need_snp = (snp_name == "" ? "snp" : snp_name)
     need_A1 = (A1_name == "" ? "A1" : A1_name)
@@ -12,6 +12,7 @@ BEGIN {
 #    need_pos = (pos_name == "" ? "pos" : pos_name)
 #    need_pval = (pval_name == "" ? "p_value" : pval_name)
     need_ss = (ss_name == "" ? "sample_size" : ss_name)
+#    need_pub_ss = ((pub_ss_val == "" || pub_ss_val == "NA") ? -1 : pub_ss_val)
     need_af = (af_name == "" ? "allele_freq" : af_name)
 }
 
@@ -22,13 +23,13 @@ NR == 1 {
     }
 
     # validate required columns exist
-    if (!(need_snp  in col)) { print "ERROR: missing column " need_snp  > "/dev/stderr"; exit 2 }
-    if (!(need_A1   in col)) { print "ERROR: missing column " need_A1   > "/dev/stderr"; exit 2 }
-    if (!(need_A2   in col)) { print "ERROR: missing column " need_A2   > "/dev/stderr"; exit 2 }
-    if (!(need_beta in col)) { print "ERROR: missing column " need_beta > "/dev/stderr"; exit 2 }
-    if (!(need_se   in col)) { print "ERROR: missing column " need_se   > "/dev/stderr"; exit 2 }
-    if (!(need_ss   in col)) { print "ERROR: missing column " need_ss   > "/dev/stderr"; exit 2 }
-    if (!(need_af   in col)) { print "ERROR: missing column " need_af   > "/dev/stderr"; exit 2 }
+    if (!(need_snp  in col)) { print "ERROR: missing column " need_snp  > "/dev/stderr"; exit 1 }
+    if (!(need_A1   in col)) { print "ERROR: missing column " need_A1   > "/dev/stderr"; exit 1 }
+    if (!(need_A2   in col)) { print "ERROR: missing column " need_A2   > "/dev/stderr"; exit 1 }
+    if (!(need_beta in col)) { print "ERROR: missing column " need_beta > "/dev/stderr"; exit 1 }
+    if (!(need_se   in col)) { print "ERROR: missing column " need_se   > "/dev/stderr"; exit 1 }
+    if (!(need_ss   in col)) { print "ERROR: missing column " need_ss   > "/dev/stderr"; exit 1 }
+    if (!(need_af   in col)) { print "ERROR: missing column " need_af   > "/dev/stderr"; exit 1 }
 
     # print the *current* header names for just these columns, in your chosen order
     print $(col[need_snp]), $(col[need_A1]), $(col[need_A2]), $(col[need_beta]), $(col[need_se]), $(col[need_ss]), $(col[need_af])

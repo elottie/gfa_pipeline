@@ -128,7 +128,7 @@ rule R_ldsc_strip:
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
-    script: "R/3_ldsc_strip.R"
+    script: "R/3_R_ldsc_strip.R"
 
 
 rule R_ldsc_collect:
