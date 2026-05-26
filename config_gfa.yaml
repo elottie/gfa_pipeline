@@ -8,8 +8,10 @@
 #   complete data and compute the genetic correlation of the factors.
 
 input:
-    test1: "test_data/test_traits1.csv"
-    test2: "test_data/test_traits2.csv"
+        First8SnakemakeTest: "First8_Mets_ForLDSCStrip.csv" 
+        
+        #    test1: "test_data/test_traits1.csv"
+        #test2: "test_data/test_traits2.csv"
 
 analysis:
     # LD pruning options:
@@ -21,7 +23,7 @@ analysis:
         r2_thresh: 0.01 # list ok
         clump_kb: 1000 # list ok
         ld_prioritization: ["pvalue"] # list ok,  "pvalue" or "rank"
-        ref_path: "1kg_plink/EUR" # list not ok
+        ref_path: "/nfs/turbo/sph-jvmorr/ld_reference_files/1kg_plink_hg38/EUR_autosomal" # list not ok
     # R options:
     # Specifies options for how nuisance correlation is estimated.
     # Type can be either "ldsc", "pt", or "none". LDSC or pt will both work.
@@ -33,10 +35,10 @@ analysis:
     #     matrix will be projected to the neares positive definite matrix with condition number less than cond_num.
     mem_limit_gb: 10
     R:
-      type: ["ldsc", "pt"] # options are "pt", "ldsc", "none", lidt ok
+      type: ["ldsc"] # options are "pt", "ldsc", "none", list ok
       pthresh: [0.05] # list ok
-      l2_dir: "eur_w_ld_chr/" # list not ok
-      cond_num: 1e3
+      l2_dir: "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/" # list not ok
+      cond_num: 100
     # GFA options:
     #   gfa_params: If "default", will use default parameters, otherwise provide a .RDS file containing a prameter list eg "list(max_iter = 500)".
     #   max_snps: largest number of variants to allow

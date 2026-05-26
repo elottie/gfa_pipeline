@@ -38,19 +38,19 @@ def info_input(wcs):
 # do we need 'raw data input' in this and the following rule?  removed from this rule
 rule sample_size_bounds:
     input: gwas_info = info_input
-    output: out =  data_dir + "{prefix}_sample_size_table.tsv"
+    output: out =  data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
     params: sample_size_tol = sstol_max    
     shell:  'bash bash/0_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}'
 
   
 rule gather_snps:
     input: gwas_info = info_input, 
-           sample_size_file = data_dir + "{prefix}_sample_size_table.tsv"
-    output: out =  data_dir + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
+           sample_size_file = data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
+    output: out =  data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
     params: af_thresh = af_min,
             is_mvmr = is_mvmr
     wildcard_constraints: chrom = r"\d+"
-    resources: mem_mb = 20000 # could adjust resources
+    resources: mem_mb = 3000 # could adjust resources
             # add is_mvmr to script at some point
     shell: 'bash bash/1_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
 
@@ -58,22 +58,21 @@ rule gather_snps:
 # LD prune with plink
 pthresh = 1 # jean change later or remove
 rule ld_prune_plink:
-    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv", 
-           bfile = config["analysis"]["ldprune"]["ref_path"] + ".bed"
-    output: out = data_dir + "{prefix}_pruned_snps.ldpruned_r2{r2_thresh}_kb{kb}_{p}.{chrom}.RDS"
+    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv"
+    output: out = data_dir + "snp_lists/" + "{prefix}_pruned_snps_r2{r2}_kb{kb}_{p}.{chrom}.RDS"
     params: ref_path = config["analysis"]["ldprune"]["ref_path"],
             pthresh = pthresh
     wildcard_constraints: chrom = r"\d+"
-    resources: mem_mb = 10000 # could adjust resources
+    resources: mem_mb = 5000 # could adjust resources
     script: 'R/2_ld_prune_chrom.R' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
 rule make_nice_data:
     input: gwas_info = info_input,
-           pruned_snp_list = data_dir + "{prefix}_pruned_snps.{ldstring}.{chrom}.RDS"
+           pruned_snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_pruned_snps_{{ldstring}}.{chrom}.RDS", chrom = range(1, 23))
     params: usage = "gfa"  # would be MR for those which want beta & se
-    output: out = data_dir + "{prefix}_zmat.ldpruned_{ldstring}.{chrom}.RDS"
-    script: "R/make_nice_data.R"
+    output: out = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData"
+    script: "R/2_make_nice_data.R"
 
 
 ## Estimate R
@@ -84,29 +83,30 @@ rule make_nice_data:
 
 ### For strip division
 
+mem_limit_gb = 4
 rule make_trait_sets:
     input: gwas_info = info_input
-    output: out = data_dir + "{prefix}_trait_sets.json"
+    output: out = data_dir + "{prefix}_ldsc_strip_list.RDS"
     params: mem_limit = mem_limit_gb
-    script: "R/make_ldsc_strip_list.py"
+    script: "R/make_ldsc_strip_list_3.R"
 
 
 
 ####p-value threshold method
 
-rule pt_R:
-  input: Z = expand(data_dir + "{{prefix}}_zmat.ldpruned_r2{{r2}}_kb{{kb}}_{{p}}.{chrom}.RDS", chrom = range(1, 23))
-  output: out = data_dir + "{prefix}_R_estimate.ldpruned_r2{r2}_kb{kb}_{p}.R_pt{pt}.RDS"
-  params: cond_num = cond_num
-  wildcard_constraints: pt = r"[\d.]+"
-  script: "R/3_R_pthresh.R"
+#rule pt_R:
+#  input: Z = expand(data_dir + "{{prefix}}_zmat.ldpruned_r2{{r2}}_kb{{kb}}_{{p}}.{chrom}.RDS", chrom = range(1, 23))
+#  output: out = data_dir + "{prefix}_R_estimate.ldpruned_r2{r2}_kb{kb}_{p}.R_pt{pt}.RDS"
+#  params: cond_num = cond_num
+#  wildcard_constraints: pt = r"[\d.]+"
+#  script: "R/3_R_pthresh.R"
 
 
 ### None
-rule none_R:
-    input: gwas_info = info_input
-    output: out = data_dir + "{prefix}_R_estimate.R_none.RDS"
-    script: 'R/3_R_none.R'
+#rule none_R:
+#    input: gwas_info = info_input
+#    output: out = data_dir + "{prefix}_R_estimate.R_none.RDS"
+#    script: 'R/3_R_none.R'
 
 
 #rule R_ldsc_full:
@@ -120,19 +120,21 @@ rule none_R:
 #    script: "R/3_R_ldsc_all.R"
 
 # we need to ensure strip numbers passed in are from 1:length(strip_list-1).  cuz it will handle the last one (length(strip_list)) interally for free
+mem_limit_mb = mem_limit_gb*1024
 rule R_ldsc_strip:
-    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv",
+    input: snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom = range(1, 23)),
            #raw_data_input, 
            gwas_info = info_input, 
-           strip_list =  data_dir + "{prefix}_trait_sets.json"
+           strip_list =  data_dir + "{prefix}_ldsc_strip_list.RDS",
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
+    resources: mem_mb = mem_limit_mb # could adjust resources
     script: "R/3_R_ldsc_strip.R"
 
-
+nstrips=2
 rule R_ldsc_collect:
-    input: expand(data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
+    input: ldsc_strip_res = expand(data_dir + "{{prefix}}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
     script: "R/collect_ldsc_strips.R"
  

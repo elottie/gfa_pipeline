@@ -12,49 +12,41 @@ library(ps)
 #library(jsonlite)
 
 # --- for once I graduate to snakemake ---
-# sample size affects genetic covariance and h2 but not intercept or genetic correlation
-#snp_files <- unlist(snakemake@input[["snp_list"]])
-#gwas_info <- read_csv(snakemake@input[["gwas_info"]])
-#strip_list <- readRDS(snakemake@input[["strip_file"]])
-#strip_num <- as.numeric(snakemake@wildcard[["strip_num"]])
-#out <- snakemake@output[["out"]]
-#ld_files <- unlist(snakemake@input[["l2"]])
-#m_files <- unlist(snakemake@input[["m"]])
-
-snp_files <- sprintf("../gfa_data/First8_Mets_snps_chr%d.tsv", 1:22)
-gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
-strip_list <- readRDS("../gfa_data/First8_Mets_ldsc_strip_list.RDS")  # list of character vectors
-strip_num <- 1
-# these go away with snakemake input --
-l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
-chroms <- 1:22
-# --
-m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
-ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
-out <- "../gfa_data/First8_Mets_ldsc_results.RDS"
-
-# --- snakemake input ---
-#rule R_ldsc_full:
-#    input: Z = expand(data_dir + "{{prefix}}_zmat.{chrom}.RDS", chrom = range(1, 23)),
-#           gwas_info = info_input,
-#           m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
-#           l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
-#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
-#    params: cond_num = cond_num
-#    wildcard_constraints: pt = r"[\d.]+"
-#    script: "R/3_R_ldsc_all.R"
-
 #rule R_ldsc_strip:
-#    input: snp_list = data_dir + "{prefix}_snps_chr{chrom}.tsv",
-#           #raw_data_input,
-#           strip_list =  data_dir + "{prefix}_trait_sets.json"
+#    input: snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom = range(1, 23)),
+           #raw_data_input, 
+#           gwas_info = info_input,
+#           strip_list =  data_dir + "{prefix}_ldsc_strip_list.RDS",
 #           m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
 #           l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
 #    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
-#    script: "R/ldsc_strip_toy.R"
+#    resources: mem_mb = mem_limit_gb # could adjust resources
+#    script: "R/3_R_ldsc_strip.R"
+
+
+# sample size affects genetic covariance and h2 but not intercept or genetic correlation
+snp_files <- unlist(snakemake@input[["snp_list"]])
+gwas_info <- fread(snakemake@input[["gwas_info"]])
+strip_list <- readRDS(snakemake@input[["strip_list"]])
+strip_num <- as.numeric(snakemake@wildcard[["strip_num"]])
+out <- snakemake@output[["out"]]
+ld_files <- unlist(snakemake@input[["l2"]])
+m_files <- unlist(snakemake@input[["m"]])
+
+#snp_files <- sprintf("../gfa_data/First8_Mets_snps_chr%d.tsv", 1:22)
+#gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
+#strip_list <- readRDS("../gfa_data/First8_Mets_ldsc_strip_list.RDS")  # list of character vectors
+#strip_num <- 1
+# these go away with snakemake input --
+#l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
+#chroms <- 1:22
+# --
+#m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
+#ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
+#out <- "../gfa_data/First8_Mets_ldsc_results.RDS"
 
 # --- source helpful funcs ---
-helper_path <- "harmon_helpers.R"
+helper_path <- "R/harmon_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(helper_path)
@@ -72,14 +64,14 @@ workdir <- paste0("3_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
 # temp output file defs
-snps_in_ref <- file.path(workdir, "snps_in_ld_file.tsv")
+snps_in_ref_file <- file.path(workdir, "snps_in_ld_file.tsv")
 
 # --- get just SNPs present in all traits AND ld ref files ---
 print('filtering universal_snps.txt to only those found in ld ref files')
 
 # All lines from ld_file.tsv where the second column matches a value in the first column of snps_pass_all_filts.txt.
 # write header to output
-system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref)))
+system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref_file)))
 
 for (chr in 1:22) {
   snp_file <- snp_files[chr]
@@ -89,7 +81,7 @@ for (chr in 1:22) {
     "zcat %s | awk -F'\\t' 'NR==FNR{snps[$1]=1; next} snps[$2]{print $2, $6}' %s - >> %s",
     shQuote(ld_file),
     shQuote(snp_file),
-    shQuote(snps_in_ref)
+    shQuote(snps_in_ref_file)
   )
   system(awk_snps_in_ref)
 }
@@ -114,7 +106,7 @@ print(strip_list)
 curr_ram('after other random input setup')
 
 # --- strip processing! ---
-n_snps <- as.integer(system(paste0("wc -l < ",snps_in_ref), intern = TRUE)) - 1L   # number of SNPs after filtering, -1 for header
+n_snps <- as.integer(system(paste0("wc -l < ",snps_in_ref_file), intern = TRUE)) - 1L   # number of SNPs after filtering, -1 for header
 print(n_snps)
 n_traits <- length(traits)
 
@@ -126,7 +118,7 @@ Z_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
 ss_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
                  dimnames = list(NULL, c(block1_traits, rep("", max_block2_size))))
 
-l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref)), what="character"))
+l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref_file)), what="character"))
 #print('l2:')
 #print(head(l2))
 #print(length(l2))
@@ -146,7 +138,7 @@ for(s2 in strip_num:length(strip_list)){
         paste(block1_traits, collapse=", "), "\n")
 
         for (trait in block1_traits) {
-	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref, return_ss=TRUE)
+	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
 		
 	  Z_work[, trait] <- harmon$Z
           ss_work[, trait] <- harmon$ss
@@ -173,7 +165,7 @@ for(s2 in strip_num:length(strip_list)){
 
         for (j in seq_along(block2_traits)) {
             trait <- block2_traits[j]
-            harmon <- harmon_dat(gwas_info, trait, snps_in_ref, return_ss=TRUE)
+            harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
             Z_work[, length(block1_traits) + j] <- harmon$Z
             ss_work[, length(block1_traits) + j] <- harmon$ss
             colnames(Z_work)[length(block1_traits) + j] <- trait

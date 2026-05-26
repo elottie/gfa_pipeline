@@ -64,9 +64,9 @@ def R_input(wcs):
     else:
         return f'{data_dir}{wcs.prefix}_R_estimate.R_{wcs.Rstring}.RDS'
 
-
+# need to edit gfa to accept input like this
 rule run_gfa:
-    input: Z = expand(data_dir + "{{prefix}}_zmat.ldpruned_{{ldstring}}.{chrom}.RDS", chrom = range(1, 23)),
+    input: Z = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData",
            R = R_input
     output:  out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.1.RDS",
     params: params_file = config["analysis"]["gfa"]["gfa_params"],
@@ -144,8 +144,10 @@ rule final_file:
     params: rds = final_rds
     shell: "mv {params.rds} {output.out_rds}"
 
+# rewrite to accept thsi Z input
+# not expanded because that's if you want one job / output file
 rule gls_loadings_chrom:
-    input: z_file = data_dir + "{prefix}_zmat.{chrom}.RDS",
+    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
            gfa_file = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.final.RDS",
            R = R_input
     output: out = out_dir + "{prefix}_gls_loadings.gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{chrom}.RDS"

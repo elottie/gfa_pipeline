@@ -4,11 +4,9 @@ set -euo pipefail
 # bash mem_search.sh 8
 
 traits="${1:?usage: mem_search.sh TRAITS}"
-low="${2:-1200}"     # MB that fails (set appropriately)
-high="${3:-3600}"    # MB that succeeds (set appropriately)
-delta="${4:-100}"    # precision in MB
-
-mkdir -p logs
+low="${2:-2200}"     # MB that fails (set appropriately)
+high="${3:-3200}"    # MB that succeeds (set appropriately)
+delta="${4:-10}"    # precision in MB
 
 is_oom() {
   local jobid="$1"
@@ -53,7 +51,7 @@ while (( high - low > delta )); do
 
   if [[ "$state" == "COMPLETED" ]]; then
     high="$mid"
-  elif [[ "$state" == "OUT_OF_MEMORY" ]] || grep -qiE "oom|out of memory|killed process" "logs/rtraits_${jobid}.err" "logs/rtraits_${jobid}.out" 2>/dev/null; then
+  elif [[ "$state" == "OUT_OF_MEMORY" ]]; then
     low="$mid"
   else
     echo "Non-OOM failure; investigate logs. Not updating bounds."

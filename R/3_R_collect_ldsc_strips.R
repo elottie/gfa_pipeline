@@ -1,9 +1,16 @@
 # snakemake rule
+#nstrips=2
 #rule R_ldsc_collect:
-#    input: expand(data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
+#    input: ldsc_strip_res = expand(data_dir + "{{prefix}}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
 #    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
 #    script: "R/collect_ldsc_strips.R"
 
+# let it be a list
+ldsc_strip_files <- snakemake@input[["ldsc_strip_res"]]
+out <- snakemake@output[["out"]]
+
+#ldsc_strip_res <- readRDS("../gfa_data/First8_Mets_ldsc_results.RDS")
+    
 #GFA:::make_symm_matrix(res, row_name = "trait1", col_name = "trait2", value_name = "intercept")
 
 #List of 2
@@ -16,8 +23,6 @@
 #  ..$ trait2   : chr [1:5] "C999913553" "C999913553" "C999916935" "C999916935" ...
 #  ..$ intercept: num [1:5] 0.05315 0.12661 -0.00293 -0.01567 0.08051
 
-ldsc_strip_res <- readRDS("../gfa_data/First8_Mets_ldsc_results.RDS")
-
 #for (result_num in 1:length(ldsc_strip_res)){
 #  print(result_num)
 #  result <- ldsc_strip_res[[result_num]]
@@ -27,8 +32,14 @@ ldsc_strip_res <- readRDS("../gfa_data/First8_Mets_ldsc_results.RDS")
 #  print(head(symm_res))
 #}
 
+ldsc_strip_res <- lapply(ldsc_strip_files, readRDS)
+
 # this is just slightly altered version of make_symm_matrix so we don't have to do that and join pieces
-make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name) {
+make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatten=TRUE) {
+
+  if (flatten){
+    inp_list <- do.call(c, ldsc_strip_res)
+  }
 
   # 1. Get all unique trait names
   cols <- unique(unlist(
@@ -68,3 +79,5 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name) {
 big_R_ldsc <- make_big_symm_matrix(ldsc_strip_res, row_name = "trait1", col_name = "trait2", value_name = "intercept")
 
 print(big_R_ldsc)
+
+save(big_R_ldsc, file=out)

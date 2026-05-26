@@ -6,20 +6,20 @@ map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
   row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
   if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  as.list(row[1, c("beta_hat","se","A1","A2","af","sample_size")])
+  as.list(row[1, c("snp","beta_hat","se","A1","A2","af","sample_size")])
 }
 
 # do the data harmonization
 # gwas_info should be a data.table
-harmon_dat <- function(gwas_info, trait, snps_in_ref, return_ss=FALSE) {
+harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   
   full_trait <- gwas_info[name==trait, 'raw_data_path']
 
   print(paste("... processing trait:", full_trait))
 
   awk_trait_in_ref <- sprintf(
-    "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || snps[$1]' %s -",
-    shQuote(full_trait), shQuote(snps_in_ref)
+    "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || ($1 in snps)' %s -",
+    shQuote(full_trait), shQuote(snps_in_ref_file)
   )
 
   dat_cols_sel <- map_gwas_info_cols(gwas_info, trait)
@@ -31,6 +31,11 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref, return_ss=FALSE) {
   effect_or_flag <- gwas_info[gwas_info[["name"]] == trait, "effect_is_or", drop = FALSE]
   print(paste('pub_ss_val:',pub_ss_val))
   print(paste('effect_or_flag:',effect_or_flag))
+  # reorder rows to match snps_in_ref_file
+  snps_in_ref <- fread(snps_in_ref_file, header = FALSE, select = 1)
+  setnames(snps_in_ref, 1, "snp")
+  snps_in_ref <- unique(snps_in_ref, by = "snp")
+  filt_trait <- filt_trait[snps_in_ref, on = "snp", nomatch = 0]
 
   print('head filt_trait after reading in:')
   print(head(filt_trait))

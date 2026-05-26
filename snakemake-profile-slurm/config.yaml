@@ -17,7 +17,7 @@ cluster:
 
 jobs: 96                                # Maximum number of parallel jobs
 max-jobs-per-second: 5                  # Limit new job submissions per second (cluster-friendly)
-latency-wait: 30                        # Wait for file system to catch up after job completion
+latency-wait: 45                        # Wait for file system to catch up after job completion
 keep-going: true                        # Don't stop the workflow on rule failures
 notemp: true                            # Retain temp files
 default-resources:                      # Set these for all rules, unless overridden

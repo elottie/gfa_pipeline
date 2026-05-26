@@ -10,12 +10,10 @@ params_file <- snakemake@params[["params_file"]]
 max_snp <- as.numeric(snakemake@params[["max_snps"]])
 seed <- snakemake@wildcards[["fs"]]
 
-z_files = unlist(snakemake@input[["Z"]])
-
-
+Z <- snakemake@input[["Z"]]
+load(Z)
 
 set.seed(seed)
-
 
 
 if(params_file == "default"){
@@ -25,30 +23,19 @@ if(params_file == "default"){
 }
 
 
+# move this to make_nice_data.R? ---
+# I think of ot keep here and the slightly inefficient z_order.  keeping here avoids passing ton of params to make_nice_data
+# z_order seemed not to be a big problem at least w/ 100s of traits.  may rewrite if becomes an issue
+
 # Read in data
-X <- map_dfr(z_files, readRDS)
-
-ntrait <- X %>%
-          select(ends_with(".z")) %>%
-          ncol()
-
-
-if(nrow(X) > max_snp){
-    ix <- sample(seq(nrow(X)), size = max_snp, replace = FALSE)
-    X <- X[ix,]
+# we are not doing max_snps for ss here!!
+if(nrow(Z_hat) > max_snp){
+    ix <- sample(seq(nrow(Z_hat)), size = max_snp, replace = FALSE)
+    Z_hat <- Z_hat[ix,]
 }
 
-Z_hat <- X %>%
-         select(ends_with(".z")) %>%
-         as.matrix()
-
-SS <- X %>%
-      select(ends_with(".ss")) %>%
-      as.matrix()
-
-snps <- X$snp
-
-nms <- names(X)[grep(".z$", names(X))] %>% str_replace(".z$", "")
+snps <- rownames(Z_hat)
+nms <- colnames(Z_hat)
 
 # if(str_ends(R_est_file, "none_R.txt")){
 #   R <- list(names = nms, R = diag(length(nms), nrow = ntrait))
@@ -56,7 +43,7 @@ nms <- names(X)[grep(".z$", names(X))] %>% str_replace(".z$", "")
 R <- readRDS(R_est_file)
 stopifnot(all(R$names %in% nms))
 z_order <- match(R$names, nms)
-SS <- SS[,z_order]
+ss <- ss[,z_order]
 Z_hat <- Z_hat[,z_order]
 #R$R <- cov2cor(R$R)
 #}
@@ -64,9 +51,11 @@ Z_hat <- Z_hat[,z_order]
 rownames(R$R) <- colnames(R$R) <- NULL
 
 
-N <- apply(SS, 2, median)
+#N <- apply(SS, 2, median)
+# ---
+
 t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
-                                N = N,
+                                N = ss,
                                 R = R$R,
                                 params = params 
                                 #mode = "z-score",

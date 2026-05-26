@@ -42,7 +42,7 @@ dos2unix "$gwas_info_file"
 num_traits=$(awk 'NR>1' "$gwas_info_file" | wc -l)
 
 # Get the header line and column indices
-source get_col.sh
+source bash/get_col.sh
 delimiter=$(get_file_delimiter "$gwas_info_file")
 parse_header "$gwas_info_file" "$delimiter"      # build the associative array col_indices
 # snp_col=$(get_col "SNP")         # retrieve the index for column named "SNP"
@@ -107,8 +107,8 @@ for ((i=2; i<=num_traits+1; i++)); do
                         -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
                         -v beta_name="$beta_hat" -v se_name="$se" \
                         -v ss_name="$sample_size" -v af_name="$af" \
-                        -f remove_invalid_variants.awk \
-		| awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f fill_sample_size.awk \
+                        -f bash/remove_invalid_variants.awk \
+		| awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f bash/fill_sample_size.awk \
 		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$6}' \
 		| sort -T "$workdir" -S 200M -t $'\t' -k1,1 \
                 | awk -F'\t' '
@@ -178,5 +178,5 @@ echo "cleaned up workdir"
 rm -rf -- "$workdir" || { sleep 2; rm -rf -- "$workdir"; }
 
 # for them to undo it, they can do
-unix2dos "$gwas_info_file"
+#unix2dos "$gwas_info_file"
 # most of the time, they don't need to undo it:  Excel, R, Python recognizes Unix endings fine.  just an issue for simple things like Notepad

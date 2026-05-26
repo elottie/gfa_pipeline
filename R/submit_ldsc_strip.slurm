@@ -13,6 +13,8 @@
 # Optional: Print start time and host
 echo "Starting job on $(hostname) at $(date)"
 
+set -euo pipefail
+
 # Run your script
 Rscript 3_R_ldsc_strip.R
 #Rscript test_R_ldsc.R

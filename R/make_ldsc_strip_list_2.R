@@ -38,9 +38,14 @@ source('ldsc_strip_list_helpers_2.R')
 # set trait_memory_gb=1 for getting the 4 sets I want
 #in_gb <- 2688 / 1024
 #in_gb <- 2750 / 1024
-#in_gb <- 2800 / 1024
-in_gb <- 6000 / 1024
+in_gb <- 2800 / 1024
+#in_gb <- 2915 / 1024
+#in_gb <- 6000 / 1024
 sets <- make_trait_sets(gwas_info=gwas_info,memory_limit_gb=in_gb)
 str(sets)
+
+#sets_short <- list(sets[[1]][1:6])
+#str(sets_short)
+#saveRDS(sets_short,out)
 
 saveRDS(sets,out)

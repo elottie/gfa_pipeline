@@ -5,17 +5,27 @@ library(GFA)
 
 
 out <- snakemake@output[["out"]]
-data <- readRDS(snakemake@input[["z_file"]])
+snp_file <- snakemake@input[["snp_list"]]
 gfafit <- readRDS(snakemake@input[["gfa_file"]])
 R <- readRDS(snakemake@input[["R"]])
 stopifnot(all(R$names == gfafit$names))
 R <- R$R
 
-Z_hat <- data %>%
-  select(ends_with(".z")) %>%
-  as.matrix()
+source("harmon_helpers.R")
+# get Z and ss.  to get Z, need the harmon helper
+traits <- gwas_info$name
 
-dat_names <- str_replace(colnames(Z_hat), ".z$", "")
+snps <- readRDS(snp_file)
+
+Z_hat <- matrix(NA_real_, length(snps), length(traits),
+                 dimnames = list(snps, traits))
+
+for (trait in traits) {
+  harmon <- harmon_dat(gwas_info, trait, snp_file, return_ss=TRUE)
+  Z_hat[, trait] <- harmon$Z
+}
+
+dat_names <- colnames(Z_hat)
 ix <- which(dat_names %in% gfafit$names)
 Z_hat <- Z_hat[,ix]
 dat_names <- dat_names[ix]

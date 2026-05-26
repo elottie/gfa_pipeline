@@ -41,7 +41,7 @@ af_thresh="$4"            # allele freq threshold
 out="$5"                  # output file
 
 # just once, need to get rid of lovely windows carriage returns
-dos2unix "$gwas_info_file"
+#dos2unix "$gwas_info_file"
 
 # read user metadata file - - -
 
@@ -49,7 +49,7 @@ dos2unix "$gwas_info_file"
 num_traits=$(awk 'NR>1' "$gwas_info_file" | wc -l)
 
 # Get the header line and column indices
-source get_col.sh
+source bash/get_col.sh
 delimiter=$(get_file_delimiter "$gwas_info_file")
 parse_header "$gwas_info_file" "$delimiter"      # build the associative array col_indices
 # snp_col=$(get_col "SNP")         # retrieve the index for column named "SNP"
@@ -120,7 +120,7 @@ for ((i=2; i<=num_traits+1; i++)); do
 		| awk -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
 		    -v beta_name="$beta_hat" -v se_name="$se" \
       		    -v ss_name="$sample_size" -v af_name="$af" \
-		    -f remove_invalid_variants.awk \
+		    -f bash/remove_invalid_variants.awk \
 		| {
                      read -r header
                      printf '%s\n' "$header"
@@ -132,16 +132,14 @@ for ((i=2; i<=num_traits+1; i++)); do
                           END { if (NR && count==1) print line }
                           '
                   } \
-                | awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f fill_sample_size.awk \
-		| awk -v beta_name="$beta_hat" -v effect_or_flag="$effect_or" -f standardize_betas.awk \
-		| awk -v beta_name="$beta_hat" -v se_name="$se" -f add_zscore.awk
+                | awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f bash/fill_sample_size.awk \
+		| awk -v beta_name="$beta_hat" -v effect_or_flag="$effect_or" -f bash/standardize_betas.awk \
+		| awk -v beta_name="$beta_hat" -v se_name="$se" -f bash/add_zscore.awk
         }
 
         echo "$effect_or"
 
-	make_filt_data | head
-
-	exit 1
+	#make_filt_data | head
 
 	#make_filt_data > tmp.txt
 	#echo "maxrss after using make_filt_data"
