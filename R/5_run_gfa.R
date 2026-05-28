@@ -5,13 +5,15 @@ library(GFA)
 
 
 out <- snakemake@output[["out"]]
+Z_file <- snakemake@input[["Z"]]
 R_est_file <- snakemake@input[["R"]]
 params_file <- snakemake@params[["params_file"]]
 max_snp <- as.numeric(snakemake@params[["max_snps"]])
 seed <- snakemake@wildcards[["fs"]]
 
-Z <- snakemake@input[["Z"]]
-load(Z)
+load(Z_file)  # RData from make_nice_data
+print(R_est_file)
+R <- readRDS(R_est_file)
 
 set.seed(seed)
 
@@ -24,7 +26,7 @@ if(params_file == "default"){
 
 
 # move this to make_nice_data.R? ---
-# I think of ot keep here and the slightly inefficient z_order.  keeping here avoids passing ton of params to make_nice_data
+# I think keep here and the slightly inefficient z_order.  keeping here avoids passing ton of params to make_nice_data
 # z_order seemed not to be a big problem at least w/ 100s of traits.  may rewrite if becomes an issue
 
 # Read in data
@@ -35,20 +37,21 @@ if(nrow(Z_hat) > max_snp){
 }
 
 snps <- rownames(Z_hat)
-nms <- colnames(Z_hat)
+nms_z <- colnames(Z_hat)
 
 # if(str_ends(R_est_file, "none_R.txt")){
 #   R <- list(names = nms, R = diag(length(nms), nrow = ntrait))
 # }else{
-R <- readRDS(R_est_file)
-stopifnot(all(R$names %in% nms))
-z_order <- match(R$names, nms)
+stopifnot(identical(rownames(R),colnames(R)))
+nms_r <- colnames(R)
+stopifnot(all(nms_r %in% nms_z))
+z_order <- match(nms_r, nms_z)  # matches order of nms_r
 ss <- ss[,z_order]
 Z_hat <- Z_hat[,z_order]
 #R$R <- cov2cor(R$R)
 #}
 
-rownames(R$R) <- colnames(R$R) <- NULL
+rownames(R) <- colnames(R) <- NULL
 
 
 #N <- apply(SS, 2, median)
@@ -56,7 +59,7 @@ rownames(R$R) <- colnames(R$R) <- NULL
 
 t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
                                 N = ss,
-                                R = R$R,
+                                R = R,
                                 params = params 
                                 #mode = "z-score",
                                 #method = "fixed_factors"
@@ -65,7 +68,7 @@ t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
 
 
 f$snps <- snps
-f$names <- R$names
+f$names <- nms_r
 f$time <- t
 saveRDS(f, file=out)
 

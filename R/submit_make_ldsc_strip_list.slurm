@@ -15,6 +15,6 @@ echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
 #python run_make_ldsc_strip_list.py
-Rscript make_ldsc_strip_list_3.R
+Rscript ../R/make_ldsc_strip_list_3.R
 
 echo "Job finished at $(date)"

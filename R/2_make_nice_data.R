@@ -47,6 +47,7 @@ writeLines(pruned_all, pruned_all_file)
 # get Z and ss.  to get Z, need the harmon helper
 traits <- gwas_info$name
 
+# we set dimnames to be pruned_all snps because we pass pruned_all_file to harmon_dat, so snps will be returns in the order of pruned_all_file
 Z_hat <- matrix(NA_real_, length(pruned_all), length(traits),
                  dimnames = list(pruned_all, traits))
 # run_gfa will be edited to accept this vector of medians so I don't need to write out whole ss since that's all it wants

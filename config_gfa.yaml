@@ -33,12 +33,13 @@ analysis:
     # cond_num: Maximum condition number. R is estimated pairwise using either ldsc or p-thresholding strategy.
     #     the result may not be positive definite or may have very high condition number. The estimated
     #     matrix will be projected to the neares positive definite matrix with condition number less than cond_num.
-    mem_limit_gb: 10
+    #    mem_limit_gb: 10
     R:
       type: ["ldsc"] # options are "pt", "ldsc", "none", list ok
       pthresh: [0.05] # list ok
       l2_dir: "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/" # list not ok
       cond_num: 100
+      ldsc_mem_lim_gb: 4
     # GFA options:
     #   gfa_params: If "default", will use default parameters, otherwise provide a .RDS file containing a prameter list eg "list(max_iter = 500)".
     #   max_snps: largest number of variants to allow

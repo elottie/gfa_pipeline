@@ -1,4 +1,5 @@
 library(data.table)
+library(jsonlite)
 
 #mem_limit_gb = 4
 #rule make_trait_sets:
@@ -11,9 +12,9 @@ gwas_info <- fread(snakemake@input[["gwas_info"]])
 mem_limit <- as.numeric(snakemake@params[["mem_limit"]])
 out <- snakemake@output[["out"]]
 
-#gwas_info <- read.csv('../First8_Mets_ForLDSCStrip.csv')
+#gwas_info <- read.csv('First8_Mets_ForLDSCStrip.csv')
 #mem_limit <- 4
-#out <- '../gfa_data/First8_Mets_ldsc_strip_list.RDS'
+#out <- '/nfs/turbo/sph-jvmorr/GFA_metabolites_2025/gfa_pipeline/gfa_data/First8_Mets_ldsc_strip_list.json'
 
 # --- make trait sets ---
 source('R/ldsc_strip_list_helpers_3.R')
@@ -36,4 +37,7 @@ str(sets)
 #str(sets_short)
 #saveRDS(sets_short,out)
 
-saveRDS(sets,out)
+#saveRDS(sets,out)
+write_json(sets,out,pretty=TRUE)
+
+read_json(out)

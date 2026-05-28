@@ -106,7 +106,7 @@ for ((i=2; i<=num_traits+1; i++)); do
         memsnap
 
         # eventually need to add handling for what if beta is OR, and what if no ss column (copy from pub ss)
-	make_filt_data() {
+        make_filt_data() {
             zcat "$f" |
                 awk -F"$delimiter" -v OFS="\t" -v chr_header="$chrn" -v chrom_val="$chrom" '
                     NR==1 {
@@ -117,11 +117,11 @@ for ((i=2; i<=num_traits+1; i++)); do
                     }
                     $chr_idx == chrom_val
                     ' \
-		| awk -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
-		    -v beta_name="$beta_hat" -v se_name="$se" \
-      		    -v ss_name="$sample_size" -v af_name="$af" \
-		    -f bash/remove_invalid_variants.awk \
-		| {
+                | awk -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
+                    -v beta_name="$beta_hat" -v se_name="$se" \
+                    -v ss_name="$sample_size" -v af_name="$af" \
+                    -f bash/remove_invalid_variants.awk \
+                | {
                      read -r header
                      printf '%s\n' "$header"
 
@@ -133,43 +133,43 @@ for ((i=2; i<=num_traits+1; i++)); do
                           '
                   } \
                 | awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f bash/fill_sample_size.awk \
-		| awk -v beta_name="$beta_hat" -v effect_or_flag="$effect_or" -f bash/standardize_betas.awk \
-		| awk -v beta_name="$beta_hat" -v se_name="$se" -f bash/add_zscore.awk
+                | awk -v beta_name="$beta_hat" -v effect_or_flag="$effect_or" -f bash/standardize_betas.awk \
+                | awk -v beta_name="$beta_hat" -v se_name="$se" -f bash/add_zscore.awk
         }
 
         echo "$effect_or"
 
-	#make_filt_data | head
+        #make_filt_data | head
 
-	#make_filt_data > tmp.txt
-	#echo "maxrss after using make_filt_data"
+        #make_filt_data > tmp.txt
+        #echo "maxrss after using make_filt_data"
         #memsnap
 
-	#make_filt_data | wc -l  # CHECK IF NOT TRUNCATED
+        #make_filt_data | wc -l  # CHECK IF NOT TRUNCATED
         #make_filt_data 2>/dev/null | head
 
-	# 1. Sample size statistics for trait summary table
-	#read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_ss_table" | tail -n1)
+        # 1. Sample size statistics for trait summary table
+        #read trait low med high < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2, $3, $4}' "$trait_ss_table" | tail -n1)
         #read -r trait med < <(awk -F"\t" -v trait="$trait_name" '$1==trait {print $1, $2}' "$trait_ss_table")
-	#low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
+        #low=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1-t)}')
         #high=$(awk -v m="$med" -v t="$ss_tol" 'BEGIN{print m*(1+t)}')
 
         read -r trait low high < <(awk -F'\t' -v trait="$trait_name" '$1==trait {print $1, $2, $4; exit}' "$trait_ss_table")
 
-	echo "$low"
-	echo "$high"
+        echo "$low"
+        echo "$high"
 
-	# 2. Common SNPs and min MAF intersection/update
+        # 2. Common SNPs and min MAF intersection/update
         if ((i == 2)); then
             make_filt_data | \
-	    awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '
-	        BEGIN { OFS="\t" }
+            awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '
+                BEGIN { OFS="\t" }
                 NR==1 {
                     for (i=1; i<=NF; i++) {
                         if ($i == snp_col) snp_idx = i
                         if ($i == af_col) af_idx = i
                         if ($i == ss_col) ss_idx = i
-			if ($i == z_col) z_idx = i
+                        if ($i == z_col) z_idx = i
                     }
                     next
                 }
@@ -177,28 +177,28 @@ for ((i=2; i<=num_traits+1; i++)); do
                     maf = ($af_idx < 1 - $af_idx) ? $af_idx : 1 - $af_idx
                     ss_val = $ss_idx + 0
                     ss_flag = (ss_val >= low && ss_val <= high) ? 1 : 0
-		    # absolute the z
-		    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
-		    if (z != "NA" && z < 0) z = -z
+                    # absolute the z
+                    z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
+                    if (z != "NA" && z < 0) z = -z
                     print $snp_idx, maf, z, ss_flag
                 }
             ' > "$shared_snps_and_maf"
-	    echo "after making first shared snp table"
-	    memsnap
-	    echo 'head shared_snps_and_maf before join:'
-	    head "$shared_snps_and_maf"
+            echo "after making first shared snp table"
+            memsnap
+            echo 'head shared_snps_and_maf before join:'
+            head "$shared_snps_and_maf"
         else
             #trait_keyed="$(mktemp)"
             #trait_sorted="$(mktemp)"
 
             # process sub extract SNP, AF, SS, |Z| from this trait (header-aware), headerless output
-                        		
+                                        
             # INNER JOIN shared (SNP prior_maf prior_z ss_flag) with trait (SNP af ss zabs)
             # Only SNPs present in BOTH will be output => intersection across traits
 
             # make_filt_data is already sorted
 
-	    join -t $'\t' -1 1 -2 1 \
+            join -t $'\t' -1 1 -2 1 \
                 -o 1.1,1.2,1.3,1.4,2.2,2.3,2.4 \
                 "$shared_snps_and_maf" \
                 <(
@@ -256,11 +256,11 @@ for ((i=2; i<=num_traits+1; i++)); do
             ' > "$shared_snps_and_maf_tmp"
 
             echo "shared_snps_and_maf after join:"
-	    head "$shared_snps_and_maf_tmp"
+            head "$shared_snps_and_maf_tmp"
 
             mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
 
-	    echo "updated shared snps table"
+            echo "updated shared snps table"
             memsnap
 
             #rm -f "$trait_keyed" "$trait_sorted"
@@ -302,4 +302,4 @@ rm -rf -- "$workdir" || { sleep 2; rm -rf -- "$workdir"; }
 
 #unix2dos "$gwas_info_file"
 # most of the time, they don't need to undo it:  Excel, R, Python recognize Unix endings fine.  just an issue for simple things like Notepad
-echo "returned lovely windows carriage returns"
+#echo "returned lovely windows carriage returns"

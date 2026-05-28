@@ -7,6 +7,7 @@
 # Ignore python compiling
 __pycache__/
 *workdir*
-gfa_data*/
-.snakemake/*
+gfa_data*
+gfa_results/
+.snakemake/
 

@@ -11,6 +11,7 @@ map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
 
 # do the data harmonization
 # gwas_info should be a data.table
+# now returns rows in order of the snps_in_ref_file
 harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   
   full_trait <- gwas_info[name==trait, 'raw_data_path']
@@ -35,7 +36,7 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   snps_in_ref <- fread(snps_in_ref_file, header = FALSE, select = 1)
   setnames(snps_in_ref, 1, "snp")
   snps_in_ref <- unique(snps_in_ref, by = "snp")
-  filt_trait <- filt_trait[snps_in_ref, on = "snp", nomatch = 0]
+  filt_trait <- filt_trait[snps_in_ref, on = "snp", nomatch = NA]
 
   print('head filt_trait after reading in:')
   print(head(filt_trait))

@@ -4,6 +4,7 @@ library(readr)
 library(GFA)
 library(stringr)
 
+# also  needs to be edited bc of new z lists
 
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
 z_files = unlist(snakemake@input[["Z"]])

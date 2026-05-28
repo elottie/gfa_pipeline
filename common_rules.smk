@@ -19,7 +19,7 @@ if "ldsc" in config["analysis"]["R"]["type"]:
 if "none" in config["analysis"]["R"]["type"]:
     R_strings.append("none")
     
-    
+ldsc_mem_lim_gb = config["analysis"]["R"]["ldsc_mem_lim_gb"]    
     
 
 # This produces one data frame per chromosome with columns for snp info
@@ -83,13 +83,11 @@ rule make_nice_data:
 
 ### For strip division
 
-mem_limit_gb = 4
-rule make_trait_sets:
+checkpoint make_ldsc_strip_list:
     input: gwas_info = info_input
-    output: out = data_dir + "{prefix}_ldsc_strip_list.RDS"
-    params: mem_limit = mem_limit_gb
+    output: out = data_dir + "{prefix}_ldsc_strip_list.json"
+    params: mem_limit = ldsc_mem_lim_gb
     script: "R/make_ldsc_strip_list_3.R"
-
 
 
 ####p-value threshold method
@@ -120,23 +118,52 @@ rule make_trait_sets:
 #    script: "R/3_R_ldsc_all.R"
 
 # we need to ensure strip numbers passed in are from 1:length(strip_list-1).  cuz it will handle the last one (length(strip_list)) interally for free
-mem_limit_mb = mem_limit_gb*1024
 rule R_ldsc_strip:
     input: snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom = range(1, 23)),
            #raw_data_input, 
            gwas_info = info_input, 
-           strip_list =  data_dir + "{prefix}_ldsc_strip_list.RDS",
+           strip_list =  data_dir + "{prefix}_ldsc_strip_list.json",
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS"
-    resources: mem_mb = mem_limit_mb # could adjust resources
+    resources: mem_mb = ldsc_mem_lim_gb*1024 # could adjust resources
     script: "R/3_R_ldsc_strip.R"
 
-nstrips=2
+
+# have to make this thing because we need to know number of strips from make_ldsc_strip_list (meaning it's a checkpoint)
+# had to make strip list into json rather than rds so it could be read by python here
+import json
+
+def get_ldsc_strip_res(wcs):
+    ck = checkpoints.make_ldsc_strip_list.get(prefix = wcs.prefix)
+    json_file = ck.output.out
+
+    with open(json_file) as f:
+        ldsc_strips = json.load(f)
+
+    nstrips = len(ldsc_strips)
+
+    return expand(
+        data_dir + "{prefix}_R_estimate.R_ldsc.{strip_num}.RDS",
+        prefix = wcs.prefix,
+        strip_num = range(1, nstrips)
+    )
+
 rule R_ldsc_collect:
-    input: ldsc_strip_res = expand(data_dir + "{{prefix}}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
+    input: ldsc_strip_res = get_ldsc_strip_res
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
-    script: "R/collect_ldsc_strips.R"
+    script: "R/3_R_collect_ldsc_strips.R"
+
+#import json
+#with open(data_dir + f"{wcs.prefix}_ldsc_strip_list.json") as f:
+#    ldsc_strips = json.load(f)
+#nstrips = len(ldsc_strips)
+
+#nstrips=2
+#rule R_ldsc_collect:
+#    input: ldsc_strip_res = expand(data_dir + "{{prefix}}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
+#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
+#    script: "R/collect_ldsc_strips.R"
  
 
 

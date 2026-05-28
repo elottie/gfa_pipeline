@@ -78,6 +78,8 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
 
 big_R_ldsc <- make_big_symm_matrix(ldsc_strip_res, row_name = "trait1", col_name = "trait2", value_name = "intercept")
 
+# here add projection to positive definite
+
 print(big_R_ldsc)
 
-save(big_R_ldsc, file=out)
+saveRDS(big_R_ldsc, file=out)

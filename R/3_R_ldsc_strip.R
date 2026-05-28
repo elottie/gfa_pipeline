@@ -9,7 +9,7 @@ library(GFA)
 library(data.table)
 library(ps)
 #library(bench)
-#library(jsonlite)
+library(jsonlite)
 
 # --- for once I graduate to snakemake ---
 #rule R_ldsc_strip:
@@ -27,8 +27,8 @@ library(ps)
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
 snp_files <- unlist(snakemake@input[["snp_list"]])
 gwas_info <- fread(snakemake@input[["gwas_info"]])
-strip_list <- readRDS(snakemake@input[["strip_list"]])
-strip_num <- as.numeric(snakemake@wildcard[["strip_num"]])
+strip_list <- read_json(snakemake@input[["strip_list"]],simplifyVector=TRUE,simplifyMatrix=FALSE)
+strip_num <- as.numeric(snakemake@wildcards[["strip_num"]])
 out <- snakemake@output[["out"]]
 ld_files <- unlist(snakemake@input[["l2"]])
 m_files <- unlist(snakemake@input[["m"]])
@@ -38,7 +38,7 @@ m_files <- unlist(snakemake@input[["m"]])
 #strip_list <- readRDS("../gfa_data/First8_Mets_ldsc_strip_list.RDS")  # list of character vectors
 #strip_num <- 1
 # these go away with snakemake input --
-#l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
+l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
 #chroms <- 1:22
 # --
 #m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
@@ -127,7 +127,7 @@ l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref_file))
 curr_ram('after strip setup')
 
 ldsc_results <- list()
-for(s2 in strip_num:length(strip_list)){
+for(s2 in strip_num:(length(strip_list))){
 #for(s2 in strip_num:2){
 #for(s2 in strip_num:1){
 
@@ -138,23 +138,23 @@ for(s2 in strip_num:length(strip_list)){
         paste(block1_traits, collapse=", "), "\n")
 
         for (trait in block1_traits) {
-	  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
-		
-	  Z_work[, trait] <- harmon$Z
+          harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
+                
+          Z_work[, trait] <- harmon$Z
           ss_work[, trait] <- harmon$ss
-	}
-	
-	# for ldsc:  add within-block comparisons for block1_traits
+        }
+        
+        # for ldsc:  add within-block comparisons for block1_traits
         comp_idx <- which(upper.tri(matrix(TRUE, length(block1_traits), length(block1_traits)), diag = TRUE), arr.ind = TRUE)
         comparisons <- data.frame(
           trait1 = block1_traits[comp_idx[, 1]],
           trait2 = block1_traits[comp_idx[, 2]],
           stringsAsFactors = FALSE
         )
-	cat("Unique within-block comparisons for block", s2, ":\n")
+        cat("Unique within-block comparisons for block", s2, ":\n")
         print(comparisons)
 
-	curr_ram('after within-block comparison')
+        curr_ram('after within-block comparison')
     }
 
     if(s2 > strip_num){
@@ -169,25 +169,25 @@ for(s2 in strip_num:length(strip_list)){
             Z_work[, length(block1_traits) + j] <- harmon$Z
             ss_work[, length(block1_traits) + j] <- harmon$ss
             colnames(Z_work)[length(block1_traits) + j] <- trait
-	    colnames(ss_work)[length(block1_traits) + j] <- trait
+            colnames(ss_work)[length(block1_traits) + j] <- trait
         }
 
-	# there may be some columns of Z_work and ss_work that are NA because of the way we defined the matrix to be > size of max block2
-	# this is okay.  ldsc_rg will only work with traits that are referenced in comparisons.  NA traits will not be referenced
-	
-	# for ldsc, pairwise comparison if both blocks are defined:
-	comparisons <- expand.grid(trait1 = block1_traits,
+        # there may be some columns of Z_work and ss_work that are NA because of the way we defined the matrix to be > size of max block2
+        # this is okay.  ldsc_rg will only work with traits that are referenced in comparisons.  NA traits will not be referenced
+        
+        # for ldsc, pairwise comparison if both blocks are defined:
+        comparisons <- expand.grid(trait1 = block1_traits,
                                    trait2 = block2_traits,
-				   KEEP.OUT.ATTRS = FALSE,
+                                   KEEP.OUT.ATTRS = FALSE,
                                    stringsAsFactors = FALSE)
         cat("Pairwise comparisons between block", strip_num, "and", s2, ":\n")
         print(comparisons)
 
-	curr_ram('after between-block comparison')
+        curr_ram('after between-block comparison')
         
-	# second to last-strip has special handling to get last triangle for free
-	if(strip_num == length(strip_list)-1){
-	    # read data for set 1 (first block)
+        # second to last-strip has special handling to get last triangle for free
+        if(strip_num == length(strip_list)-1){
+            # read data for set 1 (first block)
             #block1_traits <- strip_list[[s2]]
             cat("Adding within-block comparisons for very last block ", s2, "), has traits:",
             paste(block2_traits, collapse=", "), "\n")
@@ -202,12 +202,12 @@ for(s2 in strip_num:length(strip_list)){
             cat("Unique within-block comparisons for block", s2, ":\n")
             print(last_comparisons)
 
-	    # add to earlier comparisons
-	    comparisons <- rbind(comparisons, last_comparisons)
+            # add to earlier comparisons
+            comparisons <- rbind(comparisons, last_comparisons)
             comparisons <- unique(comparisons)  # optional, removes exact duplicate rows
 
-	    curr_ram('after last within-block comparison')
-	}
+            curr_ram('after last within-block comparison')
+        }
     }
     
     # need Zs and sample sizes
@@ -221,7 +221,7 @@ for(s2 in strip_num:length(strip_list)){
         ldscores = l2,
         N = ss_work,
         ld_size = M,
-	make_well_conditioned = FALSE,
+        make_well_conditioned = FALSE,
         comparisons = comparisons
     )
     print(ldsc_result)
