@@ -32,8 +32,8 @@ if(params_file == "default"){
 # Read in data
 # we are not doing max_snps for ss here!!
 if(nrow(Z_hat) > max_snp){
-    ix <- sample(seq(nrow(Z_hat)), size = max_snp, replace = FALSE)
-    Z_hat <- Z_hat[ix,]
+  ix <- sample(seq(nrow(Z_hat)), size = max_snp, replace = FALSE)
+  Z_hat <- Z_hat[ix,]
 }
 
 snps <- rownames(Z_hat)

@@ -14,7 +14,7 @@
 echo "Starting job on $(hostname) at $(date)"
 
 # Run your script
-Rscript 3_R_collect_ldsc_strips.R
+Rscript 1_R_collect_ldsc_strips.R
 #Rscript test_R_ldsc.R
 
 echo "Job finished at $(date)"

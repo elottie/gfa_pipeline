@@ -16,19 +16,17 @@ R <- readRDS(snakemake@input[["R"]])
 workdir <- paste0("6_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
-snp_file_no_head <- paste0(workdir,"/snps_no_head.txt")
-
 # --- read in snakemake inputs and do checks ---
-#snps <- fread(snp_file)[, 1, with=FALSE]
-snps <- unique(fread(snp_file)[[1]])
-writeLines(snps,snp_file_no_head)
+# snp_file is already dedup, headered, and ready to use from step 1
+snps <- fread(snp_file, header = TRUE, select = 1)[[1]]
 
 stopifnot(identical(rownames(R),colnames(R)))
 nms_r <- colnames(R)
 stopifnot(all(nms_r == gfafit$names))
 
 # --- get Z and ss.  to get Z, need the harmon helper ---
-source("R/harmon_helpers.R")
+source("harmon_helpers.R")
+#source("R/harmon_helpers.R")
 traits <- gwas_info$name
 
 Z_hat <- matrix(NA_real_, length(snps), length(traits),
@@ -39,12 +37,19 @@ print(length(snps))
 print(head(snps))
 
 for (trait in traits) {
-  harmon <- harmon_dat(gwas_info, trait, snp_file_no_head, return_ss=TRUE)
-  print(length(harmon$Z))
-  print(head(harmon$Z))
-  Z_hat[, trait] <- harmon$Z
+
+  # don't need return ss, let it default to false
+  harmon <- harmon_dat(gwas_info, trait, snp_file, return_alleles=TRUE)
+
+  # add check that snps are identical to rownames(Z_Hat)
+  if (identical(harmon$snps,rownames(Z_hat))){
+    Z_hat[, trait] <- harmon$Z
+  } else {
+    stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_hat matrix')
+  }
 }
 
+# subset to traits that made it through gfa
 nms_z <- colnames(Z_hat)
 ix <- which(nms_z %in% gfafit$names)
 Z_hat <- Z_hat[,ix]
@@ -63,11 +68,11 @@ res <- data.frame(cbind(gls_zscores, gls_pvals))
 names(res) <- c(paste0("factor", 1:nf, ".z"), paste0("factor", 1:nf, ".p"))
 
 # --- add back to some snp info: chrom, snp, ref, alt, gls_z, gls_p ---
-# old way gave you more info, but how necessary?  could lookup after if you really want
 #res <- bind_cols(data[,c("chrom", "snp", "REF", "ALT")], res)
 
 # here add back chrom, ref, alt
-snps_dt <- data.table(snp = snps)
+# a bit clunky, but chrom, ref, and alt do not change by trait.  so just take the last iteration of them from last harmon object
+snps_dt <- data.table(chrom = harmon$chrom, snp = snps, ref = harmon$ref, alt = harmon$alt)
 res <- bind_cols(snps_dt,res)
 saveRDS(res, file = out)
 

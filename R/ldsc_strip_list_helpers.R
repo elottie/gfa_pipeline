@@ -23,7 +23,6 @@ make_trait_sets <- function(
   gwas_info,
   name_col = "name",
   memory_limit_gb = 150,
-  trait_memory_gb = 5,
   blocks_at_once = 2,
   min_traits_per_block = 2
 ) {
@@ -39,12 +38,30 @@ make_trait_sets <- function(
     stop(sprintf("Need at least %d traits; got %d.", min_traits_per_block, ntraits))
   }
 
-  max_traits_per_block <- floor(memory_limit_gb / (blocks_at_once * trait_memory_gb))
+  # R needs 2730 MB ish just to exist
+  R_intercept <- 2730 / 1024
+
+  mem_for_traits <- memory_limit_gb - R_intercept
+  print(paste('mem avail for traits in gb:',mem_for_traits),quote=FALSE)
+
+  # say ref panel is 1.25 million lines.  this can / should be checked.  anyway, by awks, this is the max # of rows for traits
+  #L <- 1.25e6
+  # we are storing 2 vectors for each trait:  the Z and the sample_size
+  # so the size for one block:  bytes_1_block = 8 bytes * (2 vectors per trait * L rows * T traits in block) = 16 L T_in_block
+  # the size for 2 blocks:  bytes_2_blocks = 2 * bytes_1_block = 32 L T_in_block
+  # so max # of traits in a block:  T_in_block = bytes / (32 * L)
+
+  # got this from binary search & lin reg.  this is slope for each additional total trait analyzed at once
+  # add safety factor of 10 
+  traits_slope <- 28.3*10 / 1024
+
+  max_traits_per_block <- floor(mem_for_traits / traits_slope)
+  print(paste('max traits per block from mem avail for traits:',max_traits_per_block),quote=F)
 
   if (max_traits_per_block < min_traits_per_block) {
     stop(sprintf(
-      "max_traits_per_block=%d < min_traits_per_block=%d given memory_limit_gb=%s, blocks_at_once=%s, trait_memory_gb=%s.",
-      max_traits_per_block, min_traits_per_block, memory_limit_gb, blocks_at_once, trait_memory_gb
+      "max_traits_per_block=%d < min_traits_per_block=%d given memory_limit_gb=%s, blocks_at_once=%s.",
+      max_traits_per_block, min_traits_per_block, memory_limit_gb, blocks_at_once
     ))
   }
 

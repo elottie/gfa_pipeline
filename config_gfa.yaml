@@ -38,6 +38,7 @@ analysis:
       type: ["ldsc"] # options are "pt", "ldsc", "none", list ok
       pthresh: [0.05] # list ok
       l2_dir: "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/" # list not ok
+      cor_cutoff: 0.97
       cond_num: 100
       ldsc_mem_lim_gb: 4
     # GFA options:

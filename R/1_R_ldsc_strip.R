@@ -25,28 +25,31 @@ library(jsonlite)
 
 
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
-snp_files <- unlist(snakemake@input[["snp_list"]])
-gwas_info <- fread(snakemake@input[["gwas_info"]])
-strip_list <- read_json(snakemake@input[["strip_list"]],simplifyVector=TRUE,simplifyMatrix=FALSE)
-strip_num <- as.numeric(snakemake@wildcards[["strip_num"]])
-out <- snakemake@output[["out"]]
-ld_files <- unlist(snakemake@input[["l2"]])
-m_files <- unlist(snakemake@input[["m"]])
+#snp_files <- unlist(snakemake@input[["snp_list"]])
+#gwas_info <- fread(snakemake@input[["gwas_info"]])
+#strip_list <- read_json(snakemake@input[["strip_list"]],simplifyVector=TRUE,simplifyMatrix=FALSE)
+#strip_num <- as.numeric(snakemake@wildcards[["strip_num"]])
+#out <- snakemake@output[["out"]]
+#ld_files <- unlist(snakemake@input[["l2"]])
+#m_files <- unlist(snakemake@input[["m"]])
+# NEEDS NO MORE L2DIR
+#ldsc_mem_lim_mb <- as.numeric(snakemake@resources[["mem_lim"]])
 
-#snp_files <- sprintf("../gfa_data/First8_Mets_snps_chr%d.tsv", 1:22)
-#gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
-#strip_list <- readRDS("../gfa_data/First8_Mets_ldsc_strip_list.RDS")  # list of character vectors
-#strip_num <- 1
+snp_files <- sprintf("../gfa_data/snp_lists/First8SnakemakeTest_snps_chr%d.tsv", 1:22)
+gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
+strip_list <- read_json("../gfa_data/First8SnakemakeTest_ldsc_strip_list.json",simplifyVector=TRUE,simplifyMatrix=FALSE)  # list of character vectors
+strip_num <- 1
 # these go away with snakemake input --
 l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
-#chroms <- 1:22
+chroms <- 1:22
 # --
-#m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
-#ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
-#out <- "../gfa_data/First8_Mets_ldsc_results.RDS"
+m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
+ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
+out <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
+#ldsc_mem_lim_mb <- 4*1024
 
 # --- source helpful funcs ---
-helper_path <- "R/harmon_helpers.R"
+helper_path <- "harmon_helpers_2.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(helper_path)
@@ -71,23 +74,93 @@ print('filtering universal_snps.txt to only those found in ld ref files')
 
 # All lines from ld_file.tsv where the second column matches a value in the first column of snps_pass_all_filts.txt.
 # write header to output
-system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref_file)))
+#system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref_file)))
 
-for (chr in 1:22) {
-  snp_file <- snp_files[chr]
-  ld_file  <- file.path(l2_dir, paste0(chr, ".l2.ldscore.gz"))
+# find acceptable mem proportion to use for sort
+#if (ldsc_mem_lim_mb > 3*1024){
+#  mem_for_sort <- floor(0.75 * (ldsc_mem_lim_mb - 3*1024))
+#  print(paste('memory available for sort:',mem_for_sort,'MB'))
+#} else {
+#  stop('ldsc needs > 3 gb of mem, it takes ~3 gb just to run R')
+#}
 
-  awk_snps_in_ref <- sprintf(
-    "zcat %s | awk -F'\\t' 'NR==FNR{snps[$1]=1; next} snps[$2]{print $2, $6}' %s - >> %s",
-    shQuote(ld_file),
-    shQuote(snp_file),
-    shQuote(snps_in_ref_file)
-  )
-  system(awk_snps_in_ref)
-}
+# make awks, sorts, and joins consistent across users
+Sys.setenv(LC_ALL = "C")
+
+# in this instance I believe it's better to compare all of ld ref to all of trait file rather than breaking up trait file by chrom and comparing to matching ld file
+# if broke up by chrom, could end up writing out lot of tempfiles so can do join w/o holding all keys in mem
+# and end up looping by chr, probably doing all in one awk would be faster
+# so this is all for speed, not mem
+
+# NR > 1 so we do not copy header
+# assuming tab-sep input file
+awk_get_snp_and_l2 <- '
+  BEGIN { OFS = FS }
+  NR == 1 {
+    snp = -1
+    l2 = -1
+
+    for (i = 1; i <= NF; i++) {
+      if ($i == "SNP") snp = i
+      if ($i == "L2")  l2 = i
+    }
+
+    if (snp == -1 || l2 == -1) {
+      print "Missing SNP or L2 column in " file #> "/dev/stderr"
+      exit 1
+    }
+
+    next
+  }
+
+  {
+    print $snp, $l2
+  }
+'
+# this is seeming more complicated.  it is really just removing all instances of a snps that is seen more than once (vs doing unique)
+# don't need to set ofs bc doing print line
+# don't need to sort anymore bc not doing the join/sort approach
+awk_dedup_ld_ref <- '
+  {
+    count[$1]++
+
+    if (count[$1] == 1) {
+      order[++n] = $1
+      line[$1] = $0
+    }
+  }
+
+  END {
+    for (i = 1; i <= n; i++) {
+      snp = order[i]
+      if (count[snp] == 1) {
+        print line[snp]
+      }
+    }
+  }
+'
+  
+concat_ld_ref_files <- sprintf(
+  "{ printf 'snp\\tl2\\n'; for f in %s; do zcat -- \"$f\" | awk -F%s -v file=\"$f\" %s; done | awk -F%s %s; } > %s",
+  paste(shQuote(ld_files), collapse=" "),
+  shQuote("\t"),
+  shQuote(awk_get_snp_and_l2),
+  shQuote("\t"),
+  shQuote(awk_dedup_ld_ref),
+  shQuote(snps_in_ref_file)
+)
+concat_status <- system(concat_ld_ref_files)
+#if (concat_status != 0) {
+#  stop("Failed to create unsorted reference with header")
+#}
+
+# now have to compare each trait to the concat ld ref file
+# this happens w/in harmon_dat function
+
 print('completed ld filtering')
-
 curr_ram('after ld filtering')
+
+#stop('you told me to stop here')
 
 # other random input setup ---
 # if M is num of variants used to compute ld scores, should be constant?
@@ -106,7 +179,10 @@ print(strip_list)
 curr_ram('after other random input setup')
 
 # --- strip processing! ---
-n_snps <- as.integer(system(paste0("wc -l < ",snps_in_ref_file), intern = TRUE)) - 1L   # number of SNPs after filtering, -1 for header
+# read in the ref snps for rownames
+# I have already deduplicated them
+snps_in_ref <- fread(snps_in_ref_file, header = TRUE, select = 1)[[1]]
+n_snps <- length(snps_in_ref)
 print(n_snps)
 n_traits <- length(traits)
 
@@ -114,11 +190,11 @@ n_traits <- length(traits)
 max_block2_size <- if (length(strip_list) >= 2) max(lengths(strip_list)[-1]) else 0
 block1_traits <- strip_list[[strip_num]]
 Z_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
-                 dimnames = list(NULL, c(block1_traits, rep("", max_block2_size))))
+                 dimnames = list(snps_in_ref, c(block1_traits, rep("", max_block2_size))))
 ss_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
-                 dimnames = list(NULL, c(block1_traits, rep("", max_block2_size))))
+                 dimnames = list(snps_in_ref, c(block1_traits, rep("", max_block2_size))))
 
-l2 <- as.numeric(scan(pipe(sprintf("awk 'NR>1{print $2}' %s", snps_in_ref_file)), what="character"))
+l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_file)), what="character"))
 #print('l2:')
 #print(head(l2))
 #print(length(l2))
@@ -139,9 +215,14 @@ for(s2 in strip_num:(length(strip_list))){
 
         for (trait in block1_traits) {
           harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
-                
-          Z_work[, trait] <- harmon$Z
-          ss_work[, trait] <- harmon$ss
+          
+          if (identical(harmon$snps,rownames(Z_work))){
+            Z_work[, trait] <- harmon$Z
+            ss_work[, trait] <- harmon$ss
+          } else {
+            stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
+          }
+          gc()	  
         }
         
         # for ldsc:  add within-block comparisons for block1_traits
@@ -166,11 +247,17 @@ for(s2 in strip_num:(length(strip_list))){
         for (j in seq_along(block2_traits)) {
             trait <- block2_traits[j]
             harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
-            Z_work[, length(block1_traits) + j] <- harmon$Z
-            ss_work[, length(block1_traits) + j] <- harmon$ss
-            colnames(Z_work)[length(block1_traits) + j] <- trait
-            colnames(ss_work)[length(block1_traits) + j] <- trait
-        }
+            
+	    if (identical(harmon$snps,rownames(Z_work))){
+              Z_work[, length(block1_traits) + j] <- harmon$Z
+              ss_work[, length(block1_traits) + j] <- harmon$ss
+              colnames(Z_work)[length(block1_traits) + j] <- trait
+              colnames(ss_work)[length(block1_traits) + j] <- trait
+            } else {
+              stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
+            }
+	    gc()   
+	} 
 
         # there may be some columns of Z_work and ss_work that are NA because of the way we defined the matrix to be > size of max block2
         # this is okay.  ldsc_rg will only work with traits that are referenced in comparisons.  NA traits will not be referenced
@@ -189,7 +276,7 @@ for(s2 in strip_num:(length(strip_list))){
         if(strip_num == length(strip_list)-1){
             # read data for set 1 (first block)
             #block1_traits <- strip_list[[s2]]
-            cat("Adding within-block comparisons for very last block ", s2, "), has traits:",
+            cat("Since we are at second-to-last strip, doing last strip, i.e. adding within-block comparisons for very last block ", s2, ", has traits:",
             paste(block2_traits, collapse=", "), "\n")
 
             # for ldsc:  add within-block comparisons for block1_traits
@@ -213,6 +300,7 @@ for(s2 in strip_num:(length(strip_list))){
     # need Zs and sample sizes
     print('head of Z_work:')
     print(head(Z_work))
+    print(paste('sum of NAs in Z_work:',sum(is.na(Z_work))))
     print('head of ss_work:')
     print(head(ss_work))
 
@@ -233,6 +321,8 @@ for(s2 in strip_num:(length(strip_list))){
     ldsc_results[[block_comp_name]] <- ldsc_result
 
     curr_ram('after storing ldsc result')
+
+    gc()
 }
 
 str(ldsc_results)

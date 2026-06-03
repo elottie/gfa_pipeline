@@ -6,14 +6,14 @@ map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
   row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
   if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  as.list(row[1, c("snp","beta_hat","se","A1","A2","af","sample_size")])
+  as.list(row[1, c("snp","beta_hat","se","A1","A2","af","sample_size","chrom")])
 }
 
 # do the data harmonization
 # gwas_info should be a data.table
 # now returns rows in order of the snps_in_ref_file
 # now returns all snps in ref file, with NAs for snps that are in ref file but not trait file
-harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
+harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, return_alleles=FALSE) {
   
   full_trait <- gwas_info[name==trait, 'raw_data_path']
   print(paste("... processing trait:", full_trait))
@@ -57,7 +57,7 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   filt_trait <- snps_in_ref
   # cleanup (removal of snps_in_ref not necessary, just removing name)
   rm(trait_in_ref, snps_in_ref)
-  #gc()
+  gc()
 
   print('head filt_trait after reading in:')
   print(head(filt_trait))
@@ -93,13 +93,18 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   print('head filt_trait after filling in missing ss:')
   print(head(filt_trait))
 
-  if(return_ss){
+  if (return_ss) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
                 ss = filt_trait[["sample_size"]]))
 
-  } else{
+  } else if (return_alleles) {
     return(list(snps = filt_trait[["snp"]],
-		Z = filt_trait[["Z"]]))
+		Z = filt_trait[["Z"]],
+		ref = filt_trait[["A2"]],
+		alt = filt_trait[["A1"]]))
+  } else {
+    return(list(snps = filt_trait[["snp"]],
+                Z = filt_trait[["Z"]]))
   }
 }

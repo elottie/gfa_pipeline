@@ -4,8 +4,8 @@ set -euo pipefail
 # bash mem_search.sh 8
 
 traits="${1:?usage: mem_search.sh TRAITS}"
-low="${2:-2200}"     # MB that fails (set appropriately)
-high="${3:-3200}"    # MB that succeeds (set appropriately)
+low="${2:-1000}"     # MB that fails (set appropriately)
+high="${3:-2000}"    # MB that succeeds (set appropriately)
 delta="${4:-10}"    # precision in MB
 
 is_oom() {

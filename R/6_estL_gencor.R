@@ -20,6 +20,32 @@ M <- purrr:::map(1:22, function(c){
   read_lines(m_files[c])
 }) %>% unlist() %>% as.numeric() %>% sum()
 
+
+# --- get Z and ss.  to get Z, need the harmon helper ---
+source("harmon_helpers.R")
+#source("R/harmon_helpers.R")
+traits <- gwas_info$name
+
+Z_hat <- matrix(NA_real_, length(snps), length(traits),
+		                 dimnames = list(snps, traits))
+
+print(dim(Z_hat))
+print(length(snps))
+print(head(snps))
+
+for (trait in traits) {
+
+	  # don't need return ss, let it default to false
+	  harmon <- harmon_dat(gwas_info, trait, snp_file, return_alleles=TRUE)
+
+  # add check that snps are identical to rownames(Z_Hat)
+  if (identical(harmon$snps,rownames(Z_hat))){
+    Z_hat[, trait] <- harmon$Z
+  } else {
+    stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_hat matrix')
+  }
+}
+
 X <- map_dfr(z_files, function(f){
   readRDS(f) %>%
     rename(SNP = snp) %>%

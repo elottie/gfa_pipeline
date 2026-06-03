@@ -7,18 +7,18 @@ library(data.table)
 #    output: out = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData"
 #    script: "R/make_nice_data.R"
 
-gwas_info <- fread(snakemake@input[["gwas_info"]])
-pruned_snp_list <- unlist(snakemake@input[["pruned_snp_list"]])
-usage <- snakemake@params[["usage"]]
-out <- snakemake@output[["out"]]
+#gwas_info <- fread(snakemake@input[["gwas_info"]])
+#pruned_snp_list <- unlist(snakemake@input[["pruned_snp_list"]])
+#usage <- snakemake@params[["usage"]]
+#out <- snakemake@output[["out"]]
 
-#gwas_info <- fread("../5e5Sig_Herit_Mets_8ForLDSCStrip.csv")
-#pruned_snp_list = sprintf("../gfa_data/5e5Sig_Herit_Mets8_ld_pruned_chr%d.tsv", 1:22)
-#usage = "gfa"
-#out = paste0("../gfa_data/5e5Sig_Herit_Mets8_nice_data_for_",usage,".RData")
+gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
+pruned_snp_lists = sprintf("../gfa_data/snp_lists/First8SnakemakeTest_pruned_snps_r20.01_kb1000_pvalue.%d.tsv", 1:22)
+usage = "gfa"
+out = paste0("../gfa_data/First8SnakemakeTest_nice_data_for_",usage,".RData")
 
 # --- source helpful funcs ---
-helper_path <- "R/harmon_helpers.R"
+helper_path <- "harmon_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(helper_path)
@@ -33,8 +33,9 @@ pruned_all_file <- file.path(workdir, "pruned_snps_across_chr.tsv")
 # --- get pruned snps across chromsomes ---
 
 # would not need the file.exists part, just for testing
-pruned_all <- unique(unlist(lapply(pruned_snp_list[file.exists(pruned_snp_list)], readLines), use.names = FALSE))
-writeLines(pruned_all, pruned_all_file)
+pruned_all <- unique(unlist(lapply(pruned_snp_lists[file.exists(pruned_snp_lists)], readLines), use.names = FALSE))
+# each thing that goes into harmon_dat needs a header now
+writeLines(c('snp',pruned_all), pruned_all_file)
 
 # --- process ---
 # read in data
@@ -57,9 +58,13 @@ ss <- matrix(NA_real_, 1, length(traits),
 for (trait in traits) {
   
   harmon <- harmon_dat(gwas_info, trait, pruned_all_file, return_ss=TRUE)
-
-  Z_hat[, trait] <- harmon$Z
-  ss[, trait] <- median(harmon$ss)
+  # add check that snps are identical to rownames(Z_Hat)
+  if (identical(harmon$snps,rownames(Z_hat))){
+    Z_hat[, trait] <- harmon$Z
+    ss[, trait] <- median(harmon$ss)
+  } else {
+    stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_hat matrix')
+  }
 }
 
 # I don't believe we need to recreate this big input matrix with traitlabel.z and traitlabel.ss.  we can keep as 2 objects and reorder to match each other, better for mem

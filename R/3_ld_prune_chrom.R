@@ -42,7 +42,11 @@ snps_in_bim <- paste0(workdir,"/snps_pass_all_filts_in_bim.txt")
 # --- get snps that are in bim ---
 bim <- paste0(ref_path,".bim")
 
-awk_snps_in_bim <- 'BEGIN{OFS="\\t"}
+# make awks, sorts, and joins consistent across users
+Sys.setenv(LC_ALL = "C")
+
+# assuming tab-sep trait files
+awk_snps_in_bim <- 'BEGIN{FS=OFS="\\t"}
   NR==FNR { key=$1; row[key]=$0; next }
   ($2 in row) { keep[$2]=1 }
   END { for (k in keep) print row[k] }'
