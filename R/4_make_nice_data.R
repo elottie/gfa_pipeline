@@ -24,7 +24,7 @@ helper_path <- "harmon_helpers.R"
 source(helper_path)
 
 # --- temp workdir for testing cleanliness --
-workdir <- paste0("2_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
+workdir <- paste0("4_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
 # temp output file defs

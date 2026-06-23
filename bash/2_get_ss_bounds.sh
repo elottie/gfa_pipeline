@@ -8,7 +8,7 @@ set -euo pipefail
 export LC_ALL=C
 
 # temp workspace for generated files
-workdir=$(mktemp -d -p . "0_workdir_$(date +%Y%m%d_%H%M%S)_XXXXXX")
+workdir=$(mktemp -d -p . "2_workdir_$(date +%Y%m%d_%H%M%S)_XXXXXX")
 mkdir -p "$workdir"
 
 memsnap() {

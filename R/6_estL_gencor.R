@@ -12,31 +12,63 @@ ld_files <- unlist(snakemake@input[["l2"]])
 m_files <- unlist(snakemake@input[["m"]])
 out <- snakemake@output[["out"]]
 
-ld <- purrr::map_dfr(1:22, function(c){
-  read_table(ld_files[c])
-})
+# --- source helpful funcs ---
+# make awks, sorts, and joins consistent across users
+Sys.setenv(LC_ALL = "C")
 
-M <- purrr:::map(1:22, function(c){
+harmon_helper_path <- "harmon_helpers.R"
+ld_ref_helper_path <- "ld_ref_helpers.R"
+# eventually need to switch to this
+#helper_path <- "R/harmon_helpers.R"
+source(harmon_helper_path)
+source(ld_ref_helper_path)
+
+# --- temp workdir for testing cleanliness -
+workdir <- paste0("6_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
+dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
+
+# temp output file defs
+snps_in_ref_file <- file.path(workdir, "snps_in_ld_file.tsv")
+
+# --- get ld ref across chromsomes ---
+concat_ld_ref <- build_concat_ld_ref(ld_files = ld_files,
+                                     snps_in_ref_file = snps_in_ref_file,
+                                     delim="\t")
+
+concat_status <- system(concat_ld_ref)
+if (concat_status != 0) {
+  stop("Failed to create unsorted reference with header")
+}
+
+print('completed ld ref concatenation')
+
+# --- other random input setup ---
+# if M is num of variants used to compute ld scores, should be constant?
+M <- purrr:::map(1, function(c){
   read_lines(m_files[c])
 }) %>% unlist() %>% as.numeric() %>% sum()
 
-
-# --- get Z and ss.  to get Z, need the harmon helper ---
-source("harmon_helpers.R")
-#source("R/harmon_helpers.R")
+# read in gwas_info for trait names
 traits <- gwas_info$name
 
-Z_hat <- matrix(NA_real_, length(snps), length(traits),
-		                 dimnames = list(snps, traits))
+# --- get Z and ss.  to get Z, need the harmon helper ---
+# read in the ref snps for rownames
+# I have already deduplicated them
+snps_in_ref <- fread(snps_in_ref_file, header = TRUE, select = 1)[[1]]
+n_snps <- length(snps_in_ref)
+print(n_snps)
+n_traits <- length(traits)
 
+Z_hat <- matrix(NA_real_, n_snps, length(traits),
+		                 dimnames = list(snps_in_ref, traits))
 print(dim(Z_hat))
-print(length(snps))
-print(head(snps))
+
+l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_file)), what="character"))
 
 for (trait in traits) {
-
-	  # don't need return ss, let it default to false
-	  harmon <- harmon_dat(gwas_info, trait, snp_file, return_alleles=TRUE)
+  # don't need return ss, let it default to false
+  # also not currently returning Zs
+  harmon <- harmon_dat(gwas_info, trait, snp_file)
 
   # add check that snps are identical to rownames(Z_Hat)
   if (identical(harmon$snps,rownames(Z_hat))){
@@ -46,23 +78,20 @@ for (trait in traits) {
   }
 }
 
-X <- map_dfr(z_files, function(f){
-  readRDS(f) %>%
-    rename(SNP = snp) %>%
-    inner_join(., ld)})
 
-Z_hat <- X %>%
-  select(ends_with(".z")) %>%
-  as.matrix()
-nms <- str_replace(colnames(Z_hat), ".z$", "")
-
+# --- obtain genetic correlation ---
 R <- R_ldsc(Z_hat = Z_hat,
-            ldscores = X$L2,
+            ldscores = l2,
             ld_size = M,
             N = rep(1, ncol(Z_hat)),
             return_gencov = TRUE,
             make_well_conditioned = FALSE # not needed we only need Rg
 )
 
+# --- save output ---
 saveRDS(R, file=out)
+
+# --- clean up workdir ---
+unlink(workdir, recursive = TRUE, force = TRUE)
+print(paste('removed working directory:',workdir),quote=FALSE)
 

@@ -6,14 +6,14 @@ map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
   row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
   if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  as.list(row[1, c("snp","beta_hat","se","A1","A2","af","sample_size")])
+  as.list(row[1, c("snp","beta_hat","se","A1","A2","allele_freq","sample_size","chrom")])
 }
 
 # do the data harmonization
 # gwas_info should be a data.table
 # now returns rows in order of the snps_in_ref_file
 # now returns all snps in ref file, with NAs for snps that are in ref file but not trait file
-harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
+harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, return_alleles=FALSE, needs_invalid_snp_rm=FALSE) {
   
   full_trait <- gwas_info[name==trait, 'raw_data_path']
   print(paste("... processing trait:", full_trait))
@@ -44,6 +44,11 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   snps_in_ref <- fread(snps_in_ref_file, header = TRUE, select = 1)
   setnames(snps_in_ref, "snp")
   snps_in_ref <- snps_in_ref[, .N, by = "snp"][N == 1, .(snp)]
+  # also deduplicate trait file so join does not overwrite rows
+  print(paste('before removing dup snps before join with ref:',nrow(trait_in_ref)))
+  dup_trait_snps <- trait_in_ref[duplicated(snp), unique(snp)]
+  trait_in_ref <- trait_in_ref[!(snp %in% dup_trait_snps)]
+  print(paste('after removing dup snps before join with ref:',nrow(trait_in_ref)))
   # select columns that will be added from trait file
   trait_cols <- setdiff(names(trait_in_ref), "snp")
   # in-place merge, mget gets names of columns added from trait file
@@ -56,8 +61,8 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   # does not create new object, just new name for same object
   filt_trait <- snps_in_ref
   # cleanup (removal of snps_in_ref not necessary, just removing name)
-  rm(trait_in_ref, snps_in_ref)
-  #gc()
+  rm(dup_trait_snps, trait_in_ref, snps_in_ref)
+  gc()
 
   print('head filt_trait after reading in:')
   print(head(filt_trait))
@@ -74,8 +79,13 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   print('head filt_trait after standardizing betas to log(OR):')
   print(head(filt_trait))
 
-  # fix the readability of making beta_hat numeric
-  GFA:::align_beta(filt_trait)
+  if (needs_invalid_snp_rm){
+    gwas_format(filt_trait,
+		snp="snp", beta_hat="beta_hat", se="se", A1="A1", A2="A2",
+                chrom="chrom",sample_size="sample_size", allele_freq="allele_freq",compute_pval=FALSE)
+  } else {
+    GFA:::align_beta(filt_trait)
+  }
   print('head filt_trait_harmon:')
   print(head(filt_trait))
 
@@ -93,13 +103,18 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE) {
   print('head filt_trait after filling in missing ss:')
   print(head(filt_trait))
 
-  if(return_ss){
+  if (return_ss) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
                 ss = filt_trait[["sample_size"]]))
 
-  } else{
+  } else if (return_alleles) {
     return(list(snps = filt_trait[["snp"]],
-		Z = filt_trait[["Z"]]))
+		Z = filt_trait[["Z"]],
+		ref = filt_trait[["A2"]],
+		alt = filt_trait[["A1"]]))
+  } else {
+    return(list(snps = filt_trait[["snp"]],
+                Z = filt_trait[["Z"]]))
   }
 }

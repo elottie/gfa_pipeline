@@ -33,7 +33,6 @@ library(jsonlite)
 #ld_files <- unlist(snakemake@input[["l2"]])
 #m_files <- unlist(snakemake@input[["m"]])
 # NEEDS NO MORE L2DIR
-#ldsc_mem_lim_mb <- as.numeric(snakemake@resources[["mem_lim"]])
 
 snp_files <- sprintf("../gfa_data/snp_lists/First8SnakemakeTest_snps_chr%d.tsv", 1:22)
 gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
@@ -46,13 +45,17 @@ chroms <- 1:22
 m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
 ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
 out <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
-#ldsc_mem_lim_mb <- 4*1024
 
 # --- source helpful funcs ---
-helper_path <- "harmon_helpers_2.R"
+# make awks, sorts, and joins consistent across users
+Sys.setenv(LC_ALL = "C")
+
+harmon_helper_path <- "harmon_helpers.R"
+ld_ref_helper_path <- "ld_ref_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
-source(helper_path)
+source(harmon_helper_path)
+source(ld_ref_helper_path)
 
 curr_ram <- function(label = "") {
   rss <- ps::ps_memory_info(ps::ps_handle())[["rss"]] / 1024^3
@@ -63,106 +66,26 @@ curr_ram <- function(label = "") {
 curr_ram('after reading input')
 
 # --- temp workdir for testing cleanliness --
-workdir <- paste0("3_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
+workdir <- paste0("1_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
 dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 
 # temp output file defs
 snps_in_ref_file <- file.path(workdir, "snps_in_ld_file.tsv")
 
-# --- get just SNPs present in all traits AND ld ref files ---
-print('filtering universal_snps.txt to only those found in ld ref files')
+# --- get ld ref across chromsomes ---
+concat_ld_ref <- build_concat_ld_ref(ld_files = ld_files,
+	                             snps_in_ref_file = snps_in_ref_file,
+				     delim="\t")
 
-# All lines from ld_file.tsv where the second column matches a value in the first column of snps_pass_all_filts.txt.
-# write header to output
-#system(sprintf("echo -e 'snp\tl2' > %s", shQuote(snps_in_ref_file)))
+concat_status <- system(concat_ld_ref)
+if (concat_status != 0) {
+  stop("Failed to create unsorted reference with header")
+}
 
-# find acceptable mem proportion to use for sort
-#if (ldsc_mem_lim_mb > 3*1024){
-#  mem_for_sort <- floor(0.75 * (ldsc_mem_lim_mb - 3*1024))
-#  print(paste('memory available for sort:',mem_for_sort,'MB'))
-#} else {
-#  stop('ldsc needs > 3 gb of mem, it takes ~3 gb just to run R')
-#}
+print('completed ld ref concatenation')
+curr_ram('after ld fef concatenation')
 
-# make awks, sorts, and joins consistent across users
-Sys.setenv(LC_ALL = "C")
-
-# in this instance I believe it's better to compare all of ld ref to all of trait file rather than breaking up trait file by chrom and comparing to matching ld file
-# if broke up by chrom, could end up writing out lot of tempfiles so can do join w/o holding all keys in mem
-# and end up looping by chr, probably doing all in one awk would be faster
-# so this is all for speed, not mem
-
-# NR > 1 so we do not copy header
-# assuming tab-sep input file
-awk_get_snp_and_l2 <- '
-  BEGIN { OFS = FS }
-  NR == 1 {
-    snp = -1
-    l2 = -1
-
-    for (i = 1; i <= NF; i++) {
-      if ($i == "SNP") snp = i
-      if ($i == "L2")  l2 = i
-    }
-
-    if (snp == -1 || l2 == -1) {
-      print "Missing SNP or L2 column in " file #> "/dev/stderr"
-      exit 1
-    }
-
-    next
-  }
-
-  {
-    print $snp, $l2
-  }
-'
-# this is seeming more complicated.  it is really just removing all instances of a snps that is seen more than once (vs doing unique)
-# don't need to set ofs bc doing print line
-# don't need to sort anymore bc not doing the join/sort approach
-awk_dedup_ld_ref <- '
-  {
-    count[$1]++
-
-    if (count[$1] == 1) {
-      order[++n] = $1
-      line[$1] = $0
-    }
-  }
-
-  END {
-    for (i = 1; i <= n; i++) {
-      snp = order[i]
-      if (count[snp] == 1) {
-        print line[snp]
-      }
-    }
-  }
-'
-  
-concat_ld_ref_files <- sprintf(
-  "{ printf 'snp\\tl2\\n'; for f in %s; do zcat -- \"$f\" | awk -F%s -v file=\"$f\" %s; done | awk -F%s %s; } > %s",
-  paste(shQuote(ld_files), collapse=" "),
-  shQuote("\t"),
-  shQuote(awk_get_snp_and_l2),
-  shQuote("\t"),
-  shQuote(awk_dedup_ld_ref),
-  shQuote(snps_in_ref_file)
-)
-concat_status <- system(concat_ld_ref_files)
-#if (concat_status != 0) {
-#  stop("Failed to create unsorted reference with header")
-#}
-
-# now have to compare each trait to the concat ld ref file
-# this happens w/in harmon_dat function
-
-print('completed ld filtering')
-curr_ram('after ld filtering')
-
-#stop('you told me to stop here')
-
-# other random input setup ---
+# --- other random input setup ---
 # if M is num of variants used to compute ld scores, should be constant?
 M <- purrr:::map(1, function(c){
   read_lines(m_files[c])
