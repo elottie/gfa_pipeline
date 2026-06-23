@@ -22,7 +22,7 @@ ldsc_strip_files <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
 cor_cutoff <- 0.97
 cond_num <- 100
 out <- "../gfa_data/First8SnakemakeTest_collect_R_strips.RDS"
-uncorr_info <- sub("\\.csv$", "_uncorr_traits.csv", gwas_info_file)
+uncorr_info <- file.path(dirname(out), sub("\\.csv$", "_uncorr_traits.csv", gwas_info_file))
 
 gwas_info <- fread(gwas_info_file)
 
@@ -49,101 +49,137 @@ gwas_info <- fread(gwas_info_file)
 
 ldsc_strip_res <- lapply(ldsc_strip_files, readRDS)
 
-# this is just slightly altered version of make_symm_matrix so we don't have to do that and join pieces
 make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatten=TRUE, cor_cutoff=1) {
 
   if (flatten){
     inp_list <- unlist(inp_list, recursive = FALSE, use.names = TRUE)
   }
 
-  # mess it up
-  #print(inp_list)
-  inp_list$block_1_vs_block_1[c(1,2),'intercept'] <- 0.98
-  #inp_list$block_1_vs_block_2[c(3,6,9),'intercept'] <- 0.98
-  #print(inp_list)
+  # 1. Combine all pairwise correlation/intercept results into one table
+  all_pair_table <- rbindlist(lapply(inp_list, function(item) {
+    data.table(
+      trait_1 = as.character(item[[row_name]]),
+      trait_2 = as.character(item[[col_name]]),
+      pair_val = as.numeric(item[[value_name]])
+    )
+  }), fill = TRUE)
 
-  # 0. greedy cor clustering.  if traits a and b have intercept > cor_cutoff, remove b
+  # 2. Extract high-correlation pairs
+  # mess it up
+  print(all_pair_table)
+  all_pair_table[c(2,4),'pair_val'] <- 0.98
+  all_pair_table[c(7,8),'pair_val'] <- -0.98
+  print(all_pair_table)
+  
+  high_pairs <- all_pair_table[
+    !is.na(pair_val) & trait_1 != trait_2 & abs(pair_val) > cor_cutoff,
+    .(
+      # if have C11 and C12, always represent as C11-C12, never C12-C11
+      trait_1 = pmin(trait_1, trait_2),
+      trait_2 = pmax(trait_1, trait_2),
+      pair_val,
+      abs_pair_val = abs(pair_val)
+    )
+  ][
+    # sort rows by descending absolute value.  if dup pairs, keep the row with highest abs_pair_val (though here should be identical)
+    order(-abs_pair_val),
+    .SD[1],
+    by = .(trait_1, trait_2)
+  ] 
+  
+  print(high_pairs)
+
+  # drop traits w/ most corrs first, descend
   drop_traits <- character(0)
 
-  for (item in inp_list) {
-    row_item <- as.character(item[[row_name]])
-    col_item <- as.character(item[[col_name]])
-    pair_val <- as.numeric(item[[value_name]])
+  drop_history <- data.table(
+    step = integer(),
+    trait = character(),
+    n_high_corr = integer(),
+    max_pair_val = numeric(),
+    mean_pair_val = numeric()
+  )
 
-    #print(pair_val)
+  remaining_high_pairs <- copy(high_pairs)
 
-    high_corr <- !is.na(pair_val) & (row_item != col_item) & (pair_val > cor_cutoff)
+  step <- 1L
 
-    if (any(high_corr)) {
-      for (i in which(high_corr)) {
-        high_corr_item_a <- row_item[i]
-        high_corr_item_b <- col_item[i]
+  while (nrow(remaining_high_pairs) > 0) {
 
-        # If neither trait has already been dropped, keep the first trait and drop the second.
-        if (!(high_corr_item_a %in% drop_traits) && !(high_corr_item_b %in% drop_traits)) {
-          drop_traits <- c(drop_traits, high_corr_item_b)
-        }
-      }
-    }
+    # Count high-correlation links among currently remaining traits, updates each iteration of loop
+    cor_counts <- rbind(
+      remaining_high_pairs[, .(trait = trait_1, pair_val)],
+      remaining_high_pairs[, .(trait = trait_2, pair_val)]
+    )[
+      ,
+      .(
+        n_high_corr = .N,
+        max_pair_val = max(pair_val, na.rm = TRUE),
+        mean_pair_val = mean(pair_val, na.rm = TRUE)
+      ),
+      by = trait
+    ][
+      order(-n_high_corr, -mean_pair_val, trait)
+    ]
+
+    # Drop the trait with the most high-correlation links (it goes by mean corr if have same # of links)
+    trait_to_drop <- cor_counts$trait[1]
+
+    drop_traits <- c(drop_traits, trait_to_drop)
+
+    drop_history <- rbind(
+      drop_history,
+      data.table(
+        step = step,
+        trait = trait_to_drop,
+        n_high_corr = cor_counts$n_high_corr[1],
+        max_pair_val = cor_counts$max_pair_val[1],
+        mean_pair_val = cor_counts$mean_pair_val[1]
+      )
+    )
+
+    # Remove all pairs involving the dropped trait
+    remaining_high_pairs <- remaining_high_pairs[
+      trait_1 != trait_to_drop & trait_2 != trait_to_drop
+    ]
+
+    step <- step + 1L
   }
 
   drop_traits <- unique(drop_traits)
 
-  #print(drop_traits)
+  print(drop_history)
+  print(drop_traits)
 
   # Remove all rows involving dropped traits
-  if (length(drop_traits) > 0) {
-    inp_list <- lapply(inp_list, function(item) {
-      keep <- !(
-        as.character(item[[row_name]]) %in% drop_traits |
-          as.character(item[[col_name]]) %in% drop_traits
-      )
+  uncorr_pair_table <- all_pair_table[!(trait_1 %chin% drop_traits | trait_2 %chin% drop_traits)]
 
-      item[keep, , drop = FALSE]
-    })
-
-    # Remove now-empty data.frames
-    inp_list <- inp_list[vapply(inp_list, nrow, integer(1)) > 0]
-  }
-
-  print(inp_list)
-
-  # 1. Get all unique trait names
-  cols <- unique(unlist(
-    lapply(inp_list, function(x) {
-      c(as.character(x[[row_name]]), as.character(x[[col_name]]))
-    }),
-    use.names = FALSE
-  ))
-
-  n_cols <- length(cols)
-
-  # 2. Create lookup: trait name -> matrix index
-  col_index <- seq_len(n_cols)
-  names(col_index) <- cols
+  # 1. Get all kept unique trait names
+  uncorr_traits <- unique(c(uncorr_pair_table$trait_1, uncorr_pair_table$trait_2))
+  n_traits <- length(uncorr_traits)
 
   # 3. Preallocate final matrix once
   out <- matrix(
     NA_real_,
-    nrow = n_cols,
-    ncol = n_cols,
-    dimnames = list(cols, cols)
+    nrow = n_traits,
+    ncol = n_traits,
+    dimnames = list(uncorr_traits, uncorr_traits)
   )
 
-  # 4. Fill matrix
-  for (item in inp_list) {
-    ri <- col_index[as.character(item[[row_name]])]
-    ci <- col_index[as.character(item[[col_name]])]
-    v <- item[[value_name]]
+  # 4. fill matrix
+  i <- match(uncorr_pair_table$trait_1, uncorr_traits)
+  j <- match(uncorr_pair_table$trait_2, uncorr_traits)
 
-    out[cbind(ri, ci)] <- v
-    out[cbind(ci, ri)] <- v
-  }
+  # cbind so it does each i,j pair, not looks for a block
+  out[cbind(i, j)] <- uncorr_pair_table$pair_val
+  out[cbind(j, i)] <- uncorr_pair_table$pair_val
 
- return(out)
+ return(list(symm_mat=out, drop_history=drop_history))
 }
 
-big_ldsc_se <- make_big_symm_matrix(ldsc_strip_res, row_name = "trait1", col_name = "trait2", value_name = "intercept", cor_cutoff=cor_cutoff)
+symm_mat_res <- make_big_symm_matrix(ldsc_strip_res, row_name = "trait1", col_name = "trait2", value_name = "intercept", cor_cutoff=cor_cutoff)
+big_ldsc_se <- symm_mat_res$symm_mat
+drop_traits <- symm_mat_res$drop_history
 print(big_ldsc_se)
 
 # here add projection to positive definite
@@ -159,3 +195,4 @@ gwas_info_uncorr <- gwas_info[name %in% uncorr_traits]
 # --- save outputs ---
 saveRDS(pos_def_se, file=out)
 fwrite(gwas_info_uncorr, uncorr_info)
+fwrite(drop_traits, file.path(dirname(out), sub("\\.csv$", "_dropped_corr_traits.csv", gwas_info_file)))

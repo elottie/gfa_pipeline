@@ -137,7 +137,7 @@ for(s2 in strip_num:(length(strip_list))){
         paste(block1_traits, collapse=", "), "\n")
 
         for (trait in block1_traits) {
-          harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
+          harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE, needs_invalid_snp_rm=TRUE)
           
           if (identical(harmon$snps,rownames(Z_work))){
             Z_work[, trait] <- harmon$Z
@@ -169,7 +169,7 @@ for(s2 in strip_num:(length(strip_list))){
 
         for (j in seq_along(block2_traits)) {
             trait <- block2_traits[j]
-            harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE)
+            harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE, needs_invalid_snp_rm=TRUE)
             
 	    if (identical(harmon$snps,rownames(Z_work))){
               Z_work[, length(block1_traits) + j] <- harmon$Z

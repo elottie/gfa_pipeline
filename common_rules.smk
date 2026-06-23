@@ -38,7 +38,6 @@ def info_input(wcs):
     return prefix_dict[wcs.prefix]
 
 import re
-
 def uncorr_info_input(wcs):
     return re.sub(r"\.csv$", "_uncorr_traits.csv", info_input(wcs))
 
