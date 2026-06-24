@@ -145,7 +145,7 @@ rule final_file:
 # rewrite to accept thsi Z input
 # not expanded because that's if you want one job / output file
 rule gls_loadings_chrom:
-    input: gwas_info = info_input,
+    input: gwas_info = uncorr_info_input,
            snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
            gfa_file = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.final.RDS",
            R = R_input
@@ -154,7 +154,8 @@ rule gls_loadings_chrom:
 
 
 rule R_ldsc_gls:
-    input: Z = expand(out_dir + "{{prefix}}_gls_loadings.{{analysis}}.{chrom}.RDS", chrom = range(1, 23)),
+    input: gwas_info = uncorr_info_input,
+           Z = expand(out_dir + "{{prefix}}_gls_loadings.{{analysis}}.{chrom}.RDS", chrom = range(1, 23)),
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = out_dir + "{prefix}_gls_loadings.{analysis}.Rgcor.RDS"

@@ -3,21 +3,25 @@ library(purrr)
 library(readr)
 library(GFA)
 library(stringr)
+library(data.table)
 
 # also  needs to be edited bc of new z lists
 
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
+gwas_info_file <- snakemake@input[["gwas_info"]]
 z_files = unlist(snakemake@input[["Z"]])
 ld_files <- unlist(snakemake@input[["l2"]])
 m_files <- unlist(snakemake@input[["m"]])
 out <- snakemake@output[["out"]]
 
+gwas_info <- fread(gwas_info_file)
+
 # --- source helpful funcs ---
 # make awks, sorts, and joins consistent across users
 Sys.setenv(LC_ALL = "C")
 
-harmon_helper_path <- "harmon_helpers.R"
-ld_ref_helper_path <- "ld_ref_helpers.R"
+harmon_helper_path <- "R/harmon_helpers.R"
+ld_ref_helper_path <- "R/ld_ref_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(harmon_helper_path)
@@ -67,8 +71,10 @@ l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_fil
 
 for (trait in traits) {
   # don't need return ss, let it default to false
-  # also not currently returning Zs
-  harmon <- harmon_dat(gwas_info, trait, snp_file)
+  # in make_nice_data and estL_gls we do not have need_invalid_snps_rm because the list we pass to harmon_dat is from snp lists:  already rmed invalid snps
+  # here, as in the R step 1, we add need_invalid_snps_rm because the list we are passing in is snps that are in reference file
+  # i.e. w/o removal optino, there are invalid snps that are found in trait (ex. G/C snp), found in ref file, which would be extracted and used in gencor, which we don't want
+  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, need_invalid_snps_rm=TRUE)
 
   # add check that snps are identical to rownames(Z_Hat)
   if (identical(harmon$snps,rownames(Z_hat))){

@@ -44,7 +44,7 @@ chroms <- 1:22
 # --
 m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
 ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
-out <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
+out <- "../gfa_data/First8SnakemakeTest_test_ldsc_results.RDS"
 
 # --- source helpful funcs ---
 # make awks, sorts, and joins consistent across users
@@ -117,6 +117,10 @@ Z_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
 ss_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
                  dimnames = list(snps_in_ref, c(block1_traits, rep("", max_block2_size))))
 
+# need to filter invalid snps:
+# I hope unecessary, like all traits should have same alleles for same snp so always same valid/invalid, but just in case
+snps_pass_all_traits <- rep(TRUE, n_snps)
+
 l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_file)), what="character"))
 #print('l2:')
 #print(head(l2))
@@ -137,11 +141,15 @@ for(s2 in strip_num:(length(strip_list))){
         paste(block1_traits, collapse=", "), "\n")
 
         for (trait in block1_traits) {
+	  # if reading output, will appear to be inflated number of illegal alleles, they are just bc some snps in ref are not in trait (allele=NA)
           harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, return_ss=TRUE, needs_invalid_snp_rm=TRUE)
           
           if (identical(harmon$snps,rownames(Z_work))){
             Z_work[, trait] <- harmon$Z
             ss_work[, trait] <- harmon$ss
+	    snps_pass_trait <- harmon$pass_filt
+	    # update global tracker
+	    snps_pass_all_traits <- snps_pass_all_traits & snps_pass_trait
           } else {
             stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
           }
@@ -176,6 +184,10 @@ for(s2 in strip_num:(length(strip_list))){
               ss_work[, length(block1_traits) + j] <- harmon$ss
               colnames(Z_work)[length(block1_traits) + j] <- trait
               colnames(ss_work)[length(block1_traits) + j] <- trait
+
+	      snps_pass_trait <- harmon$pass_filt
+              # update global tracker
+              snps_pass_all_traits <- snps_pass_all_traits & snps_pass_trait
             } else {
               stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
             }
@@ -221,11 +233,21 @@ for(s2 in strip_num:(length(strip_list))){
     }
     
     # need Zs and sample sizes
+    # subset to valid snps
+    print(head(Z_work))
+    print(dim(ss_work))
+    Z_work <- Z_work[snps_pass_all_traits,]
+    print(head(ss_work))
+    print(dim(ss_work))
+    ss_work <- ss_work[snps_pass_all_traits,]
+
     print('head of Z_work:')
     print(head(Z_work))
+    print(dim(Z_work))
     print(paste('sum of NAs in Z_work:',sum(is.na(Z_work))))
     print('head of ss_work:')
     print(head(ss_work))
+    print(dim(ss_work))
 
     ldsc_result <- R_ldsc(
         Z_hat = Z_work,

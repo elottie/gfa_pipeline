@@ -37,11 +37,9 @@ def info_input(wcs):
     global prefix_dict
     return prefix_dict[wcs.prefix]
 
-import re
 def uncorr_info_input(wcs):
-    return re.sub(r"\.csv$", "_uncorr_traits.csv", info_input(wcs))
+    return data_dir + f"{wcs.prefix}_uncorr_traits.csv"    
 
-# do we need 'raw data input' in this and the following rule?  removed from this rule
 rule sample_size_bounds:
     input: gwas_info = uncorr_info_input
     output: out =  data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
@@ -113,16 +111,6 @@ checkpoint make_ldsc_strip_list:
 #    script: 'R/3_R_none.R'
 
 
-#rule R_ldsc_full:
-#    input: Z = expand(data_dir + "{{prefix}}_zmat.{chrom}.RDS", chrom = range(1, 23)),
-#           gwas_info = info_input,
-#           m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
-#           l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
-#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
-#    params: cond_num = cond_num
-#    wildcard_constraints: pt = r"[\d.]+"
-#    script: "R/3_R_ldsc_all.R"
-
 # we need to ensure strip numbers passed in are from 1:length(strip_list-1).  cuz it will handle the last one (length(strip_list)) interally for free
 rule R_ldsc_strip:
     input: gwas_info = info_input, 
@@ -161,21 +149,3 @@ rule R_ldsc_collect:
     params: cor_cutoff = cor_cutoff,
             cond_num = cond_num
     script: "R/1_R_collect_ldsc_strips.R"
-
-#import json
-#with open(data_dir + f"{wcs.prefix}_ldsc_strip_list.json") as f:
-#    ldsc_strips = json.load(f)
-#nstrips = len(ldsc_strips)
-
-#nstrips=2
-#rule R_ldsc_collect:
-#    input: ldsc_strip_res = expand(data_dir + "{{prefix}}_R_estimate.R_ldsc.{strip_num}.RDS", strip_num = range(1, nstrips))
-#    output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS"
-#    script: "R/collect_ldsc_strips.R"
- 
-
-
-
-
-
-

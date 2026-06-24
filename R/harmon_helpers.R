@@ -80,9 +80,9 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   print(head(filt_trait))
 
   if (needs_invalid_snp_rm){
-    gwas_format(filt_trait,
+    filt_trait <- gwas_format(filt_trait,
 		snp="snp", beta_hat="beta_hat", se="se", A1="A1", A2="A2",
-                chrom="chrom",sample_size="sample_size", allele_freq="allele_freq",compute_pval=FALSE)
+                chrom="chrom",sample_size="sample_size", allele_freq="allele_freq",compute_pval=FALSE, return_og_snps=TRUE)
   } else {
     GFA:::align_beta(filt_trait)
   }
@@ -106,13 +106,15 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   if (return_ss) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
-                ss = filt_trait[["sample_size"]]))
+                ss = filt_trait[["sample_size"]],
+		pass_filt = filt_trait[["pass_filt"]]))
 
   } else if (return_alleles) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
 		ref = filt_trait[["A2"]],
-		alt = filt_trait[["A1"]]))
+		alt = filt_trait[["A1"]],
+		pass_filt = filt_trait[["pass_filt"]]))
   } else {
     return(list(snps = filt_trait[["snp"]],
                 Z = filt_trait[["Z"]]))

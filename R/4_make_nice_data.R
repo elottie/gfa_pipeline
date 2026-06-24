@@ -7,18 +7,18 @@ library(data.table)
 #    output: out = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData"
 #    script: "R/make_nice_data.R"
 
-#gwas_info <- fread(snakemake@input[["gwas_info"]])
-#pruned_snp_list <- unlist(snakemake@input[["pruned_snp_list"]])
-#usage <- snakemake@params[["usage"]]
-#out <- snakemake@output[["out"]]
+gwas_info <- fread(snakemake@input[["gwas_info"]])
+pruned_snp_lists <- unlist(snakemake@input[["pruned_snp_list"]])
+usage <- snakemake@params[["usage"]]
+out <- snakemake@output[["out"]]
 
-gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
-pruned_snp_lists = sprintf("../gfa_data/snp_lists/First8SnakemakeTest_pruned_snps_r20.01_kb1000_pvalue.%d.tsv", 1:22)
-usage = "gfa"
-out = paste0("../gfa_data/First8SnakemakeTest_nice_data_for_",usage,".RData")
+#gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
+#pruned_snp_lists = sprintf("../gfa_data/snp_lists/First8SnakemakeTest_pruned_snps_r20.01_kb1000_pvalue.%d.tsv", 1:22)
+#usage = "gfa"
+#out = paste0("../gfa_data/First8SnakemakeTest_nice_data_for_",usage,".RData")
 
 # --- source helpful funcs ---
-helper_path <- "harmon_helpers.R"
+helper_path <- "R/harmon_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(helper_path)

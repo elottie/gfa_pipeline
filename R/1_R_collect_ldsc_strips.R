@@ -8,21 +8,19 @@ library(data.table)
 #    script: "R/collect_ldsc_strips.R"
 
 # let it be a list
-#gwas_info_file <- snakemake@input[["gwas_info"]]
-#ldsc_strip_files <- snakemake@input[["ldsc_strip_res"]]
-#cor_cutoff <- snakemake@params[["cor_cutoff"]]
-#cond_num <- snakemake@params[["cond_num"]]
-#out <- snakemake@output[["out"]]
-#uncorr_info <- snakemake@output[["uncorr_info"]]
+gwas_info_file <- snakemake@input[["gwas_info"]]
+ldsc_strip_files <- snakemake@input[["ldsc_strip_res"]]
+cor_cutoff <- snakemake@params[["cor_cutoff"]]
+cond_num <- snakemake@params[["cond_num"]]
+out <- snakemake@output[["out"]]
+uncorr_info <- snakemake@output[["uncorr_info"]]
 
-#gwas_info <- fread(gwas_info_file)
-
-gwas_info_file <- "../First8_Mets_ForLDSCStrip.csv"
-ldsc_strip_files <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
-cor_cutoff <- 0.97
-cond_num <- 100
-out <- "../gfa_data/First8SnakemakeTest_collect_R_strips.RDS"
-uncorr_info <- file.path(dirname(out), sub("\\.csv$", "_uncorr_traits.csv", gwas_info_file))
+#gwas_info_file <- "../First8_Mets_ForLDSCStrip.csv"
+#ldsc_strip_files <- "../gfa_data/First8SnakemakeTest_ldsc_results.RDS"
+#cor_cutoff <- 0.97
+#cond_num <- 100
+#out <- "../gfa_data/First8SnakemakeTest_collect_R_strips.RDS"
+#uncorr_info <- file.path(dirname(out), sub("\\.csv$", "_uncorr_traits.csv", gwas_info_file))
 
 gwas_info <- fread(gwas_info_file)
 
@@ -185,6 +183,7 @@ print(big_ldsc_se)
 # here add projection to positive definite
 pos_def_se <- Matrix::nearPD(big_ldsc_se, corr = FALSE, keepDiag = TRUE,
                          posd.tol = 1/cond_num)$mat
+pos_def_se <- as.matrix(pos_def_se)
 print(pos_def_se)
 
 # now we have subset of traits we want to use in later analysis.  the easiest thing to do since later analysis reads gwas_info is to write new gwas_info
@@ -195,4 +194,8 @@ gwas_info_uncorr <- gwas_info[name %in% uncorr_traits]
 # --- save outputs ---
 saveRDS(pos_def_se, file=out)
 fwrite(gwas_info_uncorr, uncorr_info)
-fwrite(drop_traits, file.path(dirname(out), sub("\\.csv$", "_dropped_corr_traits.csv", gwas_info_file)))
+fwrite(drop_traits, sub(
+  "_uncorr_traits\\.csv$",
+  "_dropped_corr_traits.csv",
+  uncorr_info
+))

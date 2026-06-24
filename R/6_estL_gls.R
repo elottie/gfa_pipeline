@@ -25,7 +25,7 @@ nms_r <- colnames(R)
 stopifnot(all(nms_r == gfafit$names))
 
 # --- get Z and ss.  to get Z, need the harmon helper ---
-source("harmon_helpers.R")
+source("R/harmon_helpers.R")
 #source("R/harmon_helpers.R")
 traits <- gwas_info$name
 
