@@ -106,15 +106,13 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   if (return_ss) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
-                ss = filt_trait[["sample_size"]],
-		pass_filt = filt_trait[["pass_filt"]]))
+                ss = filt_trait[["sample_size"]]))
 
   } else if (return_alleles) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
 		ref = filt_trait[["A2"]],
-		alt = filt_trait[["A1"]],
-		pass_filt = filt_trait[["pass_filt"]]))
+		alt = filt_trait[["A1"]]))
   } else {
     return(list(snps = filt_trait[["snp"]],
                 Z = filt_trait[["Z"]]))

@@ -5,8 +5,6 @@ library(GFA)
 library(stringr)
 library(data.table)
 
-# also  needs to be edited bc of new z lists
-
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
 gwas_info_file <- snakemake@input[["gwas_info"]]
 z_files = unlist(snakemake@input[["Z"]])
@@ -74,7 +72,7 @@ for (trait in traits) {
   # in make_nice_data and estL_gls we do not have need_invalid_snps_rm because the list we pass to harmon_dat is from snp lists:  already rmed invalid snps
   # here, as in the R step 1, we add need_invalid_snps_rm because the list we are passing in is snps that are in reference file
   # i.e. w/o removal optino, there are invalid snps that are found in trait (ex. G/C snp), found in ref file, which would be extracted and used in gencor, which we don't want
-  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, need_invalid_snps_rm=TRUE)
+  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, needs_invalid_snp_rm=TRUE)
 
   # add check that snps are identical to rownames(Z_Hat)
   if (identical(harmon$snps,rownames(Z_hat))){
@@ -89,7 +87,7 @@ for (trait in traits) {
 R <- R_ldsc(Z_hat = Z_hat,
             ldscores = l2,
             ld_size = M,
-            N = rep(1, ncol(Z_hat)),
+            N = setNames(rep(1, ncol(Z_hat)), colnames(Z_hat)),
             return_gencov = TRUE,
             make_well_conditioned = FALSE # not needed we only need Rg
 )

@@ -8,7 +8,7 @@
 #   complete data and compute the genetic correlation of the factors.
 
 input:
-        25MetsTest: "C100001554_And_Friends_25Metabolites_New.csv" 
+        First8SnakemakeTest: "First8_Mets_ForLDSCStrip.csv" 
         
         #    test1: "test_data/test_traits1.csv"
         #test2: "test_data/test_traits2.csv"

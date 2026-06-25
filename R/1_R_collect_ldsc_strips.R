@@ -65,9 +65,9 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
   # 2. Extract high-correlation pairs
   # mess it up
   print(all_pair_table)
-  all_pair_table[c(2,4),'pair_val'] <- 0.98
-  all_pair_table[c(7,8),'pair_val'] <- -0.98
-  print(all_pair_table)
+#  all_pair_table[c(2,4),'pair_val'] <- 0.98
+#  all_pair_table[c(7,8),'pair_val'] <- -0.98
+#  print(all_pair_table)
   
   high_pairs <- all_pair_table[
     !is.na(pair_val) & trait_1 != trait_2 & abs(pair_val) > cor_cutoff,

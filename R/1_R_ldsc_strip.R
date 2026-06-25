@@ -25,33 +25,33 @@ library(jsonlite)
 
 
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
-#snp_files <- unlist(snakemake@input[["snp_list"]])
-#gwas_info <- fread(snakemake@input[["gwas_info"]])
-#strip_list <- read_json(snakemake@input[["strip_list"]],simplifyVector=TRUE,simplifyMatrix=FALSE)
-#strip_num <- as.numeric(snakemake@wildcards[["strip_num"]])
-#out <- snakemake@output[["out"]]
-#ld_files <- unlist(snakemake@input[["l2"]])
-#m_files <- unlist(snakemake@input[["m"]])
+snp_files <- unlist(snakemake@input[["snp_list"]])
+gwas_info <- fread(snakemake@input[["gwas_info"]])
+strip_list <- read_json(snakemake@input[["strip_list"]],simplifyVector=TRUE,simplifyMatrix=FALSE)
+strip_num <- as.numeric(snakemake@wildcards[["strip_num"]])
+out <- snakemake@output[["out"]]
+ld_files <- unlist(snakemake@input[["l2"]])
+m_files <- unlist(snakemake@input[["m"]])
 # NEEDS NO MORE L2DIR
 
-snp_files <- sprintf("../gfa_data/snp_lists/First8SnakemakeTest_snps_chr%d.tsv", 1:22)
-gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
-strip_list <- read_json("../gfa_data/First8SnakemakeTest_ldsc_strip_list.json",simplifyVector=TRUE,simplifyMatrix=FALSE)  # list of character vectors
-strip_num <- 1
+#snp_files <- sprintf("../gfa_data/snp_lists/First8SnakemakeTest_snps_chr%d.tsv", 1:22)
+#gwas_info <- fread("../First8_Mets_ForLDSCStrip.csv")
+#strip_list <- read_json("../gfa_data/First8SnakemakeTest_ldsc_strip_list.json",simplifyVector=TRUE,simplifyMatrix=FALSE)  # list of character vectors
+#strip_num <- 1
 # these go away with snakemake input --
-l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
-chroms <- 1:22
+#l2_dir <- "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/"
+#chroms <- 1:22
 # --
-m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
-ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
-out <- "../gfa_data/First8SnakemakeTest_test_ldsc_results.RDS"
+#m_files <- paste0(l2_dir, chroms, ".l2.M_5_50")
+#ld_files <- paste0(l2_dir, chroms, ".l2.ldscore.gz")
+#out <- "../gfa_data/First8SnakemakeTest_test_ldsc_results.RDS"
 
 # --- source helpful funcs ---
 # make awks, sorts, and joins consistent across users
 Sys.setenv(LC_ALL = "C")
 
-harmon_helper_path <- "harmon_helpers.R"
-ld_ref_helper_path <- "ld_ref_helpers.R"
+harmon_helper_path <- "R/harmon_helpers.R"
+ld_ref_helper_path <- "R/ld_ref_helpers.R"
 # eventually need to switch to this
 #helper_path <- "R/harmon_helpers.R"
 source(harmon_helper_path)
@@ -117,10 +117,6 @@ Z_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
 ss_work <- matrix(NA_real_, n_snps, length(block1_traits) + max_block2_size,
                  dimnames = list(snps_in_ref, c(block1_traits, rep("", max_block2_size))))
 
-# need to filter invalid snps:
-# I hope unecessary, like all traits should have same alleles for same snp so always same valid/invalid, but just in case
-snps_pass_all_traits <- rep(TRUE, n_snps)
-
 l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_file)), what="character"))
 #print('l2:')
 #print(head(l2))
@@ -147,9 +143,6 @@ for(s2 in strip_num:(length(strip_list))){
           if (identical(harmon$snps,rownames(Z_work))){
             Z_work[, trait] <- harmon$Z
             ss_work[, trait] <- harmon$ss
-	    snps_pass_trait <- harmon$pass_filt
-	    # update global tracker
-	    snps_pass_all_traits <- snps_pass_all_traits & snps_pass_trait
           } else {
             stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
           }
@@ -184,10 +177,6 @@ for(s2 in strip_num:(length(strip_list))){
               ss_work[, length(block1_traits) + j] <- harmon$ss
               colnames(Z_work)[length(block1_traits) + j] <- trait
               colnames(ss_work)[length(block1_traits) + j] <- trait
-
-	      snps_pass_trait <- harmon$pass_filt
-              # update global tracker
-              snps_pass_all_traits <- snps_pass_all_traits & snps_pass_trait
             } else {
               stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_work matrix')
             }
@@ -233,14 +222,6 @@ for(s2 in strip_num:(length(strip_list))){
     }
     
     # need Zs and sample sizes
-    # subset to valid snps
-    print(head(Z_work))
-    print(dim(ss_work))
-    Z_work <- Z_work[snps_pass_all_traits,]
-    print(head(ss_work))
-    print(dim(ss_work))
-    ss_work <- ss_work[snps_pass_all_traits,]
-
     print('head of Z_work:')
     print(head(Z_work))
     print(dim(Z_work))
