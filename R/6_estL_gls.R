@@ -74,7 +74,8 @@ names(res) <- c(paste0("factor", 1:nf, ".z"), paste0("factor", 1:nf, ".p"))
 # a bit clunky, but chrom, ref, and alt do not change by trait.  so just take the last iteration of them from last harmon object
 snps_dt <- data.table(chrom = harmon$chrom, snp = snps, ref = harmon$ref, alt = harmon$alt)
 res <- bind_cols(snps_dt,res)
-saveRDS(res, file = out)
+#saveRDS(res, file = out)
+fwrite(res,file=out, sep="\t")
 
 # --- delete temp workdir ---
 unlink(workdir, recursive = TRUE, force = TRUE)

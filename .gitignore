@@ -8,6 +8,6 @@
 __pycache__/
 *workdir*
 gfa_data*
-gfa_results/
+gfa_results*
 .snakemake/
 

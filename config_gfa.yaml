@@ -8,10 +8,7 @@
 #   complete data and compute the genetic correlation of the factors.
 
 input:
-        25MetsTest: "C100001554_And_Friends_25Metabolites_New.csv" 
-        
-        #    test1: "test_data/test_traits1.csv"
-        #test2: "test_data/test_traits2.csv"
+        5e5SigHeritMetsTest: "5e5Sig_Heritability_Metabolites.csv" 
 
 analysis:
     # LD pruning options:
@@ -40,7 +37,7 @@ analysis:
       l2_dir: "/nfs/turbo/sph-jvmorr/ld_reference_files/ldsc_reference_files/eur_w_ld_chr/" # list not ok
       cor_cutoff: 0.97
       cond_num: 100
-      ldsc_mem_lim_gb: 4
+      ldsc_mem_lim_gb: 25
     # GFA options:
     #   gfa_params: If "default", will use default parameters, otherwise provide a .RDS file containing a prameter list eg "list(max_iter = 500)".
     #   max_snps: largest number of variants to allow
@@ -64,6 +61,6 @@ out:
     # Output data options:
     # data_dir: Directory to store reformatted data
     # output_dir: Where to store results
-    data_dir: "gfa_data/"
-    output_dir: "gfa_results/"
+    data_dir: "gfa_data_5e5SigHeritMets/"
+    output_dir: "gfa_results_5e5SigHeritMets/"
 

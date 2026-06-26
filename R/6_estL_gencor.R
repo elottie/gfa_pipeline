@@ -6,13 +6,10 @@ library(stringr)
 library(data.table)
 
 # sample size affects genetic covariance and h2 but not intercept or genetic correlation
-gwas_info_file <- snakemake@input[["gwas_info"]]
 z_files = unlist(snakemake@input[["Z"]])
 ld_files <- unlist(snakemake@input[["l2"]])
 m_files <- unlist(snakemake@input[["m"]])
 out <- snakemake@output[["out"]]
-
-gwas_info <- fread(gwas_info_file)
 
 # --- source helpful funcs ---
 # make awks, sorts, and joins consistent across users
@@ -32,7 +29,16 @@ dir.create(workdir, showWarnings = FALSE, recursive = TRUE)
 # temp output file defs
 snps_in_ref_file <- file.path(workdir, "snps_in_ld_file.tsv")
 
+# --- other random input setup ---
+# if M is num of variants used to compute ld scores, should be constant?
+M <- purrr:::map(1, function(c){
+  read_lines(m_files[c])
+}) %>% unlist() %>% as.numeric() %>% sum()
+
 # --- get ld ref across chromsomes ---
+# previously would build ld ref across chr and use that to pull out just the matching snps from trait file
+# but now, we are using snps that came out of gfa, so they are ld-pruned.  so ld-pruned snps << ld ref snps << trait snps
+# so we could just leave the ld-pruned snps, but maybe save a little bit by doing intersection of ld-pruned and ref snps and pulling those out.  so I'll try
 concat_ld_ref <- build_concat_ld_ref(ld_files = ld_files,
                                      snps_in_ref_file = snps_in_ref_file,
                                      delim="\t")
@@ -44,44 +50,89 @@ if (concat_status != 0) {
 
 print('completed ld ref concatenation')
 
-# --- other random input setup ---
-# if M is num of variants used to compute ld scores, should be constant?
-M <- purrr:::map(1, function(c){
-  read_lines(m_files[c])
-}) %>% unlist() %>% as.numeric() %>% sum()
-
-# read in gwas_info for trait names
-traits <- gwas_info$name
-
-# --- get Z and ss.  to get Z, need the harmon helper ---
-# read in the ref snps for rownames
-# I have already deduplicated them
-snps_in_ref <- fread(snps_in_ref_file, header = TRUE, select = 1)[[1]]
-n_snps <- length(snps_in_ref)
-print(n_snps)
-n_traits <- length(traits)
-
-Z_hat <- matrix(NA_real_, n_snps, length(traits),
-		                 dimnames = list(snps_in_ref, traits))
-print(dim(Z_hat))
-
+# --- add the join between the ld-pruned and ld ref snps to reduce the number we pull out ---
+ld_snps <- fread(snps_in_ref_file, header = TRUE, select = 1)[[1]]
+head(ld_snps)
 l2 <- as.numeric(scan(pipe(sprintf("awk 'NR > 1 {print $2}' %s", snps_in_ref_file)), what="character"))
 
-for (trait in traits) {
-  # don't need return ss, let it default to false
-  # in make_nice_data and estL_gls we do not have need_invalid_snps_rm because the list we pass to harmon_dat is from snp lists:  already rmed invalid snps
-  # here, as in the R step 1, we add need_invalid_snps_rm because the list we are passing in is snps that are in reference file
-  # i.e. w/o removal optino, there are invalid snps that are found in trait (ex. G/C snp), found in ref file, which would be extracted and used in gencor, which we don't want
-  harmon <- harmon_dat(gwas_info, trait, snps_in_ref_file, needs_invalid_snp_rm=TRUE)
+# 1. Read headers only from all files
+file_headers <- lapply(z_files, function(f) {
+  names(fread(f, nrows = 0))
+})
 
-  # add check that snps are identical to rownames(Z_Hat)
-  if (identical(harmon$snps,rownames(Z_hat))){
-    Z_hat[, trait] <- harmon$Z
-  } else {
-    stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_hat matrix')
-  }
+# 2. Check all files have exactly the same column names, in the same order
+same_headers <- vapply(
+  file_headers,
+  function(hdr) identical(hdr, file_headers[[1]]),
+  logical(1)
+)
+
+if (!all(same_headers)) {
+  stop(
+    "Not all z_files have the same column names. Problem files: ",
+    paste(basename(z_files[!same_headers]), collapse = ", ")
+  )
 }
 
+# 3. Extract z columns from file 1 only
+z_cols <- file_headers[[1]][endsWith(file_headers[[1]], ".z")]
+
+if (length(z_cols) == 0L) {
+  stop("No columns ending in .z were found in the first file.")
+}
+
+# Preallocate output matrix
+Z_hat <- matrix(
+  NA_real_,
+  nrow = length(ld_snps),
+  ncol = length(z_cols),
+  dimnames = list(ld_snps, str_replace(z_cols, ".z$", ""))
+)
+
+# Fill Z_hat matrix one file at a time
+
+# make sure snps not matched across chr while processing files in loop
+# don't think super necessary
+prev_matched <- rep(FALSE, length(ld_snps))
+
+for (j in seq_along(z_files)) {
+  f <- z_files[[j]]
+
+  z_file_filt <- fread(
+    f,
+    select = c("snp", z_cols)
+  )
+
+  # Direct row alignment. No duplicated SNP handling needed.
+  ld_snp_index <- match(ld_snps, z_file_filt$snp)
+  # keep previously match snps
+  matched <- !is.na(ld_snp_index)
+
+  snp_overlap_across_chr <- matched & prev_matched
+  if (any(snp_overlap_across_chr)) {
+    stop(
+      "Some SNPs were matched in more than one z_file. Problem file: ",
+      basename(f),
+      ". Example SNPs: ",
+      paste(head(ld_snps[snp_overlap_across_chr], 10), collapse = ", ")
+    )
+  }
+
+  for (col_index in seq_along(z_cols)) {
+    col <- z_cols[col_index]
+    Z_hat[matched, col_index] <- z_file_filt[[col]][ld_snp_index[matched]]
+  }
+
+  prev_matched[matched] <- TRUE
+
+  rm(z_file_filt, ld_snp_index)
+  if (j %% 2 == 0) gc()
+}
+
+print(head(Z_hat))
+print(tail(Z_hat))
+print(dim(Z_hat))
+print(sum(is.na(Z_hat)))
 
 # --- obtain genetic correlation ---
 R <- R_ldsc(Z_hat = Z_hat,

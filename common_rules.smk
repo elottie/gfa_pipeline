@@ -54,7 +54,7 @@ rule gather_snps:
     params: af_thresh = af_min,
             is_mvmr = is_mvmr
     wildcard_constraints: chrom = r"\d+"
-    resources: mem_mb = 3000 # could adjust resources
+    resources: mem_mb = 10240 # could adjust resources
             # add is_mvmr to script at some point
     shell: 'bash bash/2_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
 
@@ -67,7 +67,7 @@ rule ld_prune_plink:
     params: ref_path = config["analysis"]["ldprune"]["ref_path"],
             pthresh = pthresh
     wildcard_constraints: chrom = r"\d+"
-    resources: mem_mb = 5000 # could adjust resources
+    resources: mem_mb = 10240 # could adjust resources
     script: 'R/3_ld_prune_chrom.R' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs

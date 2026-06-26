@@ -111,6 +111,7 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   } else if (return_alleles) {
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
+		chrom = filt_trait[["chrom"]],
 		ref = filt_trait[["A2"]],
 		alt = filt_trait[["A1"]]))
   } else {

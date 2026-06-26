@@ -38,8 +38,8 @@ make_trait_sets <- function(
     stop(sprintf("Need at least %d traits; got %d.", min_traits_per_block, ntraits))
   }
 
-  # R needs 2730 MB ish just to exist
-  R_intercept <- 2730 / 1024
+  # R needs MB ish just to exist
+  R_intercept <- 1200 / 1024
 
   mem_for_traits <- memory_limit_gb - R_intercept
   print(paste('mem avail for traits in gb:',mem_for_traits),quote=FALSE)
@@ -51,9 +51,10 @@ make_trait_sets <- function(
   # the size for 2 blocks:  bytes_2_blocks = 2 * bytes_1_block = 32 L T_in_block
   # so max # of traits in a block:  T_in_block = bytes / (32 * L)
 
-  # got this from binary search & lin reg.  this is slope for each additional total trait analyzed at once
-  # add safety factor of 10 
-  traits_slope <- 28.3*10 / 1024
+  # got this from binary search & lin reg, hardcoded.  this is slope for each additional total trait analyzed at once
+  # add safety factor of 2 
+  safety_fac <- 2
+  traits_slope <- 35*safety_fac / 1024
 
   max_traits_per_block <- floor(mem_for_traits / traits_slope)
   print(paste('max traits per block from mem avail for traits:',max_traits_per_block),quote=F)

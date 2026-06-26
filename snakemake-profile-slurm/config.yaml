@@ -21,7 +21,7 @@ latency-wait: 45                        # Wait for file system to catch up after
 keep-going: false                       # Don't stop the workflow on rule failures
 notemp: true                            # Retain temp files
 default-resources:                      # Set these for all rules, unless overridden
-  - mem_mb=2048
-  - runtime=60
+  - mem_mb=10240
+  - runtime=180
   - slurm_account=jvmorr1
   - threads=1 
