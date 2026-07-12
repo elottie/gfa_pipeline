@@ -209,6 +209,6 @@ saveRDS(pos_def_se, file=out)
 fwrite(gwas_info_uncorr, uncorr_info)
 fwrite(drop_traits, sub(
   "_uncorr_traits\\.csv$",
-  "_dropped_corr_traits.csv",
-  uncorr_info
+  "_dropped_corr_traits.tsv",
+  uncorr_info, sep='\t'
 ))
