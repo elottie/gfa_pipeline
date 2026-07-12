@@ -21,8 +21,8 @@ if "none" in config["analysis"]["R"]["type"]:
 
 cor_cutoff = config["analysis"]["R"]["cor_cutoff"]
  
-ldsc_mem_lim_gb = config["analysis"]["R"]["ldsc_mem_lim_gb"]    
-    
+#ldsc_mem_lim_gb = config["analysis"]["R"]["ldsc_mem_lim_gb"]    
+max_traits_per_set = config["analysis"]["R"]["max_traits_per_set"]    
 
 # This produces one data frame per chromosome with columns for snp info
 # and columns <study>.z, <study>.ss for z-score and sample size of each snp
@@ -90,7 +90,7 @@ rule make_nice_data:
 checkpoint make_ldsc_strip_list:
     input: gwas_info = info_input
     output: out = data_dir + "{prefix}_ldsc_strip_list.json"
-    params: mem_limit = ldsc_mem_lim_gb
+    params: max_traits_per_set = max_traits_per_set
     script: "R/1_R_make_ldsc_strip_list.R"
 
 
@@ -118,7 +118,7 @@ rule R_ldsc_strip:
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.strip_{strip_num}.RDS"
-    resources: mem_mb = ldsc_mem_lim_gb*1024 # could adjust resources
+    resources: mem_mb = 10240 # could adjust resources
     script: "R/1_R_ldsc_strip.R"
 
 
@@ -135,11 +135,18 @@ def get_ldsc_strip_res(wcs):
 
     nstrips = len(ldsc_strips)
 
+    if nstrips == 0:
+        raise ValueError(f"No LDSC strips found for prefix {wcs.prefix}")
+
+    # use range bc last strip handled in same job (not its own)
+    strip_nums = [1] if nstrips == 1 else range(1, nstrips)
+
     return expand(
         data_dir + "{prefix}_R_estimate.R_ldsc.strip_{strip_num}.RDS",
         prefix = wcs.prefix,
-        strip_num = range(1, nstrips)
+        strip_num = strip_nums
     )
+
 
 rule R_ldsc_collect:
     input: gwas_info = info_input,

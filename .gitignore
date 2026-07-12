@@ -4,10 +4,12 @@
 *.txt
 *.xlsx
 *.out
+*.err
 # Ignore python compiling
 __pycache__/
 *workdir*
 gfa_data*
 gfa_results*
+herit/
 .snakemake/
 

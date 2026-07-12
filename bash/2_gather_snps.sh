@@ -125,7 +125,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                      read -r header
                      printf '%s\n' "$header"
 
-                     sort -T "$workdir" -S 100M -t $'\t' -k1,1 \
+                     sort -T "$workdir" -S 2048M -t $'\t' -k1,1 \
                      | awk -F"\t" '
                           $1!=curr_SNP && NR>1 { if (count==1) print line }
                           { if ($1!=curr_SNP) { curr_SNP=$1; count=0 } ; count++; line=$0 }

@@ -7,13 +7,18 @@
 #    time: "{resources.runtime}"          # Runtime in minutes
 #    cpus-per-task: "{threads}"           # Parallel threads per job
 
-cluster:
-  sbatch:
-    - "--account={resources.slurm_account}"
-    - "--mem={resources.mem_mb}"
-    - "--time={resources.runtime}"
-    - "--cpus-per-task={threads}"
+#cluster:
+#  sbatch:
+#    - "--account={resources.slurm_account}"
+#    - "--mem={resources.mem_mb}"
+#    - "--time={resources.runtime}"
+#    - "--cpus-per-task={threads}"
+#    - "--job-name=smk.{jobid}.{rule}"
 #    - "--jobname=snakejob.{name}.{jobid}.sh" 
+
+executor: slurm
+
+jobname: "smk.{jobid}.{name}.sh"
 
 jobs: 96                                # Maximum number of parallel jobs
 max-jobs-per-second: 5                  # Limit new job submissions per second (cluster-friendly)
@@ -22,6 +27,6 @@ keep-going: false                       # Don't stop the workflow on rule failur
 notemp: true                            # Retain temp files
 default-resources:                      # Set these for all rules, unless overridden
   - mem_mb=10240
-  - runtime=180
-  - slurm_account=jvmorr1
+  - runtime=1440
+  - slurm_account=jvmorr0
   - threads=1 

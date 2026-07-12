@@ -9,7 +9,7 @@ library(jsonlite)
 #    script: "R/make_ldsc_strip_list_3.R" 
 
 gwas_info <- fread(snakemake@input[["gwas_info"]])
-mem_limit <- as.numeric(snakemake@params[["mem_limit"]])
+max_traits_per_set <- as.numeric(snakemake@params[["max_traits_per_set"]])
 out <- snakemake@output[["out"]]
 
 #gwas_info <- read.csv('../First8_Mets_ForLDSCStrip.csv')
@@ -30,9 +30,9 @@ source('R/ldsc_strip_list_helpers.R')
 #in_gb <- 2915 / 1024
 #in_gb <- 6000 / 1024
 
-sets <- make_trait_sets(gwas_info=gwas_info,memory_limit_gb=mem_limit)
-str(sets)
+sets <- make_trait_sets(gwas_info=gwas_info,max_traits_per_set=max_traits_per_set)
 
+str(sets)
 #sets_short <- list(sets[[1]][1:4])
 #str(sets_short)
 #saveRDS(sets_short,out)

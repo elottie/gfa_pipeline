@@ -110,14 +110,14 @@ for ((i=2; i<=num_traits+1; i++)); do
                         -f bash/remove_invalid_variants.awk \
 		| awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f bash/fill_sample_size.awk \
 		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$6}' \
-		| sort -T "$workdir" -S 200M -t $'\t' -k1,1 \
+		| sort -T "$workdir" -S 2048M -t $'\t' -k1,1 \
                 | awk -F'\t' '
                      $1!=curr_SNP && NR>1 { if (count==1) print line }
                      { if ($1!=curr_SNP) {curr_SNP=$1; count=0} ; count++; line=$0 }
                      END { if (count==1) print line }
                      ' \
 		| awk -F"\t" -v OFS="\t" '$2 ~ /^[0-9.]+$/ {print $2}' \
-		| sort -T "$workdir" -S 200M -n
+		| sort -T "$workdir" -S 2048M -n
 	}
 
         # 1. Sample size statistics for trait summary table

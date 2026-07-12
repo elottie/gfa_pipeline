@@ -1,8 +1,9 @@
 #!/bin/bash
 
-snakemake --profile snakemake-profile-slurm --executor slurm -s Snakefile_gfa
+
+#snakemake --profile snakemake-profile-slurm --executor slurm -s Snakefile_gfa
 #snakemake --profile snakemake-profile-slurm --executor slurm -s Snakefile_gfa --unlock
-#snakemake --profile snakemake-profile-slurm -s Snakefile_gfa
+snakemake --profile snakemake-profile-slurm -s Snakefile_gfa
 
 #snakemake \
 #   -s Snakefile_gfa \

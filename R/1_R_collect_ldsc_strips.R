@@ -95,7 +95,8 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
     trait = character(),
     n_high_corr = integer(),
     max_pair_val = numeric(),
-    mean_pair_val = numeric()
+    mean_pair_val = numeric(),
+    correlated_traits = character()
   )
 
   remaining_high_pairs <- copy(high_pairs)
@@ -104,39 +105,51 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
 
   while (nrow(remaining_high_pairs) > 0) {
 
-    # Count high-correlation links among currently remaining traits, updates each iteration of loop
-    cor_counts <- rbind(
-      remaining_high_pairs[, .(trait = trait_1, pair_val)],
-      remaining_high_pairs[, .(trait = trait_2, pair_val)]
-    )[
+    # Make long table: one row per trait-pair direction
+    cor_edges_long <- rbind(
+      remaining_high_pairs[, .(trait = trait_1, correlated_trait = trait_2, pair_val = pair_val)],
+      remaining_high_pairs[, .(trait = trait_2, correlated_trait = trait_1, pair_val = pair_val)]
+    )
+
+    # Count high-correlation links among currently remaining traits
+    cor_counts <- cor_edges_long[
       ,
       .(
-        n_high_corr = .N,
-        max_pair_val = max(pair_val, na.rm = TRUE),
-        mean_pair_val = mean(pair_val, na.rm = TRUE)
+	n_high_corr = .N,
+	max_pair_val = pair_val[which.max(abs(pair_val))],
+	mean_pair_val = mean(abs(pair_val), na.rm = TRUE),
+	correlated_traits = paste(sort(unique(correlated_trait)), collapse = ", ")
       ),
       by = trait
-    ][
-      order(-n_high_corr, -mean_pair_val, trait)
     ]
 
-    # Drop the trait with the most high-correlation links (it goes by mean corr if have same # of links)
-    trait_to_drop <- cor_counts$trait[1]
 
-    drop_traits <- c(drop_traits, trait_to_drop)
+    # Pick trait to drop:
+    # 1. highest number of high-correlation links
+    # 2. if tied, highest absolute mean correlation
+    # 3. if tied, alphabetical trait name for reproducibility
+    trait_to_drop_row <- cor_counts[
+      order(-n_high_corr, -abs(mean_pair_val), trait)
+    ][1]
 
+    trait_to_drop <- trait_to_drop_row$trait
+
+    # Save history, now including correlated traits
     drop_history <- rbind(
       drop_history,
       data.table(
         step = step,
         trait = trait_to_drop,
-        n_high_corr = cor_counts$n_high_corr[1],
-        max_pair_val = cor_counts$max_pair_val[1],
-        mean_pair_val = cor_counts$mean_pair_val[1]
+        n_high_corr = trait_to_drop_row$n_high_corr,
+        max_pair_val = trait_to_drop_row$max_pair_val,
+        mean_pair_val = trait_to_drop_row$mean_pair_val,
+        correlated_traits = trait_to_drop_row$correlated_traits
       )
     )
 
-    # Remove all pairs involving the dropped trait
+    drop_traits <- c(drop_traits, trait_to_drop)
+
+    # Remove all pairs involving dropped trait
     remaining_high_pairs <- remaining_high_pairs[
       trait_1 != trait_to_drop & trait_2 != trait_to_drop
     ]

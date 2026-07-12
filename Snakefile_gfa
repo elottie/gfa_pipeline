@@ -70,6 +70,8 @@ rule run_gfa:
     params: params_file = config["analysis"]["gfa"]["gfa_params"],
             max_snps = config["analysis"]["gfa"]["max_snps"]
     wildcard_constraints: fs = r"\d+"
+    resources: mem_mb = 20480, # could adjust resources
+               runtime = '2d'
     script: 'R/5_run_gfa.R'
 
 # This step refits if convergence was not reached
