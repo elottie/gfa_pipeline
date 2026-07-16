@@ -90,6 +90,7 @@ curr_ram('after ld fef concatenation')
 M <- purrr:::map(1:22, function(c){
   read_lines(m_files[c])
 }) %>% unlist() %>% as.numeric() %>% sum()
+print(paste('ld size:',M))
 
 # read in gwas_info for trait names
 traits <- gwas_info$name
@@ -204,7 +205,7 @@ for(s2 in strip_num:(length(strip_list))){
             paste(block2_traits, collapse=", "), "\n")
 
             # for ldsc:  add within-block comparisons for block1_traits
-            comp_idx <- which(upper.tri(matrix(TRUE, length(block1_traits), length(block1_traits)), diag = TRUE), arr.ind = TRUE)
+            comp_idx <- which(upper.tri(matrix(TRUE, length(block2_traits), length(block2_traits)), diag = TRUE), arr.ind = TRUE)
             last_comparisons <- data.frame(
               trait1 = block2_traits[comp_idx[, 1]],
               trait2 = block2_traits[comp_idx[, 2]],
@@ -222,6 +223,7 @@ for(s2 in strip_num:(length(strip_list))){
     }
     
     # need Zs and sample sizes
+    print(paste('ld_size:',M))
     print('head of Z_work:')
     print(head(Z_work))
     print(dim(Z_work))

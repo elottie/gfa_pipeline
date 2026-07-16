@@ -45,7 +45,7 @@ make_trait_sets <- function(
 
 #  max_traits_per_block <- floor(mem_for_traits / traits_slope)
 #  print(paste('max traits per block from mem avail for traits:',max_traits_per_block),quote=F)
-  print(paste('max traits per set from user input (>40 results in annoying runtimes):',max_traits_per_set),quote=F)
+  print(paste('max traits per set from user input (>40 results in runtimes >13h):',max_traits_per_set),quote=F)
 
   if (max_traits_per_set < min_traits_per_set) {
     stop(sprintf(

@@ -48,6 +48,13 @@ inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor
                 lds = ld_strings,
                 rs = R_strings)
 
+# for debugging gfa
+#inp = expand(out_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
+#                prefix = prefix_dict.keys(),
+#                gfas = gfa_strings,
+#                lds = ld_strings,
+#                rs = R_strings)
+
 rule all:
     input: inp
 
@@ -62,7 +69,6 @@ def R_input(wcs):
     else:
         return f'{data_dir}{wcs.prefix}_R_estimate.R_{wcs.Rstring}.RDS'
 
-# need to edit gfa to accept input like this
 rule run_gfa:
     input: Z = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData",
            R = R_input
@@ -70,8 +76,8 @@ rule run_gfa:
     params: params_file = config["analysis"]["gfa"]["gfa_params"],
             max_snps = config["analysis"]["gfa"]["max_snps"]
     wildcard_constraints: fs = r"\d+"
-    resources: mem_mb = 20480, # could adjust resources
-               runtime = '2d'
+    resources: mem_mb = 40960, # could adjust. needs 20 GB for 400 traits
+               runtime = '4d' # could adjust. needs 1.5 days for 400 traits
     script: 'R/5_run_gfa.R'
 
 # This step refits if convergence was not reached
@@ -144,8 +150,7 @@ rule final_file:
     params: rds = final_rds
     shell: "mv {params.rds} {output.out_rds}"
 
-# rewrite to accept thsi Z input
-# not expanded because that's if you want one job / output file
+# not expanded because that's if you want one job per output file
 rule gls_loadings_chrom:
     input: gwas_info = uncorr_info_input,
            snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",

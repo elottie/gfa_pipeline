@@ -66,7 +66,7 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
   # mess it up
   print(all_pair_table)
 #  all_pair_table[c(2,4),'pair_val'] <- 0.98
-#  all_pair_table[c(7,8),'pair_val'] <- -0.98
+#  all_pair_table[c(7,8),'pair_val'] <- -0.99
 #  print(all_pair_table)
   
   high_pairs <- all_pair_table[
@@ -94,8 +94,8 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
     step = integer(),
     trait = character(),
     n_high_corr = integer(),
-    max_pair_val = numeric(),
-    mean_pair_val = numeric(),
+    max_abs_pair_val = numeric(),
+    mean_abs_pair_val = numeric(),
     correlated_traits = character()
   )
 
@@ -116,8 +116,8 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
       ,
       .(
 	n_high_corr = .N,
-	max_pair_val = pair_val[which.max(abs(pair_val))],
-	mean_pair_val = mean(abs(pair_val), na.rm = TRUE),
+	max_abs_pair_val = max(abs(pair_val), na.rm = TRUE),
+	mean_abs_pair_val = mean(abs(pair_val), na.rm = TRUE),
 	correlated_traits = paste(sort(unique(correlated_trait)), collapse = ", ")
       ),
       by = trait
@@ -129,7 +129,7 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
     # 2. if tied, highest absolute mean correlation
     # 3. if tied, alphabetical trait name for reproducibility
     trait_to_drop_row <- cor_counts[
-      order(-n_high_corr, -abs(mean_pair_val), trait)
+      order(-n_high_corr, -mean_abs_pair_val, trait)
     ][1]
 
     trait_to_drop <- trait_to_drop_row$trait
@@ -141,8 +141,8 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
         step = step,
         trait = trait_to_drop,
         n_high_corr = trait_to_drop_row$n_high_corr,
-        max_pair_val = trait_to_drop_row$max_pair_val,
-        mean_pair_val = trait_to_drop_row$mean_pair_val,
+        max_abs_pair_val = trait_to_drop_row$max_abs_pair_val,
+        mean_abs_pair_val = trait_to_drop_row$mean_abs_pair_val,
         correlated_traits = trait_to_drop_row$correlated_traits
       )
     )
@@ -191,13 +191,17 @@ make_big_symm_matrix <- function(inp_list, row_name, col_name, value_name, flatt
 symm_mat_res <- make_big_symm_matrix(ldsc_strip_res, row_name = "trait1", col_name = "trait2", value_name = "intercept", cor_cutoff=cor_cutoff)
 big_ldsc_se <- symm_mat_res$symm_mat
 drop_traits <- symm_mat_res$drop_history
-print(big_ldsc_se)
+print('head of se matrix:')
+print(head(big_ldsc_se))
+print('head of dropped traits:')
+print(head(drop_traits))
 
 # here add projection to positive definite
 pos_def_se <- Matrix::nearPD(big_ldsc_se, corr = FALSE, keepDiag = TRUE,
                          posd.tol = 1/cond_num)$mat
 pos_def_se <- as.matrix(pos_def_se)
-print(pos_def_se)
+print('head of pos def se matrix:')
+print(head(pos_def_se))
 
 # now we have subset of traits we want to use in later analysis.  the easiest thing to do since later analysis reads gwas_info is to write new gwas_info
 stopifnot(identical(rownames(big_ldsc_se),colnames(big_ldsc_se)))
@@ -210,5 +214,5 @@ fwrite(gwas_info_uncorr, uncorr_info)
 fwrite(drop_traits, sub(
   "_uncorr_traits\\.csv$",
   "_dropped_corr_traits.tsv",
-  uncorr_info, sep='\t'
-))
+  uncorr_info), sep='\t'
+)

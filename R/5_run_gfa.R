@@ -57,18 +57,30 @@ rownames(R) <- colnames(R) <- NULL
 #N <- apply(SS, 2, median)
 # ---
 
+# BEFORE SINGLETRAIT BRANCH
+#t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
+#                                N = ss,
+#                                R = R,
+#                                params = params 
+#                                #mode = "z-score",
+#                                #method = "fixed_factors"
+#				)
+#		)
+# AFTER SINGLETRAIT BRANCH
+# with single_check = FALSE, and defaults F_init = NULL, fix_F = FALSE, and freeze_F = FALSE, SHOULD act same as above
 t <- system.time(f <- gfa_fit(Z_hat = Z_hat,
                                 N = ss,
                                 R = R,
-                                params = params 
-                                #mode = "z-score",
-                                #method = "fixed_factors"
-				)
-		)
+                                params = params,
+                                single_check = TRUE,
+				F_init = NULL,
+				fix_F = FALSE,
+				freeze_F = FALSE
+                              )
+                )
 
 
 f$snps <- snps
 f$names <- nms_r
 f$time <- t
 saveRDS(f, file=out)
-

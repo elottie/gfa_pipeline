@@ -10,6 +10,5 @@ __pycache__/
 *workdir*
 gfa_data*
 gfa_results*
-herit/
 .snakemake/
 

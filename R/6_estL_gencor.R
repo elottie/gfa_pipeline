@@ -31,7 +31,7 @@ snps_in_ref_file <- file.path(workdir, "snps_in_ld_file.tsv")
 
 # --- other random input setup ---
 # if M is num of variants used to compute ld scores, should be constant?
-M <- purrr:::map(1, function(c){
+M <- purrr:::map(1:22, function(c){
   read_lines(m_files[c])
 }) %>% unlist() %>% as.numeric() %>% sum()
 
