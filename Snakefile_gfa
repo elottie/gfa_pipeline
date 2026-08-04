@@ -42,7 +42,7 @@ include: "common_rules.smk"
 gfa_strings = expand("gfaseed{s}",
                      s = config["analysis"]["gfa"]["gfa_seed"])
 
-inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
+inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldclumped_{lds}.R_{rs}.Rgcor.RDS",
                 prefix = prefix_dict.keys(),
                 gfas = gfa_strings,
                 lds = ld_strings,
@@ -65,14 +65,14 @@ rule all:
 def R_input(wcs):
     global data_dir
     if wcs.Rstring.startswith("pt"):
-        return f'{data_dir}{wcs.prefix}_R_estimate.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.RDS'
+        return f'{data_dir}{wcs.prefix}_R_estimate.ldclumped_{wcs.ldstring}.R_{wcs.Rstring}.RDS'
     else:
         return f'{data_dir}{wcs.prefix}_R_estimate.R_{wcs.Rstring}.RDS'
 
 rule run_gfa:
-    input: Z = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData",
+    input: Z = data_dir + "{prefix}_ldclumped_{ldstring}_nice_data_for_gfa.RData",
            R = R_input
-    output:  out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.1.RDS",
+    output:  out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.1.RDS",
     params: params_file = config["analysis"]["gfa"]["gfa_params"],
             max_snps = config["analysis"]["gfa"]["max_snps"]
     wildcard_constraints: fs = r"\d+"
@@ -84,11 +84,11 @@ rule run_gfa:
 def refit_input(wcs):
     n = int(wcs.n)
     oldn = str(n-1)
-    return f'{out_dir}{wcs.prefix}_gfa_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.{oldn}.RDS'
+    return f'{out_dir}{wcs.prefix}_gfa_gfaseed{wcs.fs}.ldclumped_{wcs.ldstring}.R_{wcs.Rstring}.{oldn}.RDS'
 
 rule refit_gfa:
     input:  inp = refit_input
-    output: out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS",
+    output: out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.{n}.RDS",
     params: params_file = config["analysis"]["gfa"]["gfa_params"]
     wildcard_constraints: n = r"\d+"
     script: 'R/5_refit_gfa.R'
@@ -101,12 +101,12 @@ def next_input(wcs):
     global max_gfa_tries
     global out_dir
 
-    check_prefix = f'{wcs.prefix}_check_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.'
+    check_prefix = f'{wcs.prefix}_check_gfaseed{wcs.fs}.ldclumped_{wcs.ldstring}.R_{wcs.Rstring}.'
     check_files = [y for y in os.listdir(out_dir) if y.startswith(check_prefix) ]
     n_tries = len(check_files) + 1
 
-    success_file = f'{out_dir}{wcs.prefix}_success_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
-    fail_file = f'{out_dir}{wcs.prefix}_fail_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
+    success_file = f'{out_dir}{wcs.prefix}_success_gfaseed{wcs.fs}.ldclumped_{wcs.ldstring}.R_{wcs.Rstring}.txt'
+    fail_file = f'{out_dir}{wcs.prefix}_fail_gfaseed{wcs.fs}.ldclumped_{wcs.ldstring}.R_{wcs.Rstring}.txt'
     if os.path.exists(success_file):
       print(success_file)
       return success_file
@@ -127,21 +127,21 @@ def final_rds(wcs):
     return final_gfa_file
 
 checkpoint check_success:
-    input: out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS"
-    output: out_check = out_dir + "{prefix}_check_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.txt"
-    params: success_file = out_dir + '{prefix}_success_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
+    input: out_dir + "{prefix}_gfa_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.{n}.RDS"
+    output: out_check = out_dir + "{prefix}_check_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.{n}.txt"
+    params: success_file = out_dir + '{prefix}_success_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.txt'
     wildcard_constraints: n = r"\d+"
     script: "R/5_check_gfa.R"
 
 rule fail:
-    output: out_dir + '{prefix}_fail_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
+    output: out_dir + '{prefix}_fail_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.txt'
     wildcard_constraints:  n = r"\d+"
     params: max_tries = max_gfa_tries
     shell: "echo  Model not converged after {params.max_tries} rounds of {maxiter} iterations. > {output} "
 
 rule status:
     input:  next_input
-    output: out = out_dir + "{prefix}_status_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt",
+    output: out = out_dir + "{prefix}_status_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.txt",
     shell: "cp {input} {output.out}"
 
 rule final_file:
@@ -154,9 +154,9 @@ rule final_file:
 rule gls_loadings_chrom:
     input: gwas_info = uncorr_info_input,
            snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
-           gfa_file = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.final.RDS",
+           gfa_file = out_dir + "{prefix}_gfa_gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.final.RDS",
            R = R_input
-    output: out = out_dir + "{prefix}_gls_loadings.gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{chrom}.tsv"
+    output: out = out_dir + "{prefix}_gls_loadings.gfaseed{fs}.ldclumped_{ldstring}.R_{Rstring}.{chrom}.tsv"
     script: "R/6_estL_gls.R"
 
 

@@ -11,4 +11,4 @@ __pycache__/
 gfa_data*
 gfa_results*
 .snakemake/
-
+logs/

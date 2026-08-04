@@ -2,6 +2,12 @@
 
 executor: slurm
 
+# keep SLURM stdout/stderr logs even for successful jobs. for looking at GFA
+slurm-keep-successful-logs: true
+
+# optional: put SLURM logs somewhere more visible than .snakemake/slurm_logs
+slurm-logdir: logs/slurm
+
 # while monitoring your jobs, you may wonder how to make the JobName in sacct not a random string but the rule name
 # no real way.  snakemake authors have instead added rule name as Comment field to sacct
 # Comment does not show in default sacct call.  so, call sacct in an informative way like so:
@@ -13,7 +19,7 @@ latency-wait: 45                        # Wait for file system to catch up after
 keep-going: false                       # Stop the workflow on rule failures
 notemp: true                            # Retain temp files
 default-resources:                      # Set these for all rules, unless overridden
-  - mem_mb=10240
+  - mem_mb=20480
   - runtime=1440
   - slurm_account=jvmorr0
   - threads=1 

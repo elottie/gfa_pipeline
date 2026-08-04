@@ -60,22 +60,34 @@ rule gather_snps:
 
 
 # LD prune with plink
-pthresh = 1 # jean change later or remove
-rule ld_prune_plink:
-    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv"
-    output: out = data_dir + "snp_lists/" + "{prefix}_pruned_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
-    params: ref_path = config["analysis"]["ldprune"]["ref_path"],
-            pthresh = pthresh
+#pthresh = 1 # jean change later or remove
+#rule ld_prune_plink:
+#    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv"
+#    output: out = data_dir + "snp_lists/" + "{prefix}_pruned_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
+#    params: ref_path = config["analysis"]["ldprune"]["ref_path"],
+#            pthresh = pthresh
+#    wildcard_constraints: chrom = r"\d+"
+#    resources: mem_mb = 10240 # could adjust resources
+#    script: 'R/3_ld_prune_chrom.R' # to update
+
+# what do we do with pthresh?
+# get rid of kept and removed
+rule ld_clump:
+    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
+           bcor_file = config["analysis"]["ldprune"]["ref_path"] + "FG_LD_chr{chrom}.bcor" 
+    output: kept = data_dir + "snp_lists/" + "{prefix}_kept_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
+            removed = data_dir + "snp_lists/" + "{prefix}_rm_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
+            clumped_snp_list = data_dir + "snp_lists/" + "{prefix}_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
     wildcard_constraints: chrom = r"\d+"
     resources: mem_mb = 10240 # could adjust resources
-    script: 'R/3_ld_prune_chrom.R' # to update
+    script: 'python/3_ld_clump_chrom.py' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
 rule make_nice_data:
     input: gwas_info = uncorr_info_input,
-           pruned_snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_pruned_snps_{{ldstring}}.{chrom}.tsv", chrom = range(1, 23))
+           clumped_snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_clumped_snps_{{ldstring}}.{chrom}.tsv", chrom = range(1, 23))
     params: usage = "gfa"  # would be MR for those which want beta & se
-    output: out = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData"
+    output: out = data_dir + "{prefix}_ldclumped_{ldstring}_nice_data_for_gfa.RData"
     script: "R/4_make_nice_data.R"
 
 
