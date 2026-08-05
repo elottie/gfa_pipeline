@@ -55,6 +55,7 @@ col_A1=$(get_col "A1")
 col_A2=$(get_col "A2")
 col_beta_hat=$(get_col "beta_hat")
 col_se=$(get_col "se")
+col_pos=$(get_col "pos")
 col_af=$(get_col "allele_freq")
 col_sample_size=$(get_col "sample_size")
 col_pub_sample_size=$(get_col "pub_sample_size")
@@ -82,6 +83,7 @@ for ((i=2; i<=num_traits+1; i++)); do
     A2=$(awk -F, -v row="$i" -v col="$col_A2" 'NR==row {print $col}' "$gwas_info_file")
     beta_hat=$(awk -F, -v row="$i" -v col="$col_beta_hat" 'NR==row {print $col}' "$gwas_info_file")
     se=$(awk -F, -v row="$i" -v col="$col_se" 'NR==row {print $col}' "$gwas_info_file")
+    pos=$(awk -F, -v row="$i" -v col="$col_pos" 'NR==row {print $col}' "$gwas_info_file")
     af=$(awk -F, -v row="$i" -v col="$col_af" 'NR==row {print $col}' "$gwas_info_file")
     sample_size=$(awk -F, -v row="$i" -v col="$col_sample_size" 'NR==row {print $col}' "$gwas_info_file")
 #    effect_or=$(awk -F, -v row="$i" -v col="$col_effect_is_or" 'NR==row {print tolower($col)}' "$gwas_info_file")
@@ -94,6 +96,7 @@ for ((i=2; i<=num_traits+1; i++)); do
 
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
         echo "Error:  haven't written vcf handling for 0_get_ss_bounds.sh"
+        exit 1
     #    echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
     #    format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
 
@@ -105,11 +108,11 @@ for ((i=2; i<=num_traits+1; i++)); do
             zcat "$f" |
                 awk -F"$delimiter" -v OFS="\t" \
                         -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
-                        -v beta_name="$beta_hat" -v se_name="$se" \
+                        -v beta_name="$beta_hat" -v se_name="$se" -v pos_name="$pos" \
                         -v ss_name="$sample_size" -v af_name="$af" \
                         -f bash/remove_invalid_variants.awk \
 		| awk -v ss_name="$sample_size" -v pub_ss_val="$pub_sample_size" -f bash/fill_sample_size.awk \
-		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$6}' \
+		| awk -F"\t" -v OFS="\t" 'NR>1 {print $1,$7}' \
 		| sort -T "$workdir" -S 2048M -t $'\t' -k1,1 \
                 | awk -F'\t' '
                      $1!=curr_SNP && NR>1 { if (count==1) print line }

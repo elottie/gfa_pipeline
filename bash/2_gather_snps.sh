@@ -62,6 +62,7 @@ col_A1=$(get_col "A1")
 col_A2=$(get_col "A2")
 col_beta_hat=$(get_col "beta_hat")
 col_se=$(get_col "se")
+col_pos=$(get_col "pos")
 col_af=$(get_col "allele_freq")
 col_sample_size=$(get_col "sample_size")
 col_pub_sample_size=$(get_col "pub_sample_size")
@@ -88,6 +89,7 @@ for ((i=2; i<=num_traits+1; i++)); do
     A2=$(awk -F, -v row="$i" -v col="$col_A2" 'NR==row {print $col}' "$gwas_info_file")
     beta_hat=$(awk -F, -v row="$i" -v col="$col_beta_hat" 'NR==row {print $col}' "$gwas_info_file")
     se=$(awk -F, -v row="$i" -v col="$col_se" 'NR==row {print $col}' "$gwas_info_file")
+    pos=$(awk -F, -v row="$i" -v col="$col_pos" 'NR==row {print $col}' "$gwas_info_file")
     af=$(awk -F, -v row="$i" -v col="$col_af" 'NR==row {print $col}' "$gwas_info_file")
     sample_size=$(awk -F, -v row="$i" -v col="$col_sample_size" 'NR==row {print $col}' "$gwas_info_file")
     effect_or=$(awk -F, -v row="$i" -v col="$col_effect_is_or" 'NR==row {print tolower($col)}' "$gwas_info_file")
@@ -99,13 +101,13 @@ for ((i=2; i<=num_traits+1; i++)); do
     #trait_out="$workdir/${trait_name}.final.tsv"
     if [[ "$f" == *.vcf.gz || "$f" == *.vcf.bgz ]]; then
         echo "Error:  haven't written the vcf handling part of 1_gather_snps.sh"
+	exit 1
     #    echo "Calling format_ieu_chrom (external): $f $chrom $af_thresh"
     #    format_ieu_chrom "$f" "$chrom" "$af_thresh" > "$trait_out"
     else
         echo "maxrss before using make_filt_data"
         memsnap
 
-        # eventually need to add handling for what if beta is OR, and what if no ss column (copy from pub ss)
         make_filt_data() {
             zcat "$f" |
                 awk -F"$delimiter" -v OFS="\t" -v chr_header="$chrn" -v chrom_val="$chrom" '
@@ -118,7 +120,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                     $chr_idx == chrom_val
                     ' \
                 | awk -v snp_name="$snp" -v A1_name="$A1" -v A2_name="$A2" \
-                    -v beta_name="$beta_hat" -v se_name="$se" \
+                    -v beta_name="$beta_hat" -v se_name="$se" -v pos_name="$pos" \
                     -v ss_name="$sample_size" -v af_name="$af" \
                     -f bash/remove_invalid_variants.awk \
                 | {
@@ -139,6 +141,7 @@ for ((i=2; i<=num_traits+1; i++)); do
 
         echo "$effect_or"
 
+	#echo "make_filt_data head:"
         #make_filt_data | head
 
         #make_filt_data > tmp.txt
@@ -162,12 +165,16 @@ for ((i=2; i<=num_traits+1; i++)); do
         # 2. Common SNPs and min MAF intersection/update
         if ((i == 2)); then
             make_filt_data | \
-            awk -F"\t" -v snp_col="$snp" -v af_col="$af" -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '
+            awk -F"\t" -v snp_col="$snp" -v pos_col="$pos" -v A1_col="$A1" -v A2_col="$A2" -v af_col="$af" \
+	      -v ss_col="$sample_size" -v z_col="Z" -v low="$low" -v high="$high" '
                 BEGIN { OFS="\t" }
                 NR==1 {
                     for (i=1; i<=NF; i++) {
                         if ($i == snp_col) snp_idx = i
-                        if ($i == af_col) af_idx = i
+			if ($i == pos_col) pos_idx = i
+			if ($i == A1_col) A1_idx = i
+			if ($i == A2_col) A2_idx = i
+			if ($i == af_col) af_idx = i
                         if ($i == ss_col) ss_idx = i
                         if ($i == z_col) z_idx = i
                     }
@@ -180,7 +187,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                     # absolute the z
                     z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
                     if (z != "NA" && z < 0) z = -z
-                    print $snp_idx, maf, z, ss_flag
+		    print $snp_idx, ($pos_idx+0), $A2_idx, $A1_idx, maf, z, ss_flag
                 }
             ' > "$shared_snps_and_maf"
             echo "after making first shared snp table"
@@ -191,15 +198,17 @@ for ((i=2; i<=num_traits+1; i++)); do
             #trait_keyed="$(mktemp)"
             #trait_sorted="$(mktemp)"
 
-            # process sub extract SNP, AF, SS, |Z| from this trait (header-aware), headerless output
+            # process sub extract SNP, POS, AF, SS, |Z| from this trait (header-aware), headerless output
                                         
             # INNER JOIN shared (SNP prior_maf prior_z ss_flag) with trait (SNP af ss zabs)
             # Only SNPs present in BOTH will be output => intersection across traits
 
             # make_filt_data is already sorted
 
+            # going to trust that the first file has correct positions, preserve them throughout the join
+
             join -t $'\t' -1 1 -2 1 \
-                -o 1.1,1.2,1.3,1.4,2.2,2.3,2.4 \
+                -o 1.1,1.2,1.3,1.4,1.5,1.6,1.7,2.2,2.3,2.4 \
                 "$shared_snps_and_maf" \
                 <(
                   make_filt_data |
@@ -207,7 +216,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                         NR==1{
                             for(i=1;i<=NF;i++){
                                 if($i==snp_col) snp_idx=i
-                                if($i==af_col)  af_idx=i
+				if($i==af_col)  af_idx=i
                                 if($i==ss_col)  ss_idx=i
                                 if($i==z_col)   z_idx=i
                             }
@@ -216,19 +225,22 @@ for ((i=2; i<=num_traits+1; i++)); do
                         $snp_idx!="" && $af_idx!="" && $af_idx ~ /^[0-9.]+$/ && $af_idx>=0 && $af_idx<=1 && $ss_idx ~ /^[0-9.]+$/{
                         z = (z_idx && $(z_idx)!="") ? ($(z_idx)+0) : "NA"
                         if(z!="NA" && z<0) z=-z
-                        print $snp_idx, ($af_idx+0), ($ss_idx+0), z
+			print $snp_idx, ($af_idx+0), ($ss_idx+0), z
                         }
                     '
                  ) |
             awk -F"\t" -v OFS="\t" -v low="$low" -v high="$high" '
                 {
                     snp=$1
-                    prior_maf=$2+0
-                    prior_z=$3
-                    ss_flag=$4+0
-                    af=$5+0
-                    ss=$6+0
-                    z=$7
+		    pos=$2+0
+		    A2=$3
+		    A1=$4
+                    prior_maf=$5+0
+                    prior_z=$6+0
+                    ss_flag=$7+0
+                    af=$8+0
+                    ss=$9+0
+                    z=$10+0
 
                     # update min_maf using af and 1-af
                     maf2=1-af
@@ -251,7 +263,7 @@ for ((i=2; i<=num_traits+1; i++)); do
                     new_ss_flag=ss_flag
                     if(ss_flag==1 && (ss < low || ss > high)) new_ss_flag=0
 
-                    print snp, min_maf, max_abs_z, new_ss_flag
+                    print snp, pos, A2, A1, min_maf, max_abs_z, new_ss_flag
                 }
             ' > "$shared_snps_and_maf_tmp"
 
@@ -272,11 +284,11 @@ echo "finished trait loop"
 memsnap
 
 # ---
-awk -F"\t" -v af_thresh="$af_thresh" '
-BEGIN { OFS="\t"; print "snp", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
+awk -F"\t" -v chrom="$chrom" -v af_thresh="$af_thresh" '
+BEGIN { OFS="\t"; print "chrom", "snp", "pos", "A2", "A1", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
 {
-    af_flag = ($2 >= af_thresh) ? 1 : 0
-    print $1, $2, $3, $4, af_flag
+    af_flag = ($5 >= af_thresh) ? 1 : 0
+    print chrom, $1, $2, $3, $4, $5, $6, $7, af_flag
 }' "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
 mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
 
@@ -285,7 +297,7 @@ memsnap
 
 # write out a file where only the snps that pass ss and maf filters stay
 final_pass_snps="$out"
-awk -F"\t" 'NR==1 {print $1"\t"$3; next} $4==1 && $5==1 {print $1"\t"$3}' "$shared_snps_and_maf" > "$final_pass_snps"
+awk -F"\t" 'NR==1 {print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$7; next} $8==1 && $9==1 {print $1"\t"$2"\t"$3"\t"$4"\t"$5"\t"$7}' "$shared_snps_and_maf" > "$final_pass_snps"
 #awk -F"\t" 'NR>1 && $4==1 && $5==1 {print $1}' "$shared_snps_and_maf" > "$final_pass_snps"
 
 echo "wrote out passing snps:  found in all traits, pass ss filter, pass maf filter"

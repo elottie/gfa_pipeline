@@ -9,7 +9,7 @@ BEGIN {
     need_A2 = (A2_name == "" ? "A2" : A2_name)
     need_beta = (beta_name == "" ? "beta_hat" : beta_name)
     need_se = (se_name == "" ? "se" : se_name)
-#    need_pos = (pos_name == "" ? "pos" : pos_name)
+    need_pos = (pos_name == "" ? "pos" : pos_name)
 #    need_pval = (pval_name == "" ? "p_value" : pval_name)
     need_ss = (ss_name == "" ? "sample_size" : ss_name)
 #    need_pub_ss = ((pub_ss_val == "" || pub_ss_val == "NA") ? -1 : pub_ss_val)
@@ -28,11 +28,12 @@ NR == 1 {
     if (!(need_A2   in col)) { print "ERROR: missing column " need_A2   > "/dev/stderr"; exit 1 }
     if (!(need_beta in col)) { print "ERROR: missing column " need_beta > "/dev/stderr"; exit 1 }
     if (!(need_se   in col)) { print "ERROR: missing column " need_se   > "/dev/stderr"; exit 1 }
+    if (!(need_pos   in col)) { print "ERROR: missing column " need_pos   > "/dev/stderr"; exit 1 }
     if (!(need_ss   in col)) { print "ERROR: missing column " need_ss   > "/dev/stderr"; exit 1 }
     if (!(need_af   in col)) { print "ERROR: missing column " need_af   > "/dev/stderr"; exit 1 }
 
     # print the *current* header names for just these columns, in your chosen order
-    print $(col[need_snp]), $(col[need_A1]), $(col[need_A2]), $(col[need_beta]), $(col[need_se]), $(col[need_ss]), $(col[need_af])
+    print $(col[need_snp]), $(col[need_pos]), $(col[need_A1]), $(col[need_A2]), $(col[need_beta]), $(col[need_se]), $(col[need_ss]), $(col[need_af])
     next
 }
 
@@ -44,6 +45,7 @@ NR == 1 {
     a2   = toupper($(col[need_A2]))
     beta = $(col[need_beta])
     se   = $(col[need_se])
+    pos   = $(col[need_pos])
     ss   = $(col[need_ss])
     af   = $(col[need_af])
 
@@ -59,6 +61,6 @@ NR == 1 {
     # Remove duplicate SNPs
     # handled outside for lowest rss
 
-    print snp, a1, a2, beta, se, ss, af
+    print snp, pos, a1, a2, beta, se, ss, af
 }
 

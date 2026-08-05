@@ -78,6 +78,7 @@ rule ld_clump:
     output: kept = data_dir + "snp_lists/" + "{prefix}_kept_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
             removed = data_dir + "snp_lists/" + "{prefix}_rm_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
             clumped_snp_list = data_dir + "snp_lists/" + "{prefix}_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
+    params: ldstore_exec = config["analysis"]["ldprune"]["ldstore_exec"]
     wildcard_constraints: chrom = r"\d+"
     resources: mem_mb = 10240 # could adjust resources
     script: 'python/3_ld_clump_chrom.py' # to update

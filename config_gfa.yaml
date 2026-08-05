@@ -23,6 +23,7 @@ analysis:
         ld_prioritization: ["pvalue"] # list ok,  "pvalue" or "rank"
         #ref_path: "/nfs/turbo/sph-jvmorr/ld_reference_files/1kg_plink_hg38/EUR_autosomal" # list not ok
         ref_path: "/nfs/turbo/sph-jvmorr/ld_reference_files/finngen/" # list not ok
+        ldstore_exec: "~/tools/ldstore_v1.1/ldstore_v1.1_x86_64/ldstore"
     # R options:
     # Specifies options for how nuisance correlation is estimated.
     # Type can be either "ldsc", "pt", or "none". LDSC or pt will both work.
