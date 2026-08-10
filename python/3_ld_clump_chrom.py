@@ -39,7 +39,7 @@ def add_snp_id(df):
 
     return df[["snp", "id", "pos", "max_abs_z"]]
 
-def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp):
+def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp, incl_var_file):
     """
     Use LDstore CLI to extract LD for one genomic range.
 
@@ -61,24 +61,49 @@ def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp):
     ) as tmp:
         tmp_file = tmp.name
 
-    # could add incl_variants too?
+    # could add ld-thold?
+    # ARGS MUST BE MATCHING ORDER OF HELP AND IT WONT TELL YOU THAT
     cmd = [
         ldstore_exec,
         "--bcor", str(bcor_file),
-        "--incl-range", f"{start_bp}-{end_bp}",
-        "--table", tmp_file,
+        "--table", str(tmp_file),
+        #"--incl-range", f"{start_bp}-{end_bp}",
+        "--incl-variants", str(incl_var_file),
     ]
+
+
+    with tempfile.NamedTemporaryFile(
+        suffix=".ldstore.tab",
+        delete=False
+    ) as tmp:
+        tmp_file_2 = tmp.name
+
+    #cmd_2 = [
+    #    ldstore_exec,
+    #    "--bcor", str(bcor_file),
+    #    "--incl-range", f"{start_bp}-{end_bp}",
+    #    "--meta", str(tmp_file_2),
+    #    #"--incl-variants", str(incl_var_file),
+    #]
 
     try:
         print("Running LDstore:", " ".join(cmd), flush=True)
 
         result = subprocess.run(
             cmd,
-            check=True,
+            check=False,
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             text=True,
         )
+
+        #result_2 = subprocess.run(
+        #    cmd_2,
+        #    check=False,
+        #    stdout=subprocess.PIPE,
+        #    stderr=subprocess.PIPE,
+        #    text=True,
+        #)
 
         if result.stdout:
             print(result.stdout, flush=True)
@@ -89,9 +114,29 @@ def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp):
         if not os.path.exists(tmp_file) or os.path.getsize(tmp_file) == 0:
             return pd.DataFrame()
 
+#        import shlex
+
+        #if result.returncode != 0:
+        #    raise RuntimeError(
+        #    f"STDOUT:\n{result.stdout}\n\n"
+        #    f"STDERR:\n{result.stderr}"
+        #)
+
+ #       if result_2.returncode != 0:
+ #           raise RuntimeError(
+ #           f"LDstore failed with return code {result.returncode}\n\n"
+ #           f"Command:\n{shlex.join(cmd)}\n\n"
+ #           f"STDOUT:\n{result.stdout}\n\n"
+ #           f"STDERR:\n{result.stderr}"
+ #       )
+
         # LDstore table output is usually whitespace-delimited.
         # If your inspected file is tab-delimited only, sep="\t" is also fine.
         ld_table = pd.read_csv(tmp_file, sep=r"\s+", engine="python")
+        
+        print('Successfully fetched ld_table:')
+
+        print(ld_table.head())
 
     finally:
         if os.path.exists(tmp_file):
@@ -153,6 +198,8 @@ def check_ldstore_ids(
             + "\n\nExample offending rows:\n"
             + examples.to_string(index=True)
         )
+    else:
+        print('No invalid ldstore SNP IDs detected')
 
 def extract_lead_ld(ld_table, lead_id, r2_threshold):
     """
@@ -216,10 +263,13 @@ def extract_lead_ld(ld_table, lead_id, r2_threshold):
         hit["position1"],
     )
 
+    print('Successfully returning lead_ld results:  removed_id, removed_pos, r2')
+
     return hit[["removed_id", "removed_pos", "r2"]].drop_duplicates()
 
 def ld_clump_chr(
     sumstats_chr,
+    incl_var_file,
     bcor_file,
     ldstore_exec,
     r2_threshold,
@@ -327,6 +377,7 @@ def ld_clump_chr(
             bcor_file=bcor_file,
             start_bp=lead_pos - distance_bp,
             end_bp=lead_pos + distance_bp,
+            incl_var_file=incl_var_file,
         )
 
         check_ldstore_ids(ld_table)
@@ -367,7 +418,7 @@ def ld_clump_chr(
                     "lead_pos": lead_pos,
                     "lead_z": lead_z,
                     "removed_snp": removed_snp,
-                    "removed_id": removed_id,
+                    "removed_id": row["removed_id"],
                     "removed_pos": int(row["removed_pos"]),
                     "removed_z": float(row["max_abs_z"]),
                     "r2": float(row["r2"]),
@@ -390,6 +441,7 @@ print("Starting one-chromosome BCOR LD clumping", flush=True)
 # ---------------------------------------------------------------------
 
 sumstats_file = snakemake.input.snp_list
+incl_var_file = snakemake.input.incl_var_file
 bcor_file = snakemake.input.bcor_file
 ldstore_exec = snakemake.params.ldstore_exec
 
@@ -405,6 +457,7 @@ distance_kb = float(snakemake.wildcards.kb)
 
 print(f"Chromosome: {chrom}", flush=True)
 print(f"Summary statistics: {sumstats_file}", flush=True)
+print(f"Included var file for ldstore: {incl_var_file}", flush=True)
 print(f"BCOR file: {bcor_file}", flush=True)
 print(f"LDstore executable file: {ldstore_exec}", flush=True)
 print(f"r2 threshold: {r2_threshold}", flush=True)
@@ -455,9 +508,10 @@ else:
     kept, removed = ld_clump_chr(
         sumstats_chr=sumstats,
         bcor_file=bcor_file,
-        ldstore_exec,
+        ldstore_exec=ldstore_exec,
         r2_threshold=r2_threshold,
         distance_kb=distance_kb,
+        incl_var_file=incl_var_file,
     )
 
     if kept.empty:
