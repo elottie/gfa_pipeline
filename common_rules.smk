@@ -59,43 +59,35 @@ rule gather_snps:
     shell: 'bash bash/2_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
 
 # not at all made to be general
-rule filter_tsv_to_gfa_snps:
-    input:
-        snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
-        gfa_obj = "gfa_results_95CIHeritAndrSterMets/95CIHeritAndrSterMets_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS"
-    output:
-        out = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv"
-    shell:
-        r'''
-        Rscript -e '
-            library(data.table)
-
-            snp_list <- fread("{input.snp_list}")
-            gfa_obj <- readRDS("{input.gfa_obj}")
-
-            if (!"snp" %in% names(snp_list)) {{
-                stop("Input TSV does not contain a column named snp: {input.snp_list}")
-            }}
-
-            keep <- gfa_obj$snps
-
-            if (is.null(keep) || length(keep) == 0) {{
-                stop("gfa_obj$snps is NULL or empty")
-            }}
-
-            out <- snp_list[snp %in% keep]
-
-            fwrite(out, "{output}", sep = "\t")
-        '
-        '''
-
-rule make_ldstore_incl_var_file:
-    input:
-        snp_list = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv"
-    output:
-        out = data_dir + "snp_lists/" + "{prefix}_snps_ldstore_incl_var_format_chr{chrom}.txt"
-    script:
-        'python/3_make_ldstore_incl_var_file.py' 
+#rule filter_tsv_to_gfa_snps:
+#    input:
+#        snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
+#        gfa_obj = "gfa_results_95CIHeritAndrSterMets/95CIHeritAndrSterMets_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS"
+#    output:
+#        out = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv"
+#    shell:
+#        r'''
+#        Rscript -e '
+#            library(data.table)
+#
+#            snp_list <- fread("{input.snp_list}")
+#            gfa_obj <- readRDS("{input.gfa_obj}")
+#
+#            if (!"snp" %in% names(snp_list)) {{
+#                stop("Input TSV does not contain a column named snp: {input.snp_list}")
+#            }}
+#
+#            keep <- gfa_obj$snps
+#
+#            if (is.null(keep) || length(keep) == 0) {{
+#                stop("gfa_obj$snps is NULL or empty")
+#            }}
+#
+#            out <- snp_list[snp %in% keep]
+#
+#            fwrite(out, "{output}", sep = "\t")
+#        '
+#        '''
 
 # LD prune with plink
 #pthresh = 1 # jean change later or remove
@@ -111,15 +103,17 @@ rule make_ldstore_incl_var_file:
 # what do we do with pthresh?
 # get rid of kept and removed
 rule ld_clump:
-    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv",
-           bcor_file = config["analysis"]["ldprune"]["ref_path"] + "FG_LD_chr{chrom}.bcor",
-           incl_var_file = data_dir + "snp_lists/" + "{prefix}_snps_ldstore_incl_var_format_chr{chrom}.txt"  
+    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
+#    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv",
+           bcor_file = config["analysis"]["ldprune"]["ref_path"] + "FG_LD_chr{chrom}.bcor"
     output: kept = data_dir + "snp_lists/" + "{prefix}_kept_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
             removed = data_dir + "snp_lists/" + "{prefix}_rm_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
             clumped_snp_list = data_dir + "snp_lists/" + "{prefix}_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
     params: ldstore_exec = config["analysis"]["ldprune"]["ldstore_exec"]
     wildcard_constraints: chrom = r"\d+"
 #    resources: mem_mb = 10240 # could adjust resources
+    resources: mem_mb = 40960, # could adjust. needs 20 GB for 400 traits
+               runtime = '4d' # could adjust. needs 1.5 days for 400 traits
     script: 'python/3_ld_clump_chrom.py' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs

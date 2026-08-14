@@ -285,10 +285,10 @@ memsnap
 
 # ---
 awk -F"\t" -v chrom="$chrom" -v af_thresh="$af_thresh" '
-BEGIN { OFS="\t"; print "chrom", "snp", "pos", "A2", "A1", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
+BEGIN { OFS="\t"; print "snp", "chrom", "pos", "A2", "A1", "min_maf", "max_abs_z", "in_ss_range_each_trait", "above_min_maf_thresh" }
 {
     af_flag = ($5 >= af_thresh) ? 1 : 0
-    print chrom, $1, $2, $3, $4, $5, $6, $7, af_flag
+    print $1, chrom, $2, $3, $4, $5, $6, $7, af_flag
 }' "$shared_snps_and_maf" > "$shared_snps_and_maf_tmp" &&
 mv "$shared_snps_and_maf_tmp" "$shared_snps_and_maf"
 

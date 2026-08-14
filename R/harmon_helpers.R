@@ -18,16 +18,51 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   full_trait <- gwas_info[name==trait, 'raw_data_path']
   print(paste("... processing trait:", full_trait))
 
+  # read trait, just rows and columns we need
+  dat_cols_sel <- map_gwas_info_cols(gwas_info, trait)
+  trait_snp_col <- dat_cols_sel$snp
+
   # make awks, sorts, and joins consistent across users
   Sys.setenv(LC_ALL = "C")
   # select rows we need.  sort/join would be more efficient but this is not huge for 1.25 mil line refs
-  awk_trait_in_ref <- sprintf(
-    "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || ($1 in snps)' %s -",
-    shQuote(full_trait), shQuote(snps_in_ref_file)
+  # this assumes snps are in first column of full_trait, which is bad and should be FIXED
+  #awk_trait_in_ref <- sprintf(
+  #  "zcat %s | awk 'NR==FNR {snps[$1]=1; next} FNR==1 || ($1 in snps)' %s -",
+  #  shQuote(full_trait), shQuote(snps_in_ref_file)
+  #)
+  # so we fixed it:
+  bash_script <- paste0(
+    "source bash/get_col.sh; ",
+    "delimiter=$(get_file_delimiter \"$1\"); ",
+    "zcat -- \"$1\" | ",
+    "awk -v trait_delim=\"$delimiter\" -v snp_col=\"$2\" '",
+    "BEGIN { FS=OFS=\"\\t\" } ",
+    "NR==FNR { snps[$1]=1; next } ",
+    "FNR==1 { ",
+    "  FS=trait_delim; $0=$0; ",
+    "  for (i=1; i<=NF; i++) { ",
+    "    if ($i==snp_col) { snp_idx=i; break } ",
+    "  } ",
+    "  if (!snp_idx) { ",
+    "    print \"SNP column not found: \" snp_col > \"/dev/stderr\"; ",
+    "    exit 2 ",
+    "  } ",
+    "  $1=$1; print; next ",
+    "} ",
+    "($snp_idx in snps) { $1=$1; print } ",
+    "' \"$3\" -"
   )
-  
+
+  awk_trait_in_ref <- paste(
+    "bash -c",
+    shQuote(bash_script),
+    "_",  # becomes $0 inside bash -c
+    shQuote(full_trait),       # $1
+    shQuote(trait_snp_col),    # $2
+    shQuote(snps_in_ref_file)  # $3
+  )
+ 
   # read trait, just rows and columns we need
-  dat_cols_sel <- map_gwas_info_cols(gwas_info, trait)
   trait_in_ref <- fread(cmd = awk_trait_in_ref, sep = "\t", header = TRUE,
             select = unname(unlist(dat_cols_sel)))  # pick what you need
   setnames(trait_in_ref, old = unname(unlist(dat_cols_sel)), new = names(dat_cols_sel))

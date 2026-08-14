@@ -10,7 +10,7 @@
 input:
         #First400MetsTest: "First_400_Metabolites.csv" 
         #25MetsSingTrtOn: "C100001554_And_Friends_25Metabolites_New.csv"
-        95CIHeritAndrSterFinRef: "95CI_Herit_GREML_PC5Model_22Mets_AndrogenicSteroids.csv"
+        95CIHeritFinRef: "95CI_Herit_GREML_PC5Model_799Mets.csv"
 analysis:
     # LD pruning options:
     # r2_thresh: threshold for pairwise r^2 between variants
@@ -65,6 +65,6 @@ out:
     # Output data options:
     # data_dir: Directory to store reformatted data
     # output_dir: Where to store results
-    data_dir: "gfa_data_95CIHeritAndrSterFinRef/"
-    output_dir: "gfa_results_95CIHeritAndrSterFinRef/"
+    data_dir: "gfa_data_95CIHeritFinRef/"
+    output_dir: "gfa_results_95CIHeritFinRef/"
 

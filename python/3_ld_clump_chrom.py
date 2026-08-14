@@ -1,11 +1,24 @@
 import os
 import subprocess
-import tempfile
 import numpy as np
 import pandas as pd
 import re
 from bisect import bisect_left, bisect_right
 
+# eventually should make tempfiles go to a workdir I create instead of the /tmp location
+from pathlib import Path
+from datetime import datetime
+import random
+import string
+import tempfile
+import shutil
+
+# Create unique workdir
+timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+random_suffix = "".join(random.choices(string.ascii_letters + string.digits, k=6))
+
+workdir = Path(f"3_workdir_{timestamp}_{random_suffix}")
+workdir.mkdir(parents=True, exist_ok=True)
 
 def normalize_chr(x):
     """
@@ -37,9 +50,100 @@ def add_snp_id(df):
         df["A1"].astype(str)
     )
 
-    return df[["snp", "id", "pos", "max_abs_z"]]
+    return df[["chrom", "snp", "id", "pos", "A2", "A1", "max_abs_z"]]
+    #return df[["snp", "id", "pos", "max_abs_z"]]
 
-def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp, incl_var_file):
+def rm_vars_not_in_ref(df):
+    """
+    Use LDstore CLI to extract metadata for chromosome and filter sumstats to those variants.
+
+    Equivalent shell command:
+      ldstore --bcor FILE.bcor --meta META.out
+
+    Returns
+    -------
+    pandas.DataFrame
+        Dataframe filtered to variants produced by LDstore.
+    """
+
+    with tempfile.NamedTemporaryFile(
+        suffix="_meta.txt",
+        delete=False,
+        dir=workdir
+    ) as tmp:
+        tmp_file = tmp.name
+
+    cmd = [
+        ldstore_exec,
+        "--bcor", str(bcor_file),
+        "--meta", str(tmp_file),
+    ]
+
+
+    print("Running LDstore to get metadata:", " ".join(cmd), flush=True)
+
+    result = subprocess.run(
+        cmd,
+        check=True,
+    )
+
+    if not os.path.exists(tmp_file) or os.path.getsize(tmp_file) == 0:
+        return pd.DataFrame()
+
+    # LDstore table output is usually whitespace-delimited.
+    # If your inspected file is tab-delimited only, sep="\t" is also fine.
+    meta_table = pd.read_csv(tmp_file, sep=r"\s+")
+    print('Successfully fetched meta_table:')
+    print(meta_table.head())
+
+    # filter df to just variants that are in metdata of ref
+    var_before_filt = len(df)
+    df = df[df["id"].isin(meta_table["RSID"])]
+    var_after_filt = len(df)
+    print(f"filtered out var not in .bcor metdata, total of {var_before_filt - var_after_filt} variants with {var_after_filt} remaining")
+
+    if os.path.exists(tmp_file):
+        os.remove(tmp_file)
+
+    return df
+
+def make_incl_var_file(df):
+    """
+    Should already have SNP ID column in format:
+    chrCHROM_POS_ALT_REF
+
+    Return variant metadata with format within start_bp:end_bp range:
+    index RSID position chromosome A_allele B_allele A_allele_freq B_allele_freq
+    """
+
+    #The specified file has 5 columns with a header: RSID, position, chromosome, A_allele and B_allele                
+    # the A and B allele thing needs to be checked by users
+    # for finngen, they are swapped (A1, then A2) relative to 'rsids' (A2, then A1) just for fun I guess
+    #head ~/meta_test.out
+    #index RSID position chromosome A_allele B_allele A_allele_freq B_allele_freq
+    #1 chr19_60842_A_G 60842 19 G A 0.0243708609 0.9756291391
+
+    df = df[["id", "pos", "chrom", "A1", "A2"]]
+    df.columns = ['RSID', 'position', 'chromosome', 'A_allele', 'B_allele']
+
+    # Filter rows within the desired base-pair range.  don't need to with window
+    #start_bp = max(0, int(start_bp))
+    #end_bp = int(end_bp)
+    #df = df[(df["pos"] >= start_bp) & (df["pos"] <= end_bp)]
+    
+    with tempfile.NamedTemporaryFile(
+        suffix="_incl_var.txt",
+        delete=False,
+        dir=workdir
+    ) as tmp:
+        incl_var_file = tmp.name
+
+    df.to_csv(incl_var_file, sep=" ", index=False)
+
+    # so we can know where to access the temp file
+    return incl_var_file
+
+def run_ldstore_range(ldstore_exec, bcor_file, incl_var_file, r2_threshold):
     """
     Use LDstore CLI to extract LD for one genomic range.
 
@@ -52,95 +156,47 @@ def run_ldstore_range(ldstore_exec, bcor_file, start_bp, end_bp, incl_var_file):
         Table produced by LDstore.
     """
 
-    start_bp = max(0, int(start_bp))
-    end_bp = int(end_bp)
+    #start_bp = max(0, int(start_bp))
+    #end_bp = int(end_bp)
 
     with tempfile.NamedTemporaryFile(
-        suffix=".ldstore.tab",
-        delete=False
+        suffix="_ld_table.txt",
+        delete=False,
+        dir=workdir
     ) as tmp:
         tmp_file = tmp.name
 
     # could add ld-thold?
-    # ARGS MUST BE MATCHING ORDER OF HELP AND IT WONT TELL YOU THAT
+    # ARGS MUST BE MATCHING ORDER OF HELP AND IT WONT TELL YOU THAT. nor that incl-range and incl-variants cannot be used together
     cmd = [
         ldstore_exec,
         "--bcor", str(bcor_file),
         "--table", str(tmp_file),
         #"--incl-range", f"{start_bp}-{end_bp}",
         "--incl-variants", str(incl_var_file),
+        "--ld-thold", str(np.sqrt(r2_threshold)),
     ]
 
 
-    with tempfile.NamedTemporaryFile(
-        suffix=".ldstore.tab",
-        delete=False
-    ) as tmp:
-        tmp_file_2 = tmp.name
+    print("Running LDstore:", " ".join(cmd), flush=True)
 
-    #cmd_2 = [
-    #    ldstore_exec,
-    #    "--bcor", str(bcor_file),
-    #    "--incl-range", f"{start_bp}-{end_bp}",
-    #    "--meta", str(tmp_file_2),
-    #    #"--incl-variants", str(incl_var_file),
-    #]
+    result = subprocess.run(
+        cmd,
+        check=True,
+    )
 
-    try:
-        print("Running LDstore:", " ".join(cmd), flush=True)
+    if not os.path.exists(tmp_file) or os.path.getsize(tmp_file) == 0:
+        return pd.DataFrame()
 
-        result = subprocess.run(
-            cmd,
-            check=False,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-
-        #result_2 = subprocess.run(
-        #    cmd_2,
-        #    check=False,
-        #    stdout=subprocess.PIPE,
-        #    stderr=subprocess.PIPE,
-        #    text=True,
-        #)
-
-        if result.stdout:
-            print(result.stdout, flush=True)
-
-        if result.stderr:
-            print(result.stderr, flush=True)
-
-        if not os.path.exists(tmp_file) or os.path.getsize(tmp_file) == 0:
-            return pd.DataFrame()
-
-#        import shlex
-
-        #if result.returncode != 0:
-        #    raise RuntimeError(
-        #    f"STDOUT:\n{result.stdout}\n\n"
-        #    f"STDERR:\n{result.stderr}"
-        #)
-
- #       if result_2.returncode != 0:
- #           raise RuntimeError(
- #           f"LDstore failed with return code {result.returncode}\n\n"
- #           f"Command:\n{shlex.join(cmd)}\n\n"
- #           f"STDOUT:\n{result.stdout}\n\n"
- #           f"STDERR:\n{result.stderr}"
- #       )
-
-        # LDstore table output is usually whitespace-delimited.
-        # If your inspected file is tab-delimited only, sep="\t" is also fine.
-        ld_table = pd.read_csv(tmp_file, sep=r"\s+", engine="python")
+    # LDstore table output is usually whitespace-delimited.
+    # If your inspected file is tab-delimited only, sep="\t" is also fine.
+    ld_table = pd.read_csv(tmp_file, sep=r"\s+")
         
-        print('Successfully fetched ld_table:')
+    print('Successfully fetched ld_table:')
+    print(ld_table.head())
 
-        print(ld_table.head())
-
-    finally:
-        if os.path.exists(tmp_file):
-            os.remove(tmp_file)
+    if os.path.exists(tmp_file):
+        os.remove(tmp_file)
 
     return ld_table
 
@@ -226,7 +282,7 @@ def extract_lead_ld(ld_table, lead_id, r2_threshold):
             f"Observed columns: {list(ld_table.columns)}"
         )
 
-    df = ld_table.copy()
+    df = ld_table
 
     df["RSID1"] = df["RSID1"].astype(str)
     df["RSID2"] = df["RSID2"].astype(str)
@@ -242,10 +298,12 @@ def extract_lead_ld(ld_table, lead_id, r2_threshold):
     if hit.empty:
         return pd.DataFrame(columns=["removed_id", "removed_pos", "r2"])
 
+    # I've made this part redundant by using the --ld-thold option in ldstore range. still kept it for peace of mind
     hit["r2"] = hit["correlation"] ** 2
-    hit = hit[hit["r2"] > r2_threshold].copy()
+    hit = hit[hit["r2"] > r2_threshold]
 
     if hit.empty:
+        print(f"lead snp {lead_id} not found in high-ld correlations, returning empty ld df")
         return pd.DataFrame(columns=["removed_id", "removed_pos", "r2"])
 
     # Determine the other SNP and its position.
@@ -269,7 +327,6 @@ def extract_lead_ld(ld_table, lead_id, r2_threshold):
 
 def ld_clump_chr(
     sumstats_chr,
-    incl_var_file,
     bcor_file,
     ldstore_exec,
     r2_threshold,
@@ -303,7 +360,7 @@ def ld_clump_chr(
     print(f"Using LDstore executable: {ldstore_exec}", flush=True)
     print(f"Using BCOR file: {bcor_file}", flush=True)
 
-    dat = sumstats_chr.copy()
+    dat = sumstats_chr
 
     required_cols = {"chrom", "snp", "pos", "A2", "A1", "max_abs_z"}
     missing_cols = required_cols - set(dat.columns)
@@ -317,10 +374,11 @@ def ld_clump_chr(
 
 
     dat = add_snp_id(dat)
+    dat = rm_vars_not_in_ref(dat)
     dat["pos"] = pd.to_numeric(dat["pos"], errors="coerce")
     dat["max_abs_z"] = pd.to_numeric(dat["max_abs_z"], errors="coerce")
 
-    dat = dat.dropna(subset=["snp", "id", "pos", "max_abs_z"])
+    dat = dat.dropna(subset=["chrom", "snp", "id", "pos", "A2", "A1", "max_abs_z"])
     dat["pos"] = dat["pos"].astype(int)
 
     if dat.empty:
@@ -332,8 +390,10 @@ def ld_clump_chr(
     print(f"After cleaning/deduplication: {len(dat)} SNPs", flush=True)
 
     # Position-sorted table for fast local-window lookup.
-    pos_sorted = dat.sort_values("pos").reset_index(drop=True)
-    positions = pos_sorted["pos"].to_numpy()
+    pos_order = np.argsort(dat["pos"].to_numpy())
+    positions = dat["pos"].to_numpy()[pos_order]
+    #pos_sorted = dat.sort_values("pos").reset_index(drop=True)
+    #positions = pos_sorted["pos"].to_numpy()
 
     excluded_snps = set()
     kept_records = []
@@ -361,26 +421,51 @@ def ld_clump_chr(
         # Identify SNPs within +/- distance_bp based on the SNP-list positions.
         left = bisect_left(positions, lead_pos - distance_bp)
         right = bisect_right(positions, lead_pos + distance_bp)
+        print(f'starting position: {lead_pos - distance_bp}')
+        print(f'ending position: {lead_pos + distance_bp}')
 
-        window = pos_sorted.iloc[left:right].copy()
+        window_rows = pos_order[left:right]
+        window = dat.iloc[window_rows]
+        #window = pos_sorted.iloc[left:right].copy()
 
         # Skip SNPs already kept or removed by previous lead SNPs.
         window = window[~window["snp"].isin(excluded_snps)]
 
+        print('head of window:')
+        print(window.head())
+        print('tail of window:')
+        print(window.tail())
+        
+        # window will be empty when all snps have already been excluded (kept or removed)
+        # the current lead snp will be kept since it was marked as kept in the beginning of the loop            
         if window.empty:
             excluded_snps.add(lead_snp)
             continue
+
+        incl_var_file = make_incl_var_file(window)
+        print('head of incl_var_file:')
+        print(pd.read_csv(incl_var_file, sep=r"\s+", nrows=5))
 
         # Extract LD for this lead SNP's local range using LDstore CLI.
         ld_table = run_ldstore_range(
             ldstore_exec=ldstore_exec,
             bcor_file=bcor_file,
-            start_bp=lead_pos - distance_bp,
-            end_bp=lead_pos + distance_bp,
             incl_var_file=incl_var_file,
+            r2_threshold=r2_threshold,
         )
 
+        print('head of ld_table:')
+        print(ld_table.head())
+
+        if ld_table.empty:
+            ld_table = pd.DataFrame(columns=['chromosome', 'index1', 'RSID1', 'position1', 'index2', 'RSID2', 'position2', 'correlation', 'n_samples'])
+            print('head of ld_table after filling:')
+            print(ld_table.head())
+
         check_ldstore_ids(ld_table)
+
+        if os.path.exists(incl_var_file):
+            os.remove(incl_var_file)
 
         # Get SNPs in LD with the lead.
         high_ld = extract_lead_ld(
@@ -389,7 +474,10 @@ def ld_clump_chr(
             r2_threshold=r2_threshold,
         )
 
-        # Restrict removals to SNPs in our current candidate window/list.
+        print('head of high_ld:')
+        print(high_ld.head())
+
+        # map removals to SNPs in our current candidate window/list.
         window_info = window[["snp", "id", "max_abs_z"]].copy()
 
         high_ld = high_ld.merge(
@@ -402,6 +490,7 @@ def ld_clump_chr(
         # Always exclude the lead itself from future consideration.
         excluded_snps.add(lead_snp)
 
+        # if there are no rows of high ld, the snp is kept.  ok to do bc we removed snps not in ref at beginning -- snps w/ no match in ld table must be low ld
         for _, row in high_ld.iterrows():
             removed_snp = row["snp"]
 
@@ -425,7 +514,7 @@ def ld_clump_chr(
                 }
             )
 
-        if len(kept_records) % 1000 == 0:
+        if len(kept_records) % 100 == 0:
             print(f"Kept {len(kept_records)} lead SNPs so far", flush=True)
 
     kept = pd.DataFrame(kept_records)
@@ -441,7 +530,6 @@ print("Starting one-chromosome BCOR LD clumping", flush=True)
 # ---------------------------------------------------------------------
 
 sumstats_file = snakemake.input.snp_list
-incl_var_file = snakemake.input.incl_var_file
 bcor_file = snakemake.input.bcor_file
 ldstore_exec = snakemake.params.ldstore_exec
 
@@ -457,7 +545,6 @@ distance_kb = float(snakemake.wildcards.kb)
 
 print(f"Chromosome: {chrom}", flush=True)
 print(f"Summary statistics: {sumstats_file}", flush=True)
-print(f"Included var file for ldstore: {incl_var_file}", flush=True)
 print(f"BCOR file: {bcor_file}", flush=True)
 print(f"LDstore executable file: {ldstore_exec}", flush=True)
 print(f"r2 threshold: {r2_threshold}", flush=True)
@@ -511,7 +598,6 @@ else:
         ldstore_exec=ldstore_exec,
         r2_threshold=r2_threshold,
         distance_kb=distance_kb,
-        incl_var_file=incl_var_file,
     )
 
     if kept.empty:
@@ -553,4 +639,6 @@ else:
 
 print("One-chromosome BCOR LD clumping complete", flush=True)
 
-stop('you told me to stop here')
+print("deleting workdir now", flush=True)
+if workdir.exists() and workdir.is_dir():
+    shutil.rmtree(workdir)
