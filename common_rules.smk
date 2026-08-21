@@ -113,7 +113,7 @@ rule ld_clump:
     wildcard_constraints: chrom = r"\d+"
 #    resources: mem_mb = 10240 # could adjust resources
     resources: mem_mb = 40960, # could adjust. needs 20 GB for 400 traits
-               runtime = '4d' # could adjust. needs 1.5 days for 400 traits
+               runtime = '2d' # could adjust. needs 1.5 days for 400 traits
     script: 'python/3_ld_clump_chrom.py' # to update
 
 # eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs

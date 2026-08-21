@@ -31,6 +31,10 @@ traits <- gwas_info$name
 
 Z_hat <- matrix(NA_real_, length(snps), length(traits),
                  dimnames = list(snps, traits))
+min_af <- matrix(NA_real_, length(snps), 1,
+                 dimnames = list(snps, 'min_af'))
+max_af <- matrix(NA_real_, length(snps), 1,
+                 dimnames = list(snps, 'max_af'))
 
 print(dim(Z_hat))
 print(length(snps))
@@ -44,6 +48,20 @@ for (trait in traits) {
   # add check that snps are identical to rownames(Z_Hat)
   if (identical(harmon$snps,rownames(Z_hat))){
     Z_hat[, trait] <- harmon$Z
+
+    valid_af <- !is.na(harmon$af)
+
+    min_af[valid_af, "min_af"] <- ifelse(
+      is.na(min_af[valid_af, "min_af"]),
+      harmon$af[valid_af],
+      pmin(min_af[valid_af, "min_af"], harmon$af[valid_af])
+    )
+
+    max_af[valid_af, "max_af"] <- ifelse(
+      is.na(max_af[valid_af, "max_af"]),
+      harmon$af[valid_af],
+      pmax(max_af[valid_af, "max_af"], harmon$af[valid_af])
+    )
   } else {
     stop('rowname snps used in harmon_dat are not the same as rownames of destination Z_hat matrix')
   }
@@ -72,7 +90,7 @@ names(res) <- c(paste0("factor", 1:nf, ".z"), paste0("factor", 1:nf, ".p"))
 
 # here add back chrom, ref, alt
 # a bit clunky, but chrom, ref, and alt do not change by trait.  so just take the last iteration of them from last harmon object
-snps_dt <- data.table(chrom = harmon$chrom, snp = snps, ref = harmon$ref, alt = harmon$alt)
+snps_dt <- data.table(chrom = harmon$chrom, snp = snps, ref = harmon$ref, alt = harmon$alt, min_af = min_af[,"min_af"], max_af=max_af[,"max_af"])
 res <- bind_cols(snps_dt,res)
 #saveRDS(res, file = out)
 fwrite(res,file=out, sep="\t")

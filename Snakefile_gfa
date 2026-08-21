@@ -77,8 +77,13 @@ rule run_gfa:
             max_snps = config["analysis"]["gfa"]["max_snps"]
     wildcard_constraints: fs = r"\d+"
     resources: mem_mb = 40960, # could adjust. needs 20 GB for 400 traits
-               runtime = '4d' # could adjust. needs 1.5 days for 400 traits
-    script: 'R/5_run_gfa.R'
+               runtime = '14d' # could adjust. needs 1.5 days for 400 traits
+    shell:
+        """
+        Rscript R/5_run_gfa.R 2>&1 |
+          awk '{{ print strftime("[%Y-%m-%d %H:%M:%S]"), $0; fflush() }}'
+        """
+#    script: 'R/5_run_gfa.R'
 
 # This step refits if convergence was not reached
 def refit_input(wcs):
