@@ -42,11 +42,46 @@ include: "common_rules.smk"
 gfa_strings = expand("gfaseed{s}",
                      s = config["analysis"]["gfa"]["gfa_seed"])
 
-inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
-                prefix = prefix_dict.keys(),
-                gfas = gfa_strings,
-                lds = ld_strings,
-                rs = R_strings)
+# Existing final outputs
+gls_outputs = expand(
+    out_dir + "{prefix}_gls_loadings.{gfas}.ldclumped_{lds}.R_{rs}.Rgcor.RDS",
+    prefix=prefix_dict.keys(),
+    gfas=gfa_strings,
+    lds=ld_strings,
+    rs=R_strings
+)
+
+gwas_info = pd.read_csv(
+    "test_gwas_info.csv"
+)
+
+traits = gwas_info["name"].unique().tolist()
+
+# New Manhattan-plot outputs
+manhattan_outputs = expand(
+    "plots/{prefix}_{trait}.manhattan.png",
+    prefix=prefix_dict.keys(),
+    trait=traits
+)
+
+peak_outputs = expand(
+    "plots/{prefix}_{trait}.labeled_peaks.tsv",
+    prefix=prefix_dict.keys(),
+    trait=traits
+)
+
+
+rule all:
+    input:
+#        gls_loads=gls_outputs,
+        manhattan=manhattan_outputs,
+        peaks=peak_outputs
+
+#inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
+#                prefix = prefix_dict.keys(),
+#                gfas = gfa_strings,
+#                lds = ld_strings,
+#                rs = R_strings)
 
 # for debugging gfa
 #inp = expand(out_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
@@ -55,8 +90,8 @@ inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor
 #                lds = ld_strings,
 #                rs = R_strings)
 
-rule all:
-    input: inp
+#rule all:
+#    input: inp
 
 #rule all:
 #    input: data_dir + "{prefix}_snps.{chrom}.RDS"
@@ -166,3 +201,19 @@ rule R_ldsc_gls:
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
     output: out = out_dir + "{prefix}_gls_loadings.{analysis}.Rgcor.RDS"
     script: "R/6_estL_gencor.R"
+
+
+rule trait_manhattan_plot:
+    input:
+        gwas_info = "test_gwas_info.csv",
+#        gwas=uncor_info_input,
+        snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23))
+    output:
+        plot = "plots/{prefix}_{trait}.manhattan.png",
+        peaks = "plots/{prefix}_{trait}.labeled_peaks.tsv"
+    params:
+        genome_build = "GRCh38",
+        significance = 7.30103,
+        peak_window = 500000
+    script:
+        "R/7_plot_trait_manhattan.R"
