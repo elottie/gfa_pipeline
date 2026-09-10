@@ -51,31 +51,86 @@ gls_outputs = expand(
     rs=R_strings
 )
 
+analysis_strings = expand(
+    "{gfas}.ldclumped_{lds}.R_{rs}",
+    gfas=gfa_strings,
+    lds=ld_strings,
+    rs=R_strings
+)
+#final_gfa_outputs = expand(
+#    out_dir + "{prefix}_gfa_{analysis}.final.RDS",
+#    prefix=prefix_dict.keys(),
+#    analysis=analysis_strings
+#)
+#
+#gwas_info = pd.read_csv(
+#
+#    "test_gwas_info.csv"
+#
+#    )
+#
+#
+#
+#    traits = gwas_info["name"].unique().tolist()
+#
+#
 gwas_info = pd.read_csv(
-    "test_gwas_info.csv"
+#    "test_gwas_info.csv"
+  "95CI_Herit_GREML_PC5Model_FinRefFac3TopMets.csv"
 )
 
 traits = gwas_info["name"].unique().tolist()
 
+
+import re
+
+prefix_regex = "(?:" + "|".join(
+    re.escape(str(x)) for x in prefix_dict.keys()
+) + ")"
+
+analysis_regex = "(?:" + "|".join(
+    re.escape(str(x)) for x in analysis_strings
+) + ")"
+
+trait_regex = "(?:" + "|".join(
+    re.escape(str(x)) for x in traits
+) + ")"
+
+wildcard_constraints:
+    prefix=prefix_regex,
+    analysis=analysis_regex,
+    trait=trait_regex
+
+#snp_sets = ["snps_used_in_gfa"]
+#snp_sets = ["snps_all", "snps_eligible_for_gfa"]
+snp_sets = ["snps_all", "snps_eligible_for_gfa", "snps_used_in_gfa"]
+
 # New Manhattan-plot outputs
-manhattan_outputs = expand(
-    "plots/{prefix}_{trait}.manhattan.png",
+#out_dir + "downstream_annot/traits/{{prefix}}_{{trait}}_{analysis}_manhattan_plot.png",
+#
+plot_outputs = expand(
+    out_dir + "downstream_annot/traits/{prefix}_{analysis}_{trait}_{snp_set}_manhattan_plot.png",
     prefix=prefix_dict.keys(),
-    trait=traits
+    analysis=analysis_strings,
+    trait=traits,
+    snp_set=snp_sets
 )
 
 peak_outputs = expand(
-    "plots/{prefix}_{trait}.labeled_peaks.tsv",
+    out_dir + "downstream_annot/traits/{prefix}_{analysis}_{trait}_{snp_set}_manhattan_peaks.tsv",
     prefix=prefix_dict.keys(),
-    trait=traits
+    analysis=analysis_strings,
+    trait=traits,
+    snp_set=snp_sets
 )
 
 
 rule all:
     input:
 #        gls_loads=gls_outputs,
-        manhattan=manhattan_outputs,
-        peaks=peak_outputs
+       # final_gfa=final_gfa_outputs,
+        plots = plot_outputs,
+        peaks = peak_outputs
 
 #inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
 #                prefix = prefix_dict.keys(),
@@ -84,7 +139,7 @@ rule all:
 #                rs = R_strings)
 
 # for debugging gfa
-#inp = expand(out_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
+# #inp = expand(out_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
 #                prefix = prefix_dict.keys(),
 #                gfas = gfa_strings,
 #                lds = ld_strings,
@@ -205,15 +260,32 @@ rule R_ldsc_gls:
 
 rule trait_manhattan_plot:
     input:
-        gwas_info = "test_gwas_info.csv",
-#        gwas=uncor_info_input,
-        snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23))
+        #gwas_info = "test_gwas_info.csv",
+        gwas_info = "95CI_Herit_GREML_PC5Model_FinRefFac3TopMets.csv",
+        snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23)),
+        gfa_obj = out_dir + "{prefix}_gfa_{analysis}.final.RDS"
     output:
-        plot = "plots/{prefix}_{trait}.manhattan.png",
-        peaks = "plots/{prefix}_{trait}.labeled_peaks.tsv"
+        plots = expand(out_dir + "downstream_annot/traits/{{prefix}}_{{analysis}}_{{trait}}_{snp_set}_manhattan_plot.png", snp_set=snp_sets),
+        peaks = expand(out_dir + "downstream_annot/traits/{{prefix}}_{{analysis}}_{{trait}}_{snp_set}_manhattan_peaks.tsv", snp_set=snp_sets)
     params:
+        snp_sets = snp_sets,
         genome_build = "GRCh38",
-        significance = 7.30103,
+        sig_thresh_neg_log_10_p = 7.30103,
         peak_window = 500000
     script:
         "R/7_plot_trait_manhattan.R"
+
+#rule trait_manhattan_plot:
+#    input:
+#        gwas_info = "test_gwas_info.csv",
+#        gwas=uncor_info_input,
+#        snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23))
+#    output:
+#        plot = "plots/{prefix}_{trait}.manhattan.png",
+#        peaks = "plots/{prefix}_{trait}.labeled_peaks.tsv"
+#    params:
+#        genome_build = "GRCh38",
+#        significance = 7.30103,
+#        peak_window = 500000
+#    script:
+#        "R/7_plot_trait_manhattan.R"
