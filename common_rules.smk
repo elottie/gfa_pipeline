@@ -1,3 +1,4 @@
+import json
 
 ## LD pruning options
 l2_dir = config["analysis"]["R"]["l2_dir"]
@@ -21,145 +22,38 @@ if "none" in config["analysis"]["R"]["type"]:
 
 cor_cutoff = config["analysis"]["R"]["cor_cutoff"]
  
-#ldsc_mem_lim_gb = config["analysis"]["R"]["ldsc_mem_lim_gb"]    
 max_traits_per_set = config["analysis"]["R"]["max_traits_per_set"]    
 
-# This produces one data frame per chromosome with columns for snp info
-# and columns <study>.z, <study>.ss for z-score and sample size of each snp
-## rule for getting list of raw data files
-#def raw_data_input(wcs):
-#    global prefix_dict
-#    mycsv = prefix_dict[wcs.prefix]
-#    ss = pd.read_csv(mycsv, na_filter=False)
-#    return ss['raw_data_path']
 
+### Define inputs
+
+# use prefix to get the irregularly named gwas dictionary of raw files and associated columns
 def info_input(wcs):
     global prefix_dict
     return prefix_dict[wcs.prefix]
 
+# when we create the file of uncorrelated traits, just use the prefix and make a regularly named file for ease
 def uncorr_info_input(wcs):
     return data_dir + f"{wcs.prefix}_uncorr_traits.csv"    
 
-rule sample_size_bounds:
-    input: gwas_info = uncorr_info_input
-    output: out =  data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
-    params: sample_size_tol = sstol_max    
-    shell:  'bash bash/2_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}'
-
-  
-rule gather_snps:
-    input: gwas_info = uncorr_info_input, 
-           sample_size_file = data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
-    output: out =  data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
-    params: af_thresh = af_min,
-            is_mvmr = is_mvmr
-    wildcard_constraints: chrom = r"\d+"
-    resources: mem_mb = 10240 # could adjust resources
-            # add is_mvmr to script at some point
-    shell: 'bash bash/2_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
-
-# not at all made to be general
-#rule filter_tsv_to_gfa_snps:
-#    input:
-#        snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
-#        gfa_obj = "gfa_results_95CIHeritAndrSterMets/95CIHeritAndrSterMets_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS"
-#    output:
-#        out = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv"
-#    shell:
-#        r'''
-#        Rscript -e '
-#            library(data.table)
-#
-#            snp_list <- fread("{input.snp_list}")
-#            gfa_obj <- readRDS("{input.gfa_obj}")
-#
-#            if (!"snp" %in% names(snp_list)) {{
-#                stop("Input TSV does not contain a column named snp: {input.snp_list}")
-#            }}
-#
-#            keep <- gfa_obj$snps
-#
-#            if (is.null(keep) || length(keep) == 0) {{
-#                stop("gfa_obj$snps is NULL or empty")
-#            }}
-#
-#            out <- snp_list[snp %in% keep]
-#
-#            fwrite(out, "{output}", sep = "\t")
-#        '
-#        '''
-
-# LD prune with plink
-#pthresh = 1 # jean change later or remove
-#rule ld_prune_plink:
-#    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv"
-#    output: out = data_dir + "snp_lists/" + "{prefix}_pruned_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
-#    params: ref_path = config["analysis"]["ldprune"]["ref_path"],
-#            pthresh = pthresh
-#    wildcard_constraints: chrom = r"\d+"
-#    resources: mem_mb = 10240 # could adjust resources
-#    script: 'R/3_ld_prune_chrom.R' # to update
-
-# what do we do with pthresh?
-# get rid of kept and removed
-rule ld_clump:
-    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
-#    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_in_gfa_chr{chrom}.tsv",
-           bcor_file = config["analysis"]["ldprune"]["ref_path"] + "FG_LD_chr{chrom}.bcor"
-    output: kept = data_dir + "snp_lists/" + "{prefix}_kept_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
-            removed = data_dir + "snp_lists/" + "{prefix}_rm_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv",
-            clumped_snp_list = data_dir + "snp_lists/" + "{prefix}_clumped_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
-    params: ldstore_exec = config["analysis"]["ldprune"]["ldstore_exec"]
-    wildcard_constraints: chrom = r"\d+"
-#    resources: mem_mb = 10240 # could adjust resources
-    resources: mem_mb = 40960, # could adjust. needs 20 GB for 400 traits
-               runtime = '2d' # could adjust. needs 1.5 days for 400 traits
-    script: 'python/3_ld_clump_chrom.py' # to update
-
-# eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
-rule make_nice_data:
-    input: gwas_info = uncorr_info_input,
-           clumped_snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_clumped_snps_{{ldstring}}.{chrom}.tsv", chrom = range(1, 23))
-    params: usage = "gfa"  # would be MR for those which want beta & se
-    output: out = data_dir + "{prefix}_ldclumped_{ldstring}_nice_data_for_gfa.RData"
-    script: "R/4_make_nice_data.R"
 
 
-## Estimate R
+### Estimate R
 
 # For p-value threshold and ldsc_quick methods, we can compute R
 # without ever reading in all of the data.
 # For ldsc method, we need to run ldsc for each pair of traits first.
+# This is computationally expensive, so we divide this upper triangular job into strips.
 
-### For strip division
-
+# make ldsc strips
 checkpoint make_ldsc_strip_list:
     input: gwas_info = info_input
     output: out = data_dir + "{prefix}_ldsc_strip_list.json"
     params: max_traits_per_set = max_traits_per_set
     script: "R/1_R_make_ldsc_strip_list.R"
 
-
-####p-value threshold method
-
-#rule pt_R:
-#  input: Z = expand(data_dir + "{{prefix}}_zmat.ldpruned_r2{{r2}}_kb{{kb}}_{{p}}.{chrom}.RDS", chrom = range(1, 23))
-#  output: out = data_dir + "{prefix}_R_estimate.ldpruned_r2{r2}_kb{kb}_{p}.R_pt{pt}.RDS"
-#  params: cond_num = cond_num
-#  wildcard_constraints: pt = r"[\d.]+"
-#  script: "R/3_R_pthresh.R"
-
-
-### None
-#rule none_R:
-#    input: gwas_info = info_input
-#    output: out = data_dir + "{prefix}_R_estimate.R_none.RDS"
-#    script: 'R/3_R_none.R'
-
-
-# we need to ensure strip numbers passed in are from 1:length(strip_list-1).  cuz it will handle the last one (length(strip_list)) interally for free
 rule R_ldsc_strip:
-    input: gwas_info = info_input, 
+    input: gwas_info = info_input,
            strip_list =  data_dir + "{prefix}_ldsc_strip_list.json",
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
@@ -167,11 +61,8 @@ rule R_ldsc_strip:
     resources: mem_mb = 10240 # could adjust resources
     script: "R/1_R_ldsc_strip.R"
 
-
-# have to make this thing because we need to know number of strips from make_ldsc_strip_list (meaning it's a checkpoint)
-# had to make strip list into json rather than rds so it could be read by python here
-import json
-
+# before going any further, we need to know number of strips from make_ldsc_strip_list (need a checkpoint)
+# made strip list into json rather than rds so it could be read by python here
 def get_ldsc_strip_res(wcs):
     ck = checkpoints.make_ldsc_strip_list.get(prefix = wcs.prefix)
     json_file = ck.output.out
@@ -180,7 +71,6 @@ def get_ldsc_strip_res(wcs):
         ldsc_strips = json.load(f)
 
     nstrips = len(ldsc_strips)
-
     if nstrips == 0:
         raise ValueError(f"No LDSC strips found for prefix {wcs.prefix}")
 
@@ -193,12 +83,66 @@ def get_ldsc_strip_res(wcs):
         strip_num = strip_nums
     )
 
-
 rule R_ldsc_collect:
     input: gwas_info = info_input,
            ldsc_strip_res = get_ldsc_strip_res
     output: out = data_dir + "{prefix}_R_estimate.R_ldsc.RDS",
-            uncorr_info = data_dir + "{prefix}_uncorr_traits.csv" 
+            uncorr_info = data_dir + "{prefix}_uncorr_traits.csv"
     params: cor_cutoff = cor_cutoff,
             cond_num = cond_num
     script: "R/1_R_collect_ldsc_strips.R"
+
+# p-value threshold method
+#rule pt_R:
+#  input: Z = expand(data_dir + "{{prefix}}_zmat.ldpruned_r2{{r2}}_kb{{kb}}_{{p}}.{chrom}.RDS", chrom = range(1, 23))
+#  output: out = data_dir + "{prefix}_R_estimate.ldpruned_r2{r2}_kb{kb}_{p}.R_pt{pt}.RDS"
+#  params: cond_num = cond_num
+#  wildcard_constraints: pt = r"[\d.]+"
+#  script: "R/3_R_pthresh.R"
+
+# None
+#rule none_R:
+#    input: gwas_info = info_input
+#    output: out = data_dir + "{prefix}_R_estimate.R_none.RDS"
+#    script: 'R/3_R_none.R'
+
+
+### Get valid snps for later use
+rule sample_size_bounds:
+    input: gwas_info = uncorr_info_input
+    output: out =  data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
+    params: sample_size_tol = sstol_max    
+    shell:  'bash bash/2_get_ss_bounds.sh {input.gwas_info} {params.sample_size_tol} {output.out}'
+
+rule gather_snps:
+    input: gwas_info = uncorr_info_input, 
+           sample_size_file = data_dir + "snp_lists/" + "{prefix}_sample_size_table.tsv"
+    output: out =  data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv" # output is two column file with list of rsids and minimum p-value/max z-score
+    params: af_thresh = af_min,
+            is_mvmr = is_mvmr
+    wildcard_constraints: chrom = r"\d+"
+    resources: mem_mb = 10240 # could adjust resources
+            # add is_mvmr to script at some point
+    shell: 'bash bash/2_gather_snps.sh {wildcards.chrom} {input.gwas_info} {input.sample_size_file} {params.af_thresh} {output.out}' 
+
+
+### Get approx independent SNPs via ld clumping
+pthresh = 1 # jean change later or remove
+rule ld_prune_plink:
+    input: snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv"
+    output: out = data_dir + "snp_lists/" + "{prefix}_pruned_snps_r2{r2}_kb{kb}_{p}.{chrom}.tsv"
+    params: ref_path = config["analysis"]["ldprune"]["ref_path"],
+            pthresh = pthresh
+    wildcard_constraints: chrom = r"\d+"
+    resources: mem_mb = 10240 # could adjust resources
+    script: 'R/3_ld_prune_chrom.R' # to update
+
+
+### Make final data obj for downstream programs
+# eventually needs diff options for non-GFA, ex. "beta" for beta and se for MRs
+rule make_nice_data:
+    input: gwas_info = uncorr_info_input,
+           pruned_snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_pruned_snps_{{ldstring}}.{chrom}.tsv", chrom = range(1, 23))
+    params: usage = "gfa"  # would be MR for those which want beta & se
+    output: out = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData"
+    script: "R/4_make_nice_data.R"
