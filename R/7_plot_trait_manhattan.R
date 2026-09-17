@@ -30,13 +30,13 @@ peak_files <- setNames(
 )
 
 genome_build <- as.character(snakemake@params[["genome_build"]])
-significance_threshold <- as.numeric(snakemake@params[["sig_thresh_neg_log_10_p"]])
+sig_thresh_negLog10p <- as.numeric(snakemake@params[["sig_thresh_negLog10p"]])
 peak_window <- as.numeric(snakemake@params[["peak_window"]])
 
 message("Trait: ", trait)
 message("Analyses to plot: ", paste(unlist(analyses), collapse = ", "))
 message("Genome build: ", genome_build)
-message("Significance threshold: ", significance_threshold)
+message("Significance threshold: ", sig_thresh_negLog10p)
 message("Peak window: ", peak_window, " bp")
 
 workdir <- paste0("7_workdir_", format(Sys.time(), "%Y%m%d_%H%M%S"), "_", paste0(sample(c(letters, LETTERS, 0:9), 6, replace = TRUE), collapse = ""))
@@ -250,7 +250,7 @@ for (analysis in analyses) {
     dt = dt,
     analysis_name = analysis,
     genome_build = genome_build,
-    significance_threshold = significance_threshold,
+    sig_thresh_negLog10p = sig_thresh_negLog10p,
     peak_window = peak_window,
     plot_file = plot_files[[analysis]],
     peaks_file = peak_files[[analysis]]

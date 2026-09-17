@@ -8,7 +8,7 @@ suppressPackageStartupMessages({
 plot_manhattan <- function(dt,
 			   analysis_name,
 			   genome_build,
-			   significance_threshold,
+			   sig_thresh_negLog10p,
 			   peak_window,
                            plot_file,
                            peaks_file) {
@@ -28,14 +28,14 @@ plot_manhattan <- function(dt,
     dir.create(dirname(peaks_file), recursive = TRUE)
   }
 
-  significance_threshold <- as.numeric(significance_threshold)
+  sig_thresh_negLog10p <- as.numeric(sig_thresh_negLog10p)
   peak_window <- as.numeric(peak_window)
 
   message("Analysis name: ", analysis_name)
   print("Head of dt to plot:")
   print(head(dt))
   message("Genome build: ", genome_build)
-  message("Significance threshold, -log10(p): ", significance_threshold)
+  message("Significance threshold, -log10(p): ", sig_thresh_negLog10p)
   message("Peak window: ", peak_window, " bp")
 
   # ============================================================
@@ -61,60 +61,108 @@ plot_manhattan <- function(dt,
   # ============================================================
   # Select significant peaks for gene labeling
   # ============================================================
-  #
-  # Every valid variant is included in the Manhattan plot.
-  # peak_window only determines which significant variants receive labels.
-
-  candidates <- copy(
-    dt[negLog10p >= significance_threshold]
+  
+  # Keep a copy of every SNP above the significance threshold for output table, only peaks are in manhat plot
+  significant_snps <- copy(
+    dt[negLog10p >= sig_thresh_negLog10p]
   )
 
+  # Temporary row ID allows assignments to survive candidate reordering.
+  significant_snps[, significant_row_id := .I]
+  significant_snps[, peak_id := NA_integer_]
+
+  # peak_candidates will be reduced during peak selection, while
+  # significant_snps remains complete.
+  peak_candidates <- copy(significant_snps)
+  
   # Start with the strongest association
-  setorder(candidates, -negLog10p)
+  setorder(peak_candidates, -negLog10p)
 
-  peaks <- candidates[0]
+  peaks <- peak_candidates[0]
 
-  while (nrow(candidates) > 0L) {
+  while (nrow(peak_candidates) > 0L) {
 
-    lead_variant <- candidates[1]
+    lead_snp <- copy(peak_candidates[1])
+    peak_number <- nrow(peaks) + 1L
+
+    # Identify all currently unassigned significant SNPs belonging to
+    # this peak. This follows the same rule used to select the peaks.
+    peak_member_snps <- peak_candidates[
+      chrom == lead_snp$chrom &
+        abs(pos - lead_snp$pos) <= peak_window,
+      significant_row_id
+    ]
+
+    # Record the peak associated with each significant SNP.
+    significant_snps[
+      peak_member_snps,
+      peak_id := peak_number
+    ]
+
+    # Give the lead SNP the same peak identifier.
+    lead_snp[, peak_id := peak_number]
 
     peaks <- rbind(
       peaks,
-      lead_variant,
+      lead_snp,
       use.names = TRUE
     )
 
-    # Remove other significant candidates on the same chromosome
-    # that fall within +/- peak_window of this lead variant.
-    candidates <- candidates[
-      chrom != lead_variant$chrom |
-        abs(pos - lead_variant$pos) > peak_window
+    # Remove significant peak_candidates assigned to this peak.
+    peak_candidates <- peak_candidates[
+      chrom != lead_snp$chrom |
+        abs(pos - lead_snp$pos) > peak_window
     ]
   }
 
+  # Renumber peaks according to their genomic order in the original dt.
+  peak_id_map <- peaks[
+    order(significant_row_id),
+    .(old_peak_id = peak_id)
+  ]
+  peak_id_map[, new_peak_id := .I]
+
+  # Apply the new IDs to all significant SNPs.
+  significant_snps[
+    peak_id_map,
+    on = .(peak_id = old_peak_id),
+    peak_id := i.new_peak_id
+  ]
+
+  # Apply the same IDs to the lead-peak table.
+  peaks[
+    peak_id_map,
+    on = .(peak_id = old_peak_id),
+    peak_id := i.new_peak_id
+  ]
+
+  setorder(peaks, peak_id)
+
   message("Significant peaks selected for labeling: ", nrow(peaks))
-
+  message("Total significant SNPs for table: ", nrow(significant_snps))
 
   # ============================================================
-  # Find the nearest gene for each selected peak
+  # Find the nearest gene for every significant SNP
   # ============================================================
 
-  peaks[, `:=`(
+  significant_snps[, `:=`(
     nearest_gene = NA_character_,
     distance_to_gene = NA_integer_
   )]
 
-  if (nrow(peaks) > 0L) {
+  if (nrow(significant_snps) > 0L) {
     if (genome_build %in% c("GRCh38", "hg38")) {
       suppressPackageStartupMessages({
         library(EnsDb.Hsapiens.v86)
       })
       annotation_database <- EnsDb.Hsapiens.v86
+
     } else if (genome_build %in% c("GRCh37", "hg19")) {
       suppressPackageStartupMessages({
         library(EnsDb.Hsapiens.v75)
       })
       annotation_database <- EnsDb.Hsapiens.v75
+
     } else {
       stop(
         "Unsupported genome build: ",
@@ -123,11 +171,12 @@ plot_manhattan <- function(dt,
       )
     }
 
-    peak_ranges <- GRanges(
-      seqnames = peaks$chrom,
+    # Create genomic ranges for every significant SNP.
+    significant_ranges <- GRanges(
+      seqnames = significant_snps$chrom,
       ranges = IRanges(
-        start = as.integer(peaks$pos),
-        end = as.integer(peaks$pos)
+        start = as.integer(significant_snps$pos),
+        end = as.integer(significant_snps$pos)
       )
     )
     gene_ranges <- genes(
@@ -136,13 +185,13 @@ plot_manhattan <- function(dt,
     )
 
     nearest_hits <- distanceToNearest(
-      peak_ranges,
+      significant_ranges,
       gene_ranges,
       ignore.strand = TRUE
     )
 
-    # indices of peaks and their nearest genes
-    peak_indices <- queryHits(nearest_hits)
+    # Indices of significant SNPs and their nearest genes.
+    snp_indices <- queryHits(nearest_hits)
     gene_indices <- subjectHits(nearest_hits)
     gene_names <- as.character(
       mcols(gene_ranges)$gene_name[gene_indices]
@@ -150,45 +199,60 @@ plot_manhattan <- function(dt,
     gene_ids <- as.character(
       mcols(gene_ranges)$gene_id[gene_indices]
     )
-    # Use Ensembl ID when no gene symbol is available
-    use_gene_id <- (
-      is.na(gene_names) |
-      gene_names == ""
-    )
+    # Use the Ensembl ID when no gene symbol is available.
+    use_gene_id <- is.na(gene_names) | gene_names == ""
     gene_names[use_gene_id] <- gene_ids[use_gene_id]
-    peaks$nearest_gene[peak_indices] <- gene_names
 
-    peaks$distance_to_gene[peak_indices] <- as.integer(
-      mcols(nearest_hits)$distance
-    )
+    significant_snps[
+      snp_indices,
+      nearest_gene := gene_names
+    ]
+
+    significant_snps[
+      snp_indices,
+      distance_to_gene := as.integer(mcols(nearest_hits)$distance)
+    ]
   }
 
   # ============================================================
-  # Write the peak annotation table
+  # Recover the annotated lead SNPs for Manhattan-plot labeling
   # ============================================================
 
-  peak_output <- peaks[
+  # match() preserves the original peak-selection order.
+  peaks <- significant_snps[
+    match(
+      peaks$significant_row_id,
+      significant_snps$significant_row_id
+    )
+  ]
+
+  # ============================================================
+  # Write every significant SNP to the output table
+  # ============================================================
+
+  significant_output <- significant_snps[
     ,
     .(
       analysis = analysis_name,
       snp,
       chromosome = chrom,
       position = pos,
-      negLog10p = negLog10p,
+      negLog10p,
+      peak_id,
       nearest_gene,
       distance_to_gene
     )
   ]
 
   fwrite(
-    peak_output,
+    significant_output,
     file = peaks_file,
     sep = "\t",
     quote = FALSE,
     na = "NA"
   )
 
-  message("Manhattan peak table written to: ", peaks_file)
+  message("All significant SNPs and nearest genes written to: ",peaks_file)  
 
   # ============================================================
   # Prepare CMplot input
@@ -220,7 +284,7 @@ plot_manhattan <- function(dt,
     LOG10 = FALSE,
 
     # significance line
-    threshold = significance_threshold,
+    threshold = sig_thresh_negLog10p,
     threshold.col = "red",
     threshold.lty = 2,
     threshold.lwd = 1,

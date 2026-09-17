@@ -14,6 +14,7 @@
 
 import pandas as pd
 import os
+import re
 
 from snakemake.utils import validate
 
@@ -24,8 +25,9 @@ configfile: "config_gfa.yaml"
 
 # File organization
 data_dir = config["out"]["data_dir"] #where the data is
-out_dir = config["out"]["output_dir"] #where results will go
-os.makedirs(out_dir, exist_ok = True)
+result_dir = config["out"]["output_dir"] #where results will go
+annot_dir = result_dir + "downstream_annot/"
+os.makedirs(annot_dir, exist_ok = True)
 
 prefix_dict = config["input"]
 
@@ -38,18 +40,9 @@ is_mvmr = 0
 include: "common_rules.smk"
 
 
-## Set up GFA output
+## In addition to previous strings, set up GFA-specific output strings
 gfa_strings = expand("gfaseed{s}",
                      s = config["analysis"]["gfa"]["gfa_seed"])
-
-# Existing final outputs
-gls_outputs = expand(
-    out_dir + "{prefix}_gls_loadings.{gfas}.ldclumped_{lds}.R_{rs}.Rgcor.RDS",
-    prefix=prefix_dict.keys(),
-    gfas=gfa_strings,
-    lds=ld_strings,
-    rs=R_strings
-)
 
 analysis_strings = expand(
     "{gfas}.ldclumped_{lds}.R_{rs}",
@@ -57,89 +50,73 @@ analysis_strings = expand(
     lds=ld_strings,
     rs=R_strings
 )
-#final_gfa_outputs = expand(
-#    out_dir + "{prefix}_gfa_{analysis}.final.RDS",
-#    prefix=prefix_dict.keys(),
-#    analysis=analysis_strings
-#)
-#
-#gwas_info = pd.read_csv(
-#
-#    "test_gwas_info.csv"
-#
-#    )
-#
-#
-#
-#    traits = gwas_info["name"].unique().tolist()
-#
-#
-gwas_info = pd.read_csv(
-#    "test_gwas_info.csv"
-  "95CI_Herit_GREML_PC5Model_FinRefFac3TopMets.csv"
-)
 
-traits = gwas_info["name"].unique().tolist()
+# get trait names for wildcards
+# will go away
+#uncorr_info_input = "test_gwas_info.csv"
+#uncorr_info_input = "95CI_Herit_GREML_PC5Model_FinRefFac3TopMets.csv"
+uncorr_info_input = "95CIHeritFinRef_uncorr_traits.csv"
+traits = pd.read_csv(uncorr_info_input)["name"].unique().tolist()
 
-
-import re
-
-prefix_regex = "(?:" + "|".join(
-    re.escape(str(x)) for x in prefix_dict.keys()
-) + ")"
-
-analysis_regex = "(?:" + "|".join(
-    re.escape(str(x)) for x in analysis_strings
-) + ")"
-
-trait_regex = "(?:" + "|".join(
-    re.escape(str(x)) for x in traits
-) + ")"
+# wildcards were getting confused, had to set this up
+prefix_regex = "(?:" + "|".join(re.escape(str(x)) for x in prefix_dict.keys()) + ")"
+analysis_regex = "(?:" + "|".join(re.escape(str(x)) for x in analysis_strings) + ")"
+trait_regex = "(?:" + "|".join(re.escape(str(x)) for x in traits) + ")"
 
 wildcard_constraints:
     prefix=prefix_regex,
     analysis=analysis_regex,
     trait=trait_regex
 
+#snp_sets = ["snps_all"]
+snp_sets = ["snps_eligible_for_gfa"]
 #snp_sets = ["snps_used_in_gfa"]
 #snp_sets = ["snps_all", "snps_eligible_for_gfa"]
-snp_sets = ["snps_all", "snps_eligible_for_gfa", "snps_used_in_gfa"]
+#snp_sets = ["snps_all", "snps_eligible_for_gfa", "snps_used_in_gfa"]
 
-# New Manhattan-plot outputs
-#out_dir + "downstream_annot/traits/{{prefix}}_{{trait}}_{analysis}_manhattan_plot.png",
-#
-plot_outputs = expand(
-    out_dir + "downstream_annot/traits/{prefix}_{analysis}_{trait}_{snp_set}_manhattan_plot.png",
-    prefix=prefix_dict.keys(),
-    analysis=analysis_strings,
-    trait=traits,
-    snp_set=snp_sets
-)
 
-peak_outputs = expand(
-    out_dir + "downstream_annot/traits/{prefix}_{analysis}_{trait}_{snp_set}_manhattan_peaks.tsv",
-    prefix=prefix_dict.keys(),
-    analysis=analysis_strings,
-    trait=traits,
-    snp_set=snp_sets
-)
+### Define final outputs
+def get_final_outputs(wildcards):
+    outputs = []
 
+    for prefix in prefix_dict:
+        for analysis in analysis_strings:
+            count_file = checkpoints.count_factors.get(
+                prefix=prefix,
+                analysis=analysis,
+            ).output[0]
+
+            with open(count_file) as handle:
+                n_factors = int(handle.read().strip())
+
+            # TEMP
+#            n_factors = 3
+
+            outputs.extend(
+                expand(
+                    annot_dir
+                    + "factors/{prefix}_{analysis}_{snp_set}_factor_{factor}_trait_support.tsv",
+                    prefix=prefix,
+                    analysis=analysis,
+                    snp_set=snp_sets,
+                    factor=range(1, n_factors + 1),
+                )
+            )
+
+    return outputs
 
 rule all:
     input:
-#        gls_loads=gls_outputs,
-       # final_gfa=final_gfa_outputs,
-        plots = plot_outputs,
-        peaks = peak_outputs
+        get_final_outputs
 
-#inp = expand(out_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
+#inp = expand(result_dir + "{prefix}_gls_loadings.{gfas}.ldpruned_{lds}.R_{rs}.Rgcor.RDS",
 #                prefix = prefix_dict.keys(),
 #                gfas = gfa_strings,
 #                lds = ld_strings,
 #                rs = R_strings)
 
 # for debugging gfa
-# #inp = expand(out_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
+# #inp = expand(result_dir + "{prefix}_gfa_gfaseed1.ldpruned_r20.01_kb1000_pvalue.R_ldsc.final.RDS",
 #                prefix = prefix_dict.keys(),
 #                gfas = gfa_strings,
 #                lds = ld_strings,
@@ -148,10 +125,8 @@ rule all:
 #rule all:
 #    input: inp
 
-#rule all:
-#    input: data_dir + "{prefix}_snps.{chrom}.RDS"
 
-# Run GFA
+### Run GFA
 def R_input(wcs):
     global data_dir
     if wcs.Rstring.startswith("pt"):
@@ -162,7 +137,7 @@ def R_input(wcs):
 rule run_gfa:
     input: Z = data_dir + "{prefix}_ldpruned_{ldstring}_nice_data_for_gfa.RData",
            R = R_input
-    output:  out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.1.RDS",
+    output:  out = result_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.1.RDS",
     params: params_file = config["analysis"]["gfa"]["gfa_params"],
             max_snps = config["analysis"]["gfa"]["max_snps"]
     wildcard_constraints: fs = r"\d+"
@@ -174,11 +149,11 @@ rule run_gfa:
 def refit_input(wcs):
     n = int(wcs.n)
     oldn = str(n-1)
-    return f'{out_dir}{wcs.prefix}_gfa_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.{oldn}.RDS'
+    return f'{result_dir}{wcs.prefix}_gfa_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.{oldn}.RDS'
 
 rule refit_gfa:
     input:  inp = refit_input
-    output: out = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS",
+    output: out = result_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS",
     params: params_file = config["analysis"]["gfa"]["gfa_params"]
     wildcard_constraints: n = r"\d+"
     script: 'R/5_refit_gfa.R'
@@ -189,14 +164,14 @@ max_gfa_tries =  int(config["analysis"]["gfa"]["maxrep"])
 
 def next_input(wcs):
     global max_gfa_tries
-    global out_dir
+    global result_dir
 
     check_prefix = f'{wcs.prefix}_check_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.'
-    check_files = [y for y in os.listdir(out_dir) if y.startswith(check_prefix) ]
+    check_files = [y for y in os.listdir(result_dir) if y.startswith(check_prefix) ]
     n_tries = len(check_files) + 1
 
-    success_file = f'{out_dir}{wcs.prefix}_success_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
-    fail_file = f'{out_dir}{wcs.prefix}_fail_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
+    success_file = f'{result_dir}{wcs.prefix}_success_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
+    fail_file = f'{result_dir}{wcs.prefix}_fail_gfaseed{wcs.fs}.ldpruned_{wcs.ldstring}.R_{wcs.Rstring}.txt'
     if os.path.exists(success_file):
       print(success_file)
       return success_file
@@ -208,35 +183,35 @@ def next_input(wcs):
       checkpoints.check_success.get(n=n_tries, **wcs)
 
 def final_rds(wcs):
-    global out_dir
+    global result_dir
 
     check_prefix = f'{wcs.prefix}_check_{wcs.analysis}'
-    check_files = [y for y in os.listdir(out_dir) if y.startswith(check_prefix) ]
+    check_files = [y for y in os.listdir(result_dir) if y.startswith(check_prefix) ]
     n_tries = len(check_files)
-    final_gfa_file = f'{out_dir}{wcs.prefix}_gfa_{wcs.analysis}.{n_tries}.RDS'
+    final_gfa_file = f'{result_dir}{wcs.prefix}_gfa_{wcs.analysis}.{n_tries}.RDS'
     return final_gfa_file
 
 checkpoint check_success:
-    input: out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS"
-    output: out_check = out_dir + "{prefix}_check_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.txt"
-    params: success_file = out_dir + '{prefix}_success_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
+    input: result_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.RDS"
+    output: out_check = result_dir + "{prefix}_check_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{n}.txt"
+    params: success_file = result_dir + '{prefix}_success_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
     wildcard_constraints: n = r"\d+"
     script: "R/5_check_gfa.R"
 
 rule fail:
-    output: out_dir + '{prefix}_fail_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
+    output: result_dir + '{prefix}_fail_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt'
     wildcard_constraints:  n = r"\d+"
     params: max_tries = max_gfa_tries
     shell: "echo  Model not converged after {params.max_tries} rounds of {maxiter} iterations. > {output} "
 
 rule status:
     input:  next_input
-    output: out = out_dir + "{prefix}_status_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt",
+    output: out = result_dir + "{prefix}_status_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.txt",
     shell: "cp {input} {output.out}"
 
 rule final_file:
-    input: status_file = out_dir + "{prefix}_status_{analysis}.txt",
-    output: out_rds = out_dir + "{prefix}_gfa_{analysis}.final.RDS"
+    input: status_file = result_dir + "{prefix}_status_{analysis}.txt",
+    output: out_rds = result_dir + "{prefix}_gfa_{analysis}.final.RDS"
     params: rds = final_rds
     shell: "mv {params.rds} {output.out_rds}"
 
@@ -244,48 +219,74 @@ rule final_file:
 rule gls_loadings_chrom:
     input: gwas_info = uncorr_info_input,
            snp_list = data_dir + "snp_lists/" + "{prefix}_snps_chr{chrom}.tsv",
-           gfa_file = out_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.final.RDS",
+           gfa_file = result_dir + "{prefix}_gfa_gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.final.RDS",
            R = R_input
-    output: out = out_dir + "{prefix}_gls_loadings.gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{chrom}.tsv"
+    output: out = result_dir + "{prefix}_gls_loadings.gfaseed{fs}.ldpruned_{ldstring}.R_{Rstring}.{chrom}.tsv"
     script: "R/6_estL_gls.R"
 
 
 rule R_ldsc_gls:
-    input: Z = expand(out_dir + "{{prefix}}_gls_loadings.{{analysis}}.{chrom}.tsv", chrom = range(1, 23)),
+    input: Z = expand(result_dir + "{{prefix}}_gls_loadings.{{analysis}}.{chrom}.tsv", chrom = range(1, 23)),
            m = expand(l2_dir + "{chrom}.l2.M_5_50", chrom = range(1, 23)),
            l2 = expand(l2_dir + "{chrom}.l2.ldscore.gz", chrom = range(1, 23))
-    output: out = out_dir + "{prefix}_gls_loadings.{analysis}.Rgcor.RDS"
+    output: out = result_dir + "{prefix}_gls_loadings.{analysis}.Rgcor.RDS"
     script: "R/6_estL_gencor.R"
 
 
+### Begin downstream annotation
+
+## Start with annotation of traits so we can see how they support factors
 rule trait_manhattan_plot:
     input:
-        #gwas_info = "test_gwas_info.csv",
-        gwas_info = "95CI_Herit_GREML_PC5Model_FinRefFac3TopMets.csv",
+        gwas_info = uncorr_info_input,
         snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23)),
-        gfa_obj = out_dir + "{prefix}_gfa_{analysis}.final.RDS"
+        gfa_obj = result_dir + "{prefix}_gfa_{analysis}.final.RDS"
     output:
-        plots = expand(out_dir + "downstream_annot/traits/{{prefix}}_{{analysis}}_{{trait}}_{snp_set}_manhattan_plot.png", snp_set=snp_sets),
-        peaks = expand(out_dir + "downstream_annot/traits/{{prefix}}_{{analysis}}_{{trait}}_{snp_set}_manhattan_peaks.tsv", snp_set=snp_sets)
+        plots = expand(annot_dir + "traits/{{prefix}}_{{analysis}}_{snp_set}_{{trait}}_manhattan_plot.png", snp_set=snp_sets),
+        peaks = expand(annot_dir + "traits/{{prefix}}_{{analysis}}_{snp_set}_{{trait}}_manhattan_peaks.tsv", snp_set=snp_sets)
     params:
         snp_sets = snp_sets,
         genome_build = "GRCh38",
-        sig_thresh_neg_log_10_p = 7.30103,
-        peak_window = 500000
+        sig_thresh_negLog10p = 7.30103,
+        peak_window = 1000000
     script:
         "R/7_plot_trait_manhattan.R"
 
-#rule trait_manhattan_plot:
-#    input:
-#        gwas_info = "test_gwas_info.csv",
-#        gwas=uncor_info_input,
-#        snp_list = expand(data_dir + "snp_lists/" + "{{prefix}}_snps_chr{chrom}.tsv", chrom=range(1, 23))
-#    output:
-#        plot = "plots/{prefix}_{trait}.manhattan.png",
-#        peaks = "plots/{prefix}_{trait}.labeled_peaks.tsv"
-#    params:
-#        genome_build = "GRCh38",
-#        significance = 7.30103,
-#        peak_window = 500000
-#    script:
-#        "R/7_plot_trait_manhattan.R"
+## Now annotate factors
+checkpoint count_factors:
+    input:
+        gfa_obj = result_dir + "{prefix}_gfa_{analysis}.final.RDS"
+    output:
+        annot_dir + "factors/{prefix}_{analysis}_number_of_factors.txt"
+    shell:
+        """
+        Rscript -e \
+          'gfa <- readRDS(commandArgs(trailingOnly=TRUE)[1]); cat(ncol(gfa$F_hat))' \
+          {input.gfa_obj:q} > {output:q}
+        """
+
+rule factor_manhattan_plot:
+    input:
+        loading_list = expand(result_dir + "{{prefix}}_gls_loadings.{{analysis}}.{chrom}.tsv", chrom=range(1,23)),
+        gfa_obj = result_dir + "{prefix}_gfa_{analysis}.final.RDS"
+    output:
+        plots = expand(annot_dir + "factors/{{prefix}}_{{analysis}}_{snp_set}_factor_{{factor}}_manhattan_plot.png", snp_set=snp_sets),
+        peaks = expand(annot_dir + "factors/{{prefix}}_{{analysis}}_{snp_set}_factor_{{factor}}_manhattan_peaks.tsv", snp_set=snp_sets)
+    params:
+        snp_sets = snp_sets,
+        genome_build = "GRCh38",
+        sig_thresh_negLog10p = 7.30103,
+        peak_window = 1000000
+    script:
+        "R/8_plot_factor_manhattan.R"
+
+rule trait_factor_support:
+    input:
+        factor_peaks = annot_dir + "factors/{prefix}_{analysis}_{snp_set}_factor_{factor}_manhattan_peaks.tsv",
+        trait_peaks = expand(annot_dir + "traits/{{prefix}}_{{analysis}}_{{snp_set}}_{trait}_manhattan_peaks.tsv", trait=traits),
+    output:
+        out = annot_dir + "factors/{prefix}_{analysis}_{snp_set}_factor_{factor}_trait_support.tsv"
+    params:
+        traits=traits
+    script:
+        "R/9_get_factor_support.R"
