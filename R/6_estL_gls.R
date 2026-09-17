@@ -89,8 +89,8 @@ names(res) <- c(paste0("factor", 1:nf, ".z"), paste0("factor", 1:nf, ".p"))
 #res <- bind_cols(data[,c("chrom", "snp", "REF", "ALT")], res)
 
 # here add back chrom, ref, alt
-# a bit clunky, but chrom, ref, and alt do not change by trait.  so just take the last iteration of them from last harmon object
-snps_dt <- data.table(chrom = harmon$chrom, snp = snps, ref = harmon$ref, alt = harmon$alt, min_af = min_af[,"min_af"], max_af=max_af[,"max_af"])
+# a bit clunky, but chrom, pos, ref, and alt do not change by trait.  so just take the last iteration of them from last harmon object
+snps_dt <- data.table(snp = snps, chrom = harmon$chrom, pos=harmon$pos, ref = harmon$ref, alt = harmon$alt, min_af = min_af[,"min_af"], max_af=max_af[,"max_af"])
 res <- bind_cols(snps_dt,res)
 #saveRDS(res, file = out)
 fwrite(res,file=out, sep="\t")

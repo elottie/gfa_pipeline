@@ -6,7 +6,7 @@ map_gwas_info_cols <- function(gwas_info, trait, trait_col = "name") {
   row <- gwas_info[gwas_info[[trait_col]] == trait, , drop = FALSE]
   if (nrow(row) != 1) stop("Expected 1 row for trait=", trait, " found ", nrow(row))
 
-  as.list(row[1, c("snp","beta_hat","se","A1","A2","allele_freq","sample_size","chrom")])
+  as.list(row[1, c("snp","beta_hat","se","A1","A2","allele_freq","sample_size","chrom","pos")])
 }
 
 # do the data harmonization
@@ -117,7 +117,7 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
   if (needs_invalid_snp_rm){
     filt_trait <- gwas_format(filt_trait,
 		snp="snp", beta_hat="beta_hat", se="se", A1="A1", A2="A2",
-                chrom="chrom",sample_size="sample_size", allele_freq="allele_freq",compute_pval=FALSE, return_og_snps=TRUE)
+                chrom="chrom",pos="pos",sample_size="sample_size", allele_freq="allele_freq",compute_pval=FALSE, return_og_snps=TRUE)
   } else {
     GFA:::align_beta(filt_trait)
   }
@@ -147,6 +147,7 @@ harmon_dat <- function(gwas_info, trait, snps_in_ref_file, return_ss=FALSE, retu
     return(list(snps = filt_trait[["snp"]],
 		Z = filt_trait[["Z"]],
 		chrom = filt_trait[["chrom"]],
+		pos = filt_trait[["pos"]],
 		ref = filt_trait[["A2"]],
 		alt = filt_trait[["A1"]],
                 af = filt_trait[["allele_freq"]]))
